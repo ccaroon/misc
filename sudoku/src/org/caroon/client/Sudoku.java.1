@@ -1,0 +1,53 @@
+package org.caroon.client;
+
+import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.user.client.ui.*;
+
+import java.util.HashMap;
+
+public class Sudoku implements EntryPoint 
+{
+    HashMap grid = new HashMap(81);
+    GridMouseListenerAdapter m = new GridMouseListenerAdapter();
+    // TODO: Use a google Grid object
+    public void onModuleLoad()
+    {
+        for (int g = 1; g <= 9; g++)
+        {
+            for (int i = 1; i <= 9; i++)
+            {
+                String id = String.valueOf(g) + String.valueOf(i);
+                Label l = new Label(id);
+                
+                l.addMouseListener(this.m);
+                grid.put(id, l);
+                
+                RootPanel.get(id).add(l);
+            }
+        }
+
+    // Assume that the host HTML has elements defined whose
+    // IDs are "slot1", "slot2".  In a real app, you probably would not want
+    // to hard-code IDs.  Instead, you could, for example, search for all 
+    // elements with a particular CSS class and replace them with widgets.
+    //
+//     RootPanel.get("slot1").add(button);
+//     RootPanel.get("slot2").add(label);
+    }
+    /**************************************************************************/
+    class GridMouseListenerAdapter extends MouseListenerAdapter
+    {
+        String oldText;
+        
+        public void onMouseEnter(Widget sender)
+        {
+            this.oldText = ((Label)sender).getText();
+            ((Label)sender).setText("X");
+        }
+        
+        public void onMouseLeave(Widget sender)
+        {
+            ((Label)sender).setText(this.oldText);
+        }
+    }
+}
