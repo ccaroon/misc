@@ -39,7 +39,7 @@
         }
         else
         {
-            $dbh = DB::connect('mysql://ccaroon:nu$@11@localhost/gameshow_db');
+            $dbh = DB::connect('mysql://ccaroon:<passwd>@localhost/gameshow_db');
             
             if (DB::isError($dbh))
             {
