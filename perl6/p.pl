@@ -3,9 +3,9 @@
 
 use Person;
 
-my $dad = Person.new(name => "Craig", age => 39);
-my $mom = Person.new(name => "Cate", age => 38);
-my $son = Person.new(name => "Nathan", age => 11);
+my $dad = Person.new(name => "Craig", age => 29);
+my $mom = Person.new(name => "Cate", age => 28);
+my $son = Person.new(name => "Nathan", age => 9);
 
 
 my @family = ($dad,$mom,$son);
@@ -20,7 +20,7 @@ say "Oldest: {[max]@family>>.age()}";
 my $now = Date.new(1);
 say $now;
 
-my $d = Date.new('1971-02-19');
+my $d = Date.new('1965-07-12');
 say $d;
 
 #say "diff: {$now - $d}";
