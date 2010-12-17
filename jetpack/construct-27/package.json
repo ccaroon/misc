@@ -1,0 +1,9 @@
+{
+    "id": "jid0-dSL8vkFYQpHSSDPryIsyeUDJM2A", 
+    "dependencies": [
+        "jetpack-core"
+    ], 
+    "description": "Construct #27 - Exploring Mozilla JetPack", 
+    "author": "Craig N. Caroon (http://www.caroon.org)",
+    "version": 0.1
+}

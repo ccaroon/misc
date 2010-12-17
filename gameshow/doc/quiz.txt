@@ -1,0 +1,53 @@
+question table
+==============
+id - serial
+question - text
+answer - text
+used - boolean
+
+question queue table
+====================
+id
+question_id
+
+contestant table
+=================
+id
+name - unique
+score - default 0
+
+
+buzz_in table
+=============
+contestant_id
+buzz_in_date - datetime
+answer
+
+
+contestant signup page
+======================
+form to choose username
+
+
+contestant page
+===============
+question
+answer box
+buzz button - submit
+
+response:
+if first, say yah
+if not first, show first username & answer
+
+host page
+=========
+show list of questions not already used
+pick one
+
+response:
+show question
+show first user & answer in div
+show other users in order of answer with secs behind?
+show waiting on users
+
+choose new question button - goes back to q list

@@ -1,0 +1,115 @@
+<html>
+<head>
+  <title>Source</title>
+</head>
+<body bgcolor="#ffffff" text="#000000">
+<pre>
+<a name="line1"> 1</a> exports.main <font color="4444FF">=</font> function(<font color="#2040a0"><strong>options</strong></font>, callbacks) <font color="4444FF"><strong>{</strong></font>
+
+<a name="line2"> 2</a> 
+<a name="line3"> 3</a>     <strong>var</strong> contextMenu <font color="4444FF">=</font> require(<font color="#008000">&quot;context-menu&quot;</font>)<font color="4444FF">;</font>
+<a name="line4"> 4</a>     <strong>var</strong> widget      <font color="4444FF">=</font> require(<font color="#008000">&quot;widget&quot;</font>)<font color="4444FF">;</font>
+
+<a name="line5"> 5</a>     <strong>var</strong> <font color="#2040a0"><strong>self</strong></font>        <font color="4444FF">=</font> require(<font color="#008000">&quot;self&quot;</font>)<font color="4444FF">;</font>
+<a name="line6"> 6</a>     <strong>var</strong> xhr         <font color="4444FF">=</font> require(<font color="#008000">&quot;xhr&quot;</font>)<font color="4444FF">;</font>
+
+<a name="line7"> 7</a>     
+<a name="line8"> 8</a>     <font color="#444444">// Google Link Text Menu item</font>
+<a name="line9"> 9</a>     <strong>var</strong> menuItem <font color="4444FF">=</font> contextMenu.Item(<font color="4444FF"><strong>{</strong></font>
+
+<a name="line10">10</a>         label: <font color="#008000">&quot;Google Link Text&quot;</font>,
+<a name="line11">11</a>         context: <font color="#008000">&quot;a[href]&quot;</font>,
+<a name="line12">12</a>         <strong>onClick</strong>: function (contextObj, item) <font color="4444FF"><strong>{</strong></font>
+<a name="line13">13</a>             <strong>var</strong> <font color="#2040a0"><strong>anchor</strong></font> <font color="4444FF">=</font> contextObj.node<font color="4444FF">;</font>
+
+<a name="line14">14</a>             <strong>var</strong> searchUrl <font color="4444FF">=</font> <font color="#008000">&quot;http://www.google.com/search?q=&quot;</font> + <font color="#2040a0"><strong>anchor</strong></font>.textContent<font color="4444FF">;</font>
+<a name="line15">15</a>             contextObj.<font color="#2040a0"><strong>window</strong></font>.<font color="#2040a0"><strong>location</strong></font>.<font color="#2040a0"><strong>href</strong></font> <font color="4444FF">=</font> searchUrl<font color="4444FF">;</font>
+
+<a name="line16">16</a>         <font color="4444FF"><strong>}</strong></font>
+<a name="line17">17</a>     <font color="4444FF"><strong>}</strong></font>)<font color="4444FF">;</font>
+<a name="line18">18</a>     contextMenu.add(menuItem)<font color="4444FF">;</font>
+<a name="line19">19</a>     
+
+<a name="line20">20</a>     <font color="#444444">// Workman &quot;goto&quot; button</font>
+<a name="line21">21</a>     <strong>var</strong> wm_widget <font color="4444FF">=</font> widget.Widget(<font color="4444FF"><strong>{</strong></font>
+
+<a name="line22">22</a>         label: <font color="#008000">&quot;Workman&quot;</font>,
+<a name="line23">23</a>         image: <font color="#008000">&quot;http://localhost:3000/favicon.ico&quot;</font>,
+<a name="line24">24</a>         <strong>onClick</strong>: function (e) <font color="4444FF"><strong>{</strong></font>
+<a name="line25">25</a>             e.view.content.<font color="#2040a0"><strong>location</strong></font> <font color="4444FF">=</font> <font color="#008000">&quot;http://localhost:3000/main/home&quot;</font><font color="4444FF">;</font>
+
+<a name="line26">26</a>         <font color="4444FF"><strong>}</strong></font>
+<a name="line27">27</a>     <font color="4444FF"><strong>}</strong></font>)<font color="4444FF">;</font>
+<a name="line28">28</a>     widget.add(wm_widget)<font color="4444FF">;</font>
+<a name="line29">29</a>     
+
+<a name="line30">30</a>     <font color="#444444">// Source</font>
+<a name="line31">31</a>     <strong>var</strong> <font color="#2040a0"><strong>src</strong></font> <font color="4444FF">=</font> widget.Widget(<font color="4444FF"><strong>{</strong></font>
+<a name="line32">32</a>         label: <font color="#008000">&quot;Source&quot;</font>,
+
+<a name="line33">33</a>         image: <font color="#2040a0"><strong>self</strong></font>.data.url(<font color="#008000">&quot;source.png&quot;</font>),
+<a name="line34">34</a>         <strong>onClick</strong>: function (e) <font color="4444FF"><strong>{</strong></font>
+<a name="line35">35</a>             e.view.content.<font color="#2040a0"><strong>location</strong></font> <font color="4444FF">=</font> <font color="#2040a0"><strong>self</strong></font>.data.url(<font color="#008000">&quot;main.js.html&quot;</font>)<font color="4444FF">;</font>
+
+<a name="line36">36</a>         <font color="4444FF"><strong>}</strong></font>
+<a name="line37">37</a>     <font color="4444FF"><strong>}</strong></font>)<font color="4444FF">;</font>
+<a name="line38">38</a>     widget.add(<font color="#2040a0"><strong>src</strong></font>)<font color="4444FF">;</font>
+
+<a name="line39">39</a>     
+<a name="line40">40</a>     <font color="#444444">// New Note</font>
+<a name="line41">41</a>     <strong>var</strong> new_note <font color="4444FF">=</font> widget.Widget(<font color="4444FF"><strong>{</strong></font>
+<a name="line42">42</a>         label: <font color="#008000">&quot;New Note&quot;</font>,
+
+<a name="line43">43</a>         image: <font color="#008000">&quot;http://localhost:3000/images/themes/default/notes.png&quot;</font>,
+<a name="line44">44</a>         <strong>onClick</strong>: function (e) <font color="4444FF"><strong>{</strong></font>
+<a name="line45">45</a> 
+<a name="line46">46</a>             <strong>var</strong> selection <font color="4444FF">=</font> e.view.content.getSelection()<font color="4444FF">;</font>
+
+<a name="line47">47</a>             <strong>var</strong> <font color="#2040a0"><strong>title</strong></font> <font color="4444FF">=</font> selection.<font color="a52a2a"><strong>toString</strong></font>().substr(<font color="#FF0000">0</font>,<font color="#FF0000">48</font>) + <font color="#008000">'...'</font><font color="4444FF">;</font>
+
+<a name="line48">48</a>             <strong>var</strong> note <font color="4444FF">=</font> <font color="#008000">&quot;&lt;note&gt;&lt;title&gt;&quot;</font>+<font color="#2040a0"><strong>title</strong></font>+<font color="#008000">&quot;&lt;/title&gt;&lt;body&gt;&quot;</font>+selection+<font color="#008000">&quot;&lt;/body&gt;&lt;/note&gt;&quot;</font><font color="4444FF">;</font>
+
+<a name="line49">49</a>             console.info(note)<font color="4444FF">;</font>
+<a name="line50">50</a>             
+<a name="line51">51</a>             <strong>var</strong> req <font color="4444FF">=</font> <strong>new</strong> xhr.XMLHttpRequest()<font color="4444FF">;</font>
+
+<a name="line52">52</a>             req.<font color="a52a2a"><strong>open</strong></font>(<font color="#008000">'POST'</font>, <font color="#008000">'http://localhost:3000/notes'</font>, false, <font color="#008000">'ccaroon'</font>, <font color="#008000">'fish4free'</font>)<font color="4444FF">;</font>
+<a name="line53">53</a>             req.setRequestHeader(<font color="#008000">'Content-type'</font>,<font color="#008000">'text/xml'</font>)<font color="4444FF">;</font>
+
+<a name="line54">54</a>             req.setRequestHeader(<font color="#008000">'Accept'</font>,<font color="#008000">'text/xml'</font>)<font color="4444FF">;</font>
+<a name="line55">55</a>             req.send(note)<font color="4444FF">;</font>
+<a name="line56">56</a>             
+<a name="line57">57</a>             <strong>if</strong> (req.<font color="#2040a0"><strong>status</strong></font> <font color="4444FF">=</font><font color="4444FF">=</font> <font color="#FF0000">201</font>) <font color="4444FF"><strong>{</strong></font>
+
+<a name="line58">58</a>                 <strong>var</strong> resp <font color="4444FF">=</font> req.responseXML<font color="4444FF">;</font>
+<a name="line59">59</a>                 <font color="#444444">//console.debug(resp);</font>
+<a name="line60">60</a>                 <strong>var</strong> id <font color="4444FF">=</font> resp.getElementsByTagName(<font color="#008000">&quot;id&quot;</font>)[<font color="#FF0000">0</font>].childNodes[<font color="#FF0000">0</font>].nodeValue<font color="4444FF">;</font>
+
+<a name="line61">61</a>                 e.view.content.<font color="#2040a0"><strong>location</strong></font> <font color="4444FF">=</font> <font color="#008000">&quot;http://localhost:3000/notes/&quot;</font>+id<font color="4444FF">;</font>
+<a name="line62">62</a>             <font color="4444FF"><strong>}</strong></font>
+<a name="line63">63</a>             <strong>else</strong> <font color="4444FF"><strong>{</strong></font>
+
+<a name="line64">64</a>                 console.info(<font color="#008000">&quot;Error - status: &quot;</font>+req.<font color="#2040a0"><strong>status</strong></font>)<font color="4444FF">;</font>
+<a name="line65">65</a>             <font color="4444FF"><strong>}</strong></font>
+<a name="line66">66</a>         <font color="4444FF"><strong>}</strong></font>
+
+<a name="line67">67</a>     <font color="4444FF"><strong>}</strong></font>)<font color="4444FF">;</font>
+<a name="line68">68</a>     widget.add(new_note)<font color="4444FF">;</font>
+<a name="line69">69</a>     
+<a name="line70">70</a>     <font color="#444444">// About</font>
+
+<a name="line71">71</a>     <strong>var</strong> about <font color="4444FF">=</font> widget.Widget(<font color="4444FF"><strong>{</strong></font>
+<a name="line72">72</a>         label: <font color="#008000">&quot;About&quot;</font>,
+<a name="line73">73</a>         content: <font color="#008000">&quot;?&quot;</font>,
+
+<a name="line74">74</a>         <strong>onClick</strong>: function (e) <font color="4444FF"><strong>{</strong></font>
+<a name="line75">75</a>             e.view.content.<font color="#2040a0"><strong>location</strong></font> <font color="4444FF">=</font> <font color="#2040a0"><strong>self</strong></font>.data.url(<font color="#008000">&quot;about.html&quot;</font>)<font color="4444FF">;</font>
+
+<a name="line76">76</a>         <font color="4444FF"><strong>}</strong></font>
+<a name="line77">77</a>     <font color="4444FF"><strong>}</strong></font>)<font color="4444FF">;</font>
+<a name="line78">78</a>     widget.add(about)<font color="4444FF">;</font>
+<a name="line79">79</a> <font color="4444FF"><strong>}</strong></font><font color="4444FF">;</font>
+
+</pre>
+</body>
+</html>
