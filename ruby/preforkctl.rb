@@ -10,8 +10,7 @@ SERVICE_SETS = {
     :all      => [:sitemgr, :media, :taxonomy, :relationship, :search, :class_ads,
                   :ad_metadata_extraction],
     :default => [:sitemgr, :class_ads, :search],
-    :classads => [:sitemgr, :media, :relationship, :class_ads, :taxonomy,
-                  :ad_metadata_extraction, :search],
+    :classads => [:sitemgr, :media, :relationship, :class_ads, :taxonomy, :search],
 };
 ################################################################################
 def start_service(service_name)
