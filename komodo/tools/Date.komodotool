@@ -1,0 +1,12 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "Date", 
+  "value": [
+    "[[%date]]!@#_currentPos!@#_anchor"
+  ], 
+  "set_selection": "true", 
+  "version": "1.0.7", 
+  "type": "snippet", 
+  "indent_relative": "true", 
+  "icon": "chrome://famfamfamsilk/skin/icons/date.png"
+}

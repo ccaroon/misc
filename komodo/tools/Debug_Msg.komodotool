@@ -1,0 +1,12 @@
+{
+  "keyboard_shortcut": "Ctrl+/", 
+  "name": "Debug Msg", 
+  "value": [
+    "print STDERR \"=====> [[%f]] #[[%L]] --> !@#_currentPos!@#_anchor \\n\";"
+  ], 
+  "set_selection": "true", 
+  "version": "1.0.7", 
+  "type": "snippet", 
+  "indent_relative": "false", 
+  "icon": "chrome://famfamfamsilk/skin/icons/bug.png"
+}

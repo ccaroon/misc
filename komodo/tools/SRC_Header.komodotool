@@ -1,0 +1,14 @@
+{
+  "keyboard_shortcut": "Ctrl+Shift+H", 
+  "name": "SRC Header", 
+  "value": [
+    "################################################################################", 
+    "# $Id: $", 
+    "################################################################################", 
+    "!@#_currentPos!@#_anchor"
+  ], 
+  "set_selection": "true", 
+  "version": "1.0.7", 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

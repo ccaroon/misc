@@ -1,0 +1,12 @@
+{
+  "keyboard_shortcut": "Alt+-", 
+  "name": "XMLTag", 
+  "value": [
+    "<[[%ask1:Tag:XML_TAG]]>[[%s:else:]]!@#_currentPos!@#_anchor</[[%ask1]]>"
+  ], 
+  "set_selection": "true", 
+  "version": "1.0.7", 
+  "type": "snippet", 
+  "indent_relative": "true", 
+  "icon": "chrome://famfamfamsilk/skin/icons/page_white_code.png"
+}
