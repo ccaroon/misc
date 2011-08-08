@@ -1,4 +1,4 @@
-#!/nm/sw/perl/bin/perl
+#!/nm/local/bin/perl
 ################################################################################
 # $Id: md_convert.pl 1697 2009-11-24 21:09:40Z ccaroon $
 ################################################################################
@@ -46,3 +46,4 @@ else
 write_file("$out_file.$format", $output) if $output;
 
 print STDERR "$in_file --> $out_file.$format\n";
+
