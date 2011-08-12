@@ -57,8 +57,11 @@ sub fetch_image
                 $found = 1;
 
                 # Upload to HandBase
-                system("curl -XPOST -F 'localfile=\@$image_name' http://192.168.2.95:8080/applet_add.html > /dev/null")
-                    if $SYNC;
+                if ($SYNC)
+                {
+                    print STDERR "Syncing '$image_name' to HanDBase...\n";
+                    system("curl -XPOST -F 'localfile=\@$image_name' http://192.168.2.95:8080/applet_add.html > /dev/null");
+                }
             }
             else
             {
