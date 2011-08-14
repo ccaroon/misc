@@ -3,8 +3,11 @@ use strict;
 
 use Data::Dumper;
 use DBI;
+use File::Slurp;
 use Getopt::Long;
 use LWP::Simple;
+
+use constant HANDBASE_IP =>'192.168.1.6:8080';
 
 my $INPUT;
 my $SYNC;
@@ -12,15 +15,23 @@ GetOptions(
     "input=s" => \$INPUT,
     "sync"    => \$SYNC,
 );
-die "Usage: $0 --input <CSV File | Card Name> [--sync]" unless ($INPUT);
+die "Usage: $0 --input <CSV File | Card Name> [--sync]"
+    unless ($INPUT or $SYNC);
 ################################################################################
-if ($INPUT =~ /\.csv$/)
+my $START_TIME = time();
+
+if ($INPUT and $INPUT =~ /\.csv$/)
 {
     fetch_images_db(db => $INPUT);
 }
-else
+elsif ($INPUT)
 {
     fetch_image(card_name => $INPUT);
+}
+
+if ($SYNC)
+{
+    sync();
 }
 ################################################################################
 sub fetch_image
@@ -55,13 +66,6 @@ sub fetch_image
             if (-f $image_name)
             {
                 $found = 1;
-
-                # Upload to HandBase
-                if ($SYNC)
-                {
-                    print STDERR "Syncing '$image_name' to HanDBase...\n";
-                    system("curl -XPOST -F 'localfile=\@$image_name' http://192.168.2.95:8080/applet_add.html > /dev/null");
-                }
             }
             else
             {
@@ -91,6 +95,43 @@ sub fetch_images_db
     
         print STDERR "--> $row->{Name} , $row->{ImageName} <--\n";
         fetch_image(card_name => $row->{Name}, image_name => $row->{ImageName});
+    }
+}
+################################################################################
+sub sync
+{
+    my %args = @_;
+    
+    #sync_db(); # Not working
+    sync_images();
+}
+################################################################################
+# TODO: for some reason this does not work
+sub sync_db
+{
+    my %args = @_;
+    
+    print STDERR "Syncing MagicCards.csv to HanDBase...\n";
+    system("curl -XPOST -F 'localfile=\@magiccards.csv;appletname=Magic+Cards' http://".HANDBASE_IP."/applet_add.html > /dev/null");
+}
+################################################################################
+sub sync_images
+{
+    my %args = @_;
+
+    my @files = read_dir('.');
+    @files = sort @files;
+    foreach my $image_name (@files)
+    {
+        next unless $image_name =~ /\.jpg$/;
+        
+        my @stats = stat $image_name;
+        #9 == mtime
+        if ($stats[9] > $START_TIME)
+        {
+            print STDERR "Syncing '$image_name' to HanDBase...\n";
+            system("curl -XPOST -F 'localfile=\@$image_name' http://".HANDBASE_IP."/applet_add.html > /dev/null");
+        }
     }
 }
 ################################################################################
