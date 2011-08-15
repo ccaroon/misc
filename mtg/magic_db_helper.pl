@@ -107,8 +107,11 @@ sub fetch_images_db
     
     my $stmt = $dbh->prepare("select Name,Type,ImageName from $db");
     $stmt->execute();
+    
+    my %dups;
     while (my $row = $stmt->fetchrow_hashref())
     {
+        $dups{lc($row->{Name})}++;
         next if -f $row->{ImageName};
     
         print STDERR "--> $row->{Name} , $row->{ImageName} <--\n";
@@ -118,6 +121,12 @@ sub fetch_images_db
             image_name => $row->{ImageName}
         );
     }
+
+    map
+    {
+        print STDERR "Duplicate Card Found: [$_] ($dups{$_})"
+            if $dups{$_} > 1;
+    } keys %dups;
 }
 ################################################################################
 sub sync
