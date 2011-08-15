@@ -51,7 +51,7 @@ sub fetch_image
     {
         $image_name = lc($card_name);
         $image_name =~ s/\s+/_/g;
-        $image_name =~ s/[']//g;
+        $image_name =~ s/[',]//g;
         $image_name .= '.jpg';
     }
 
