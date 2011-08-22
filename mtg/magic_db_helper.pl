@@ -32,6 +32,7 @@ Commands:
     - fetch_image: Fetch the image for a single card.
     - fetch_images_db: Fetch images for all cards in CSV database.
     - check_dups: Check CSV database for duplicate cards based on card name.
+    - verify_db: check_dups() and verify cards exists in online db.
 
 Options:
     - name: Used to specify Card Name or CSV database name
@@ -64,6 +65,13 @@ given ($cmd)
         die "check_dups: Missing required param 'name', e.g. --name card_database_name.csv.\n"
             unless $NAME;
         check_dups(db => $NAME);
+    }
+    when ('verify_db')
+    {
+        die "verify_db: Missing required param 'name', e.g. --name card_database_name.csv.\n"
+            unless $NAME;
+        check_dups(db => $NAME);
+        fetch_images_db(db => $NAME, dry_run => 1);
     }
     default
     {
@@ -141,11 +149,14 @@ sub fetch_image
             $found = 1;
                 
             # Fetch Image
-            print STDERR "Fetching '$card_name' as '$image_name'...\n";
-            getstore("$img_url/$img_path.jpg", $image_name);
-
-            print STDERR "=====> ERROR: Failed to fetch image '$image_name'."
-                unless (-f $image_name);
+            unless ($args{dry_run})
+            {
+                print "Fetching '$card_name' as '$image_name'...\n";
+                getstore("$img_url/$img_path.jpg", $image_name);
+    
+                print STDERR "=====> ERROR: Failed to fetch image '$image_name'."
+                    unless (-f $image_name);
+            }
 
             last;
         }
@@ -158,7 +169,8 @@ sub fetch_images_db
 {
     my %args = @_;
     my $db = $args{db};
-    
+    my $dry_run = $args{dry_run} || 0;
+
     my $dbh = DBI->connect ("dbi:CSV:", {f_ext=>'csv'})
         or die "Cannot connect: $DBI::errstr";
     
@@ -169,11 +181,12 @@ sub fetch_images_db
     {
         next if -f $row->{ImageName};
     
-        print STDERR "--> $row->{Name} , $row->{ImageName} <--\n";
+        print "--> $row->{Name} , $row->{ImageName} <--\n";
         fetch_image(
             card_name  => $row->{Name},
             card_type  => $row->{Type},
-            image_name => $row->{ImageName}
+            image_name => $row->{ImageName},
+            dry_run    => $dry_run
         );
     }
 }
@@ -215,7 +228,7 @@ sub sync_db
 {
     my %args = @_;
     
-    print STDERR "Syncing MagicCards.csv to HanDBase...\n";
+    print "Syncing MagicCards.csv to HanDBase...\n";
     system("curl -XPOST -F 'localfile=\@magiccards.csv;appletname=Magic+Cards' http://$IP/applet_add.html > /dev/null");
 }
 ################################################################################
@@ -233,7 +246,7 @@ sub sync_images
         #9 == mtime
         if ($stats[9] > $START_TIME)
         {
-            print STDERR "Syncing '$image_name' to HanDBase...\n";
+            print "Syncing '$image_name' to HanDBase...\n";
             system("curl -XPOST -F 'localfile=\@$image_name' http://$IP/applet_add.html > /dev/null");
         }
     }
