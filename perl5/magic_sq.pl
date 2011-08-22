@@ -175,7 +175,7 @@ sub print
 ################################################################################
 my $square = MagicSquare->new();
 
-my @numbers = (8,2,5,1,4,7,6,9,3);
+my @numbers = (1,9,5,6,2,7,8,4,3);
 $square->fill(@numbers);
 $square->check(print => 1);
 
