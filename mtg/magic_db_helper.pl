@@ -17,13 +17,15 @@ my $NAME;
 my $SYNC;
 my $CARD_TYPE;
 my $IP;
+my $SILENT;
 my $cmd = shift;
 
 GetOptions(
-    "name=s"     => \$NAME,
+    "name=s"      => \$NAME,
     "sync"        => \$SYNC,
     "card_type=s" => \$CARD_TYPE,
     "ip=s"        => \$IP,
+    'silent'      => \$SILENT,
 );
 die <<EOF unless ($cmd);
 Usage: $0 CMD --name <CSV DB | Card Name> --sync <boolean> --card_type <special card type> --ip <AAA.BBB.CCC.DDD | CCC.DDD >
@@ -151,10 +153,10 @@ sub fetch_image
             # Fetch Image
             unless ($args{dry_run})
             {
-                print "Fetching '$card_name' as '$image_name'...\n";
+                _msg("Fetching '$card_name' as '$image_name'...\n");
                 getstore("$img_url/$img_path.jpg", $image_name);
     
-                print STDERR "=====> ERROR: Failed to fetch image '$image_name'."
+                _err("Failed to fetch image '$image_name'.")
                     unless (-f $image_name);
             }
 
@@ -162,7 +164,7 @@ sub fetch_image
         }
     }
 
-    print STDERR "=====> ERROR: Card not found: [$card_name]\n" unless $found;
+    _err("Card not found: [$card_name]\n") unless $found;
 }
 ################################################################################
 sub fetch_images_db
@@ -181,7 +183,7 @@ sub fetch_images_db
     {
         next if -f $row->{ImageName};
     
-        print "--> $row->{Name} , $row->{ImageName} <--\n";
+        _msg("--> $row->{Name} , $row->{ImageName} <--\n");
         fetch_image(
             card_name  => $row->{Name},
             card_type  => $row->{Type},
@@ -210,7 +212,7 @@ sub check_dups
 
     map
     {
-        print STDERR "Duplicate Card Found: [$_] ($dups{$_})\n"
+        _err("Duplicate Card Found: [$_] ($dups{$_})\n")
             if $dups{$_} > 1;
     } keys %dups;
 }
@@ -228,7 +230,7 @@ sub sync_db
 {
     my %args = @_;
     
-    print "Syncing MagicCards.csv to HanDBase...\n";
+    _msg("Syncing MagicCards.csv to HanDBase...\n");
     system("curl -XPOST -F 'localfile=\@magiccards.csv;appletname=Magic+Cards' http://$IP/applet_add.html > /dev/null");
 }
 ################################################################################
@@ -246,9 +248,25 @@ sub sync_images
         #9 == mtime
         if ($stats[9] > $START_TIME)
         {
-            print "Syncing '$image_name' to HanDBase...\n";
+            _msg("Syncing '$image_name' to HanDBase...\n");
             system("curl -XPOST -F 'localfile=\@$image_name' http://$IP/applet_add.html > /dev/null");
         }
     }
+}
+################################################################################
+sub _msg
+{
+    my $msg = shift;
+
+    $msg .= "\n" unless $msg =~ m|\n$|;
+    print $msg unless $SILENT;
+}
+################################################################################
+sub _err
+{
+    my $err = shift;
+
+    $err .= "\n" unless $err=~ m|\n$|;
+    print STDERR "ERR: $err";
 }
 ################################################################################
