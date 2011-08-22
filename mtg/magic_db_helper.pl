@@ -2,6 +2,7 @@
 use strict;
 
 use feature 'switch';
+use utf8;
 
 use Data::Dumper;
 use DBI;
@@ -9,33 +10,88 @@ use File::Slurp;
 use Getopt::Long;
 use LWP::Simple;
 
-use constant HANDBASE_IP =>'192.168.1.6:8080';
+use constant BASE_SYNC_IP =>'192.168';
+use constant SYNC_PORT => 8080;
 
-my $INPUT;
+my $NAME;
 my $SYNC;
 my $CARD_TYPE;
+my $IP;
+my $cmd = shift;
+
 GetOptions(
-    "input=s"     => \$INPUT,
+    "name=s"     => \$NAME,
     "sync"        => \$SYNC,
     "card_type=s" => \$CARD_TYPE,
+    "ip=s"        => \$IP,
 );
-die "Usage: $0 --input <CSV File | Card Name> [--sync] [--card_type]"
-    unless ($INPUT or $SYNC);
+die <<EOF unless ($cmd);
+Usage: $0 CMD --name <CSV DB | Card Name> --sync <boolean> --card_type <special card type> --ip <AAA.BBB.CCC.DDD | CCC.DDD >
+
+Commands:
+    - fetch_image: Fetch the image for a single card.
+    - fetch_images_db: Fetch images for all cards in CSV database.
+    - check_dups: Check CSV database for duplicate cards based on card name.
+
+Options:
+    - name: Used to specify Card Name or CSV database name
+    - card_type: Used to specify special card types, e.g. 'Scheme'
+    - sync: If true, then sync new images to HanDBase after fetching
+    - ip: Used with --sync to specify IP address of HanDBase.
+EOF
+
 ################################################################################
 my $START_TIME = time();
-$CARD_TYPE ||= '';
 
-if ($INPUT and $INPUT =~ /\.csv$/)
+given ($cmd)
 {
-    fetch_images_db(db => $INPUT);
-}
-elsif ($INPUT)
-{
-    fetch_image(card_name => $INPUT, card_type => $CARD_TYPE);
+    when ('fetch_image')
+    {
+        die "fetch_image: Missing required param 'name', e.g. --name 'Card Name'.\n"
+            unless $NAME;
+            
+        $CARD_TYPE ||= '';
+        fetch_image(card_name => $NAME, card_type => $CARD_TYPE);
+    }
+    when ('fetch_images_db')
+    {
+        die "fetch_image_db: Missing required param 'name', e.g. --name card_database_name.csv.\n"
+            unless $NAME;
+        fetch_images_db(db => $NAME);
+    }
+    when ('check_dups')
+    {
+        die "check_dups: Missing required param 'name', e.g. --name card_database_name.csv.\n"
+            unless $NAME;
+        check_dups(db => $NAME);
+    }
+    default
+    {
+        die "Unknown command [$cmd].\n";
+    }
 }
 
 if ($SYNC)
 {
+    die "--sync specified but missing IP. Please specify IP using --ip\n"
+        unless $IP;
+    
+    given ($IP)
+    {
+        when (/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)
+        {
+            $IP .= ':'.SYNC_PORT;
+        }
+        when (/\d{1,3}\.\d{1,3}/)
+        {
+            $IP = BASE_SYNC_IP.".$IP:".SYNC_PORT;
+        }
+        default
+        {
+            die "IP [$IP] does not look valid.";
+        }
+    }
+
     sync();
 }
 ################################################################################
@@ -78,6 +134,7 @@ sub fetch_image
     {
         my $img_path = $1;
         my $name     = $2;
+        utf8::encode($name);
 
         if (lc ($name) eq lc($card_name))
         {
@@ -94,7 +151,7 @@ sub fetch_image
         }
     }
 
-    print STDERR "Card not found: [$card_name]\n" unless $found;
+    print STDERR "=====> ERROR: Card not found: [$card_name]\n" unless $found;
 }
 ################################################################################
 sub fetch_images_db
@@ -108,10 +165,8 @@ sub fetch_images_db
     my $stmt = $dbh->prepare("select Name,Type,ImageName from $db");
     $stmt->execute();
     
-    my %dups;
     while (my $row = $stmt->fetchrow_hashref())
     {
-        $dups{lc($row->{Name})}++;
         next if -f $row->{ImageName};
     
         print STDERR "--> $row->{Name} , $row->{ImageName} <--\n";
@@ -121,10 +176,28 @@ sub fetch_images_db
             image_name => $row->{ImageName}
         );
     }
+}
+################################################################################
+sub check_dups
+{
+    my %args = @_;
+    my $db = $args{db};
+    
+    my $dbh = DBI->connect ("dbi:CSV:", {f_ext=>'csv'})
+        or die "Cannot connect: $DBI::errstr";
+    
+    my $stmt = $dbh->prepare("select Name from $db");
+    $stmt->execute();
+    
+    my %dups;
+    while (my $row = $stmt->fetchrow_hashref())
+    {
+        $dups{lc($row->{Name})}++;
+    }
 
     map
     {
-        print STDERR "Duplicate Card Found: [$_] ($dups{$_})"
+        print STDERR "Duplicate Card Found: [$_] ($dups{$_})\n"
             if $dups{$_} > 1;
     } keys %dups;
 }
@@ -143,7 +216,7 @@ sub sync_db
     my %args = @_;
     
     print STDERR "Syncing MagicCards.csv to HanDBase...\n";
-    system("curl -XPOST -F 'localfile=\@magiccards.csv;appletname=Magic+Cards' http://".HANDBASE_IP."/applet_add.html > /dev/null");
+    system("curl -XPOST -F 'localfile=\@magiccards.csv;appletname=Magic+Cards' http://$IP/applet_add.html > /dev/null");
 }
 ################################################################################
 sub sync_images
@@ -161,7 +234,7 @@ sub sync_images
         if ($stats[9] > $START_TIME)
         {
             print STDERR "Syncing '$image_name' to HanDBase...\n";
-            system("curl -XPOST -F 'localfile=\@$image_name' http://".HANDBASE_IP."/applet_add.html > /dev/null");
+            system("curl -XPOST -F 'localfile=\@$image_name' http://$IP/applet_add.html > /dev/null");
         }
     }
 }
