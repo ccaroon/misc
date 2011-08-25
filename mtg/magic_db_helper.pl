@@ -8,26 +8,31 @@ use Data::Dumper;
 use DBI;
 use File::Slurp;
 use Getopt::Long;
-use LWP::Simple;
+use LWP::UserAgent;
 
 use constant BASE_SYNC_IP =>'192.168';
 use constant SYNC_PORT => 8080;
 
+# This has to happen before GetOptions is called.
+my $CMD = shift;
+
+my $UA  = LWP::UserAgent->new();
+
 my $NAME;
 my $SYNC;
 my $CARD_TYPE;
-my $IP;
+my $IP; #TODO: get rid of IP and make ip param to SYNC
 my $SILENT;
-my $cmd = shift;
-
+my $DEBUG;
 GetOptions(
     "name=s"      => \$NAME,
     "sync"        => \$SYNC,
     "card_type=s" => \$CARD_TYPE,
     "ip=s"        => \$IP,
     'silent'      => \$SILENT,
+    'debug'       => \$DEBUG,
 );
-die <<EOF unless ($cmd);
+die <<EOF unless ($CMD);
 Usage: $0 CMD --name <CSV DB | Card Name> --sync <boolean> --card_type <special card type> --ip <AAA.BBB.CCC.DDD | CCC.DDD >
 
 Commands:
@@ -44,9 +49,9 @@ Options:
 EOF
 
 ################################################################################
-my $START_TIME = time();
+my $START_TIME = time() - 1;
 
-given ($cmd)
+given ($CMD)
 {
     when ('fetch_image')
     {
@@ -77,7 +82,7 @@ given ($cmd)
     }
     default
     {
-        die "Unknown command [$cmd].\n";
+        die "Unknown command [$CMD].\n";
     }
 }
 
@@ -121,8 +126,9 @@ sub fetch_image
         $image_name .= '.jpg';
     }
 
-    my $html = get("http://magiccards.info/query?q=$card_name");
-    die "Query failed! [$card_name]" unless $html;
+    my $response = $UA->get("http://magiccards.info/query?q=$card_name");
+    die "[".$response->status_line()."] Request failed for '$card_name'"
+        if $response->is_error();
 
     my $regex;
     my $img_url;
@@ -140,6 +146,7 @@ sub fetch_image
         }
     }
 
+    my $html = $response->content();
     while ($html =~ s|$regex||)
     {
         my $img_path = $1;
@@ -154,10 +161,12 @@ sub fetch_image
             unless ($args{dry_run})
             {
                 _msg("Fetching '$card_name' as '$image_name'...\n");
-                getstore("$img_url/$img_path.jpg", $image_name);
-    
-                _err("Failed to fetch image '$image_name'.")
-                    unless (-f $image_name);
+
+                my $response = $UA->get("$img_url/$img_path.jpg",
+                    ':content_file' => $image_name);
+
+                _err("[".$response->status_line()."] Failed to fetch image '$image_name'")
+                    if $response->is_error();
             }
 
             last;
@@ -183,7 +192,7 @@ sub fetch_images_db
     {
         next if -f $row->{ImageName};
     
-        _msg("--> $row->{Name} , $row->{ImageName} <--\n");
+        _debug("--> $row->{Name} , $row->{ImageName} <--\n");
         fetch_image(
             card_name  => $row->{Name},
             card_type  => $row->{Type},
@@ -220,18 +229,27 @@ sub check_dups
 sub sync
 {
     my %args = @_;
-    
-    #sync_db(); # Not working
+
+    sync_db() if $CMD eq 'fetch_images_db';
     sync_images();
 }
 ################################################################################
-# TODO: for some reason this does not work
 sub sync_db
 {
     my %args = @_;
     
-    _msg("Syncing MagicCards.csv to HanDBase...\n");
-    system("curl -XPOST -F 'localfile=\@magiccards.csv;appletname=Magic+Cards' http://$IP/applet_add.html > /dev/null");
+    _msg("Syncing $NAME to HanDBase...\n");
+    my $response = $UA->post(
+        "http://$IP/applet_add.html",
+        {
+            localfile => [$NAME],
+            appletname => "Magic Cards" #TODO: don't hard-code DB name
+        },
+        'Content_Type' => 'form-data'
+    );
+
+    _err("[".$response->status_line()."] Error uploading DB to HanDBase: $NAME")
+        if $response->is_error();    
 }
 ################################################################################
 sub sync_images
@@ -243,13 +261,19 @@ sub sync_images
     foreach my $image_name (@files)
     {
         next unless $image_name =~ /\.jpg$/;
-        
+
         my @stats = stat $image_name;
         #9 == mtime
         if ($stats[9] > $START_TIME)
         {
-            _msg("Syncing '$image_name' to HanDBase...\n");
-            system("curl -XPOST -F 'localfile=\@$image_name' http://$IP/applet_add.html > /dev/null");
+            _msg("Syncing '$image_name' to HanDBase @ $IP...\n");
+            my $response = $UA->post(
+                "http://$IP/applet_add.html",
+                {localfile => [$image_name]},
+                'Content_Type' => 'form-data'
+            );
+            _err("[".$response->status_line()."] Error uploading image to HanDBase '$image_name'")
+                if $response->is_error();
         }
     }
 }
@@ -260,6 +284,14 @@ sub _msg
 
     $msg .= "\n" unless $msg =~ m|\n$|;
     print $msg unless $SILENT;
+}
+################################################################################
+sub _debug
+{
+    my $msg = shift;
+
+    $msg .= "\n" unless $msg =~ m|\n$|;
+    print $msg if $DEBUG;
 }
 ################################################################################
 sub _err
