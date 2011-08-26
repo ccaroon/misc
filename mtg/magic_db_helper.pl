@@ -21,19 +21,17 @@ my $UA  = LWP::UserAgent->new();
 my $NAME;
 my $SYNC;
 my $CARD_TYPE;
-my $IP; #TODO: get rid of IP and make ip param to SYNC
 my $SILENT;
 my $DEBUG;
 GetOptions(
     "name=s"      => \$NAME,
-    "sync"        => \$SYNC,
+    "sync=s"      => \$SYNC,
     "card_type=s" => \$CARD_TYPE,
-    "ip=s"        => \$IP,
     'silent'      => \$SILENT,
     'debug'       => \$DEBUG,
 );
 die <<EOF unless ($CMD);
-Usage: $0 CMD --name <CSV DB | Card Name> --sync <boolean> --card_type <special card type> --ip <AAA.BBB.CCC.DDD | CCC.DDD >
+Usage: $0 CMD --name <CSV DB | Card Name> --sync <AAA.BBB.CCC.DDD | CCC.DDD > --card_type <special card type>
 
 Commands:
     - fetch_image: Fetch the image for a single card.
@@ -44,8 +42,7 @@ Commands:
 Options:
     - name: Used to specify Card Name or CSV database name
     - card_type: Used to specify special card types, e.g. 'Scheme'
-    - sync: If true, then sync new images to HanDBase after fetching
-    - ip: Used with --sync to specify IP address of HanDBase.
+    - sync: Specify that you want to sync to HanDBase. Value indicates IP address.
 EOF
 
 ################################################################################
@@ -88,22 +85,19 @@ given ($CMD)
 
 if ($SYNC)
 {
-    die "--sync specified but missing IP. Please specify IP using --ip\n"
-        unless $IP;
-    
-    given ($IP)
+    given ($SYNC)
     {
         when (/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)
         {
-            $IP .= ':'.SYNC_PORT;
+            $SYNC .= ':'.SYNC_PORT;
         }
         when (/\d{1,3}\.\d{1,3}/)
         {
-            $IP = BASE_SYNC_IP.".$IP:".SYNC_PORT;
+            $SYNC = BASE_SYNC_IP.".$SYNC:".SYNC_PORT;
         }
         default
         {
-            die "IP [$IP] does not look valid.";
+            die "IP [$SYNC] does not look valid.";
         }
     }
 
@@ -240,7 +234,7 @@ sub sync_db
     
     _msg("Syncing $NAME to HanDBase...\n");
     my $response = $UA->post(
-        "http://$IP/applet_add.html",
+        "http://$SYNC/applet_add.html",
         {
             localfile => [$NAME],
             appletname => "Magic Cards" #TODO: don't hard-code DB name
@@ -266,9 +260,9 @@ sub sync_images
         #9 == mtime
         if ($stats[9] > $START_TIME)
         {
-            _msg("Syncing '$image_name' to HanDBase @ $IP...\n");
+            _msg("Syncing '$image_name' to HanDBase @ $SYNC...\n");
             my $response = $UA->post(
-                "http://$IP/applet_add.html",
+                "http://$SYNC/applet_add.html",
                 {localfile => [$image_name]},
                 'Content_Type' => 'form-data'
             );
