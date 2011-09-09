@@ -18,31 +18,60 @@ my $CMD = shift;
 
 my $UA  = LWP::UserAgent->new();
 
+my %EDITION_MAP = (
+    'Rise of the Eldrazi' => 'eldrazi',
+    'Mirrodin Besieged'   => 'besieged',
+    'Scars of Mirrodin'   => 'scars',
+    'Alara Reborn'        => 'reborn',
+    'Shards of Alara'     => 'shards',
+    'Seventh Edition'     => 'seventh',
+    'New Phyrexia'        => 'new',
+    'DOP'                 => 'duels',
+    'Knights vs. Dragons' => 'knights',
+    'Ravnica: City of Guilds' => 'ravnica',
+);
+
 my $NAME;
 my $SYNC;
-my $CARD_TYPE;
+my $TYPE;
+my $EDITION;
 my $SILENT;
 my $DEBUG;
 GetOptions(
-    "name=s"      => \$NAME,
-    "sync=s"      => \$SYNC,
-    "card_type=s" => \$CARD_TYPE,
-    'silent'      => \$SILENT,
-    'debug'       => \$DEBUG,
+    "name=s"     => \$NAME,
+    "sync=s"     => \$SYNC,
+    "type=s"     => \$TYPE,
+    "edition=s"  => \$EDITION,
+    'silent'     => \$SILENT,
+    'debug'      => \$DEBUG,
 );
 die <<EOF unless ($CMD);
-Usage: $0 CMD --name <CSV DB | Card Name> --sync <AAA.BBB.CCC.DDD | CCC.DDD > --card_type <special card type>
+Usage: $0 CMD [options]
 
 Commands:
-    - fetch_image: Fetch the image for a single card.
-    - fetch_images_db: Fetch images for all cards in CSV database.
-    - check_dups: Check CSV database for duplicate cards based on card name.
-    - verify_db: check_dups() and verify cards exists in online db.
+    * fetch_image: Fetch the image for a single card.
+        --name: Name of the card, e.g. 'Platinum Angel'
+        --type: Special type for cards, e.g. 'Scheme'. OPTIONAL.
+        --edition: Edition of the card you want to fetch, e.g. 'M12'. OPTIONAL.
+        --sync: Sync image to HanDBase after fetching. Valid IP address. OPTIONAL.
+    Example: $0 fetch_image --name "Platinum Angel" --edition "M11" --sync 192.169.1.123
+    
+    * fetch_images_db: Fetch images for all cards in a CSV database.
+        --name: Name of the CSV database to read.
+        --sync: Sync card database and images to HanDBase after fetching.
+                Valid IP address. OPTIONAL.
+    Example: $0 fetch_images_db --name magiccards.csv --sync 192.168.1.123
+    
+    * check_dups: Check CSV database for duplicate cards based on card name.
+        --name: Name of the CSV database to read.
+    Example: $0 check_dups --name magiccards.csv
+    
+    * verify_db: check_dups() and verify cards exists in online db.
+        --name: Name of the CSV database to read.
+    Example: $0 verify_db --name magiccards.csv
 
-Options:
-    - name: Used to specify Card Name or CSV database name
-    - card_type: Used to specify special card types, e.g. 'Scheme'
-    - sync: Specify that you want to sync to HanDBase. Value indicates IP address.
+Global Options:
+    --debug: Print out some helpful messages when the command runs.
 EOF
 
 ################################################################################
@@ -55,8 +84,9 @@ given ($CMD)
         die "fetch_image: Missing required param 'name', e.g. --name 'Card Name'.\n"
             unless $NAME;
             
-        $CARD_TYPE ||= '';
-        fetch_image(card_name => $NAME, card_type => $CARD_TYPE);
+        $TYPE    ||= '';
+        $EDITION ||= '';
+        fetch_image(name => $NAME, type => $TYPE, edition => $EDITION);
     }
     when ('fetch_images_db')
     {
@@ -108,8 +138,9 @@ sub fetch_image
 {
     my %args = @_;
     my $found = 0;
-    my $card_name = $args{card_name};
-    my $card_type = $args{card_type} || '';
+    my $card_name     = $args{name};
+    my $card_type     = $args{type}     || '';
+    my $card_edition  = $args{edition}  || '';
 
     my $image_name = $args{image_name};
     unless ($image_name)
@@ -120,7 +151,10 @@ sub fetch_image
         $image_name .= '.jpg';
     }
 
-    my $response = $UA->get("http://magiccards.info/query?q=$card_name");
+    my $url = "http://magiccards.info/query?q=$card_name";
+    $url .= "+e%3A$card_edition" if $card_edition;
+    _debug("URL: $url");
+    my $response = $UA->get($url);
     die "[".$response->status_line()."] Request failed for '$card_name'"
         if $response->is_error();
 
@@ -179,17 +213,24 @@ sub fetch_images_db
     my $dbh = DBI->connect ("dbi:CSV:", {f_ext=>'csv'})
         or die "Cannot connect: $DBI::errstr";
     
-    my $stmt = $dbh->prepare("select Name,Type,ImageName from $db");
+    my $stmt = $dbh->prepare("select Name,Type,Edition,ImageName from $db");
     $stmt->execute();
     
     while (my $row = $stmt->fetchrow_hashref())
     {
         next if -f $row->{ImageName};
     
-        _debug("--> $row->{Name} , $row->{ImageName} <--\n");
+        my @editions = split ',', $row->{Edition};
+        my $card_edition = pop @editions;
+        $card_edition =~ s/^\s+//;
+        $card_edition =~ s/\s+$//;
+        $card_edition = $EDITION_MAP{$card_edition} || $card_edition;
+
+        _debug("--> $row->{Name} , $row->{ImageName}, $card_edition <--\n");
         fetch_image(
-            card_name  => $row->{Name},
-            card_type  => $row->{Type},
+            name       => $row->{Name},
+            type       => $row->{Type},
+            edition    => $card_edition,
             image_name => $row->{ImageName},
             dry_run    => $dry_run
         );
@@ -293,6 +334,7 @@ sub _err
     my $err = shift;
 
     $err .= "\n" unless $err=~ m|\n$|;
-    print STDERR "ERR: $err";
+    print STDERR "* ERROR **: $err";
 }
 ################################################################################
+__DATA__
