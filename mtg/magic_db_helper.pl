@@ -152,7 +152,7 @@ sub fetch_image
     }
 
     my $url = "http://magiccards.info/query?q=$card_name";
-    $url .= "+e%3A$card_edition" if $card_edition;
+    $url .= "+e%3A$card_edition" if $card_edition and $card_type ne 'Scheme';
     _debug("URL: $url");
     my $response = $UA->get($url);
     die "[".$response->status_line()."] Request failed for '$card_name'"
