@@ -7,7 +7,7 @@ use strict;
 use Cwd qw(abs_path);
 use File::Basename;
 use File::Slurp;
-#use Text::Markdown;
+use Text::Markdown;
 use HTML::WikiConverter;
 use HTML::WikiConverter::MediaWiki;
 use Pod::HTML2Pod;
@@ -19,10 +19,10 @@ my $format  = shift;
 my ($name, $path, undef) = fileparse($in_file, '.txt');
 my $out_file = "$path$name";
 
-#my $md_text = read_file($in_file);
-#my $html    = Text::Markdown::markdown($md_text);
-my $helper_path = dirname(abs_path $0);
-my $html = `$helper_path/md_render.rb $in_file`;
+my $md_text = read_file($in_file);
+my $html    = Text::Markdown::markdown($md_text);
+#my $helper_path = dirname(abs_path $0);
+#my $html = `$helper_path/md_render.rb $in_file`;
 
 my $output;
 if ($format eq 'html')
@@ -46,4 +46,3 @@ else
 write_file("$out_file.$format", $output) if $output;
 
 print STDERR "$in_file --> $out_file.$format\n";
-
