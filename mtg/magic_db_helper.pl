@@ -304,8 +304,11 @@ sub sync_images
             _msg("Syncing '$image_name' to HanDBase @ $SYNC...\n");
             my $response = $UA->post(
                 "http://$SYNC/applet_add.html",
-                {localfile => [$image_name]},
-                'Content_Type' => 'form-data'
+                {
+                    localfile => [$image_name],
+                    UpPDB     => 'Add File'
+                },
+                'Content_Type' => 'multipart/form-data'
             );
             _err("[".$response->status_line()."] Error uploading image to HanDBase '$image_name'")
                 if $response->is_error();
