@@ -19,6 +19,7 @@ my $CMD = shift;
 my $UA  = LWP::UserAgent->new();
 
 my %EDITION_MAP = (
+    'Dark Ascension'      => 'dka',
     'Rise of the Eldrazi' => 'eldrazi',
     'Mirrodin Besieged'   => 'besieged',
     'Scars of Mirrodin'   => 'scars',
