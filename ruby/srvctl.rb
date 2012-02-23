@@ -6,47 +6,41 @@ SERVICE_DIR = File.expand_path("~/codebase/mi/services");
 
 PORT_MAP = {
     :sitemgr                => 8701,
-    :ad_metadata_extraction => 8702,
-    :class_ads              => 8703,
-#    :comment                => 8704,
-#    :gallery                => 8705,
-    :media                  => 8707,
-#    :movies                 => 8708,
-#    :rating                 => 8709,
-    :relationship           => 8710,
-    :search                 => 8711,
-#    :story                  => 8712,
-    :taxonomy               => 8713,
+    :ad_metadata_extraction => 8705,
+    :class_ads              => 8710,
+    :search                 => 8715,
 };
+NUM_SERVERS = 2;
 
 # NOTE: a set cannot have the same name as an individual service.
 SERVICE_SETS = {
     :all      => PORT_MAP.keys,
-    :default => [:sitemgr, :class_ads, :search],
-    :classads => [:sitemgr, :media, :relationship, :class_ads, :taxonomy,
-                  :ad_metadata_extraction, :search],
+    :default  => [:sitemgr, :search],
+    :classads => [:sitemgr, :class_ads, :search, :ad_metadata_extraction],
 };
 
 @misc_port_base = 9000;
 ################################################################################
 def pid_file(service_name)
-    return (File.expand_path("#{SERVICE_DIR}/#{service_name}/log/mongrel.pid"));
+    port = service_port(service_name);
+    return (File.expand_path("#{SERVICE_DIR}/#{service_name}/tmp/pids/thin.#{port}.pid"));
 end
 ################################################################################
 def start_service(service_name)
     port = service_port(service_name);
     pid = fork do
-        exec "cd #{SERVICE_DIR}/#{service_name};mongrel_rails start -p #{port} -d";
+        exec "cd #{SERVICE_DIR}/#{service_name};RAILS_RELATIVE_URL_ROOT=/mi_services/#{service_name} thin start -p #{port} -s#{NUM_SERVERS}";
     end
     Process.detach(pid);
     puts "#{service_name} started. (#{pid})";
 end
 ################################################################################
 def stop_service(service_name)
+    port = service_port(service_name);
     pid_file = pid_file(service_name);
     if (File.exists?(pid_file))
         pid = fork do
-            exec "cd #{SERVICE_DIR}/#{service_name};mongrel_rails stop";
+            exec "cd #{SERVICE_DIR}/#{service_name};thin stop -p #{port} -s#{NUM_SERVERS}";
         end
         Process.waitpid(pid);
         puts "---> #{service_name} stopped.";
