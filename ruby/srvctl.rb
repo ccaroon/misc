@@ -83,6 +83,13 @@ def service_running?(service_name)
     return (running);
 end
 ################################################################################
+def zero_log(service_name)
+    log = "#{SERVICE_DIR}/#{service_name}/log/development.log";
+    if (File.exist?(log))
+        File.delete(log);
+    end
+end
+################################################################################
 def verify_expand_service_list(list)
 
     good_list = list.dup;
@@ -147,6 +154,13 @@ case cmd
         services.each do |sn|
             port = service_port(sn);
             puts "#{sn}: #{port}";
+        end
+    when :zero_log
+        services.each do |sn|
+            is_running = service_running?(sn);
+            stop_service(sn) if is_running;
+            zero_log(sn);
+            start_service(sn) if is_running;
         end
     else
         puts "Unknown command: [#{cmd}]"
