@@ -30,6 +30,7 @@ my %EDITION_MAP = (
     'DOP'                 => 'duels',
     'Knights vs. Dragons' => 'knights',
     'Ravnica: City of Guilds' => 'ravnica',
+    'PD - Fire and Lightning' => 'pd2',
 );
 
 my $NAME;
