@@ -22,7 +22,9 @@ end
 
 Then /^I am taken to the Disqus commenting on the story detail page$/ do
   @browsers.each do |b|
-    b.url.should =~ /#disqus_thread$/
+    unless (b.link(:id => "commentCount").text =~ /^0/)
+      b.url.should =~ /#disqus_thread$/
+    end
   end
 end
 
