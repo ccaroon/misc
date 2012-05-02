@@ -6,7 +6,7 @@ I want to view the story detail page
 
 Background:
     Given I am on an Aurora web site in:
-        | ff  | http://www.kentucky.com |
+        | ff  | http://ccaroon-red-site.apps.nandomedia.com |
     And I navigate to a story detail page
 
 @breadcrumb

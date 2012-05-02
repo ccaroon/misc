@@ -10,7 +10,7 @@ end
 
 Then /^the corresponding section front page should display$/ do
   @browsers.each do |b|
-    b.url.should == @breadcrumb_url;
+    b.url.should =~ /#{@breadcrumb_url}\/?/;
   end
 end
 
