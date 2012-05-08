@@ -5,24 +5,25 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class Now
     extends Activity
     implements View.OnClickListener
 {
     Button btn;
+    SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy hh:mm:ssa");
     
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        
-        btn = new Button(this);
+        setContentView(R.layout.main);
+
+        btn = (Button)findViewById(R.id.button);
         btn.setOnClickListener(this);
         updateTime();
-        
-        setContentView(btn);
     }
     
     public void onClick(View view)
@@ -32,6 +33,6 @@ public class Now
     
     private void updateTime()
     {
-        btn.setText(new Date().toString());
+        btn.setText(sdf.format(new Date()));
     }
 }
