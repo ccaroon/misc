@@ -9,9 +9,9 @@ import java.text.SimpleDateFormat;
 
 public class Now
     extends Activity
-    implements View.OnClickListener
+    //implements View.OnClickListener
 {
-    Button btn;
+    //Button btn;
     SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy hh:mm:ssa");
     
     /** Called when the activity is first created. */
@@ -21,18 +21,13 @@ public class Now
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        btn = (Button)findViewById(R.id.button);
-        btn.setOnClickListener(this);
-        updateTime();
+        //btn = (Button)findViewById(R.id.button);
+        //btn.setOnClickListener(this);
+        //updateTime();
     }
     
-    public void onClick(View view)
+    public void onClick(View button)
     {
-        updateTime();
-    }
-    
-    private void updateTime()
-    {
-        btn.setText(sdf.format(new Date()));
+        ((Button)button).setText(sdf.format(new Date()));
     }
 }
