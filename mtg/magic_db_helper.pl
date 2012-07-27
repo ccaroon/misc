@@ -32,6 +32,7 @@ my %EDITION_MAP = (
     'Knights vs. Dragons' => 'knights',
     'Ravnica: City of Guilds' => 'ravnica',
     'PD - Fire and Lightning' => 'pd2',
+    'Planechase 2012'         => 'pc2',
 );
 
 my $NAME;
