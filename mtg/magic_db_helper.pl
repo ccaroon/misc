@@ -33,6 +33,7 @@ my %EDITION_MAP = (
     'Ravnica: City of Guilds' => 'ravnica',
     'PD - Fire and Lightning' => 'pd2',
     'Planechase 2012'         => 'pc2',
+    'Unglued'                 => 'ug',
 );
 
 my $NAME;
@@ -65,6 +66,10 @@ Commands:
         --sync: Sync card database and images to HanDBase after fetching.
                 Valid IP address. OPTIONAL.
     Example: $0 fetch_images_db --name magiccards.csv --sync 192.168.1.123
+    
+    * count_cards: Give count of unique cards and total cards.
+        --name: Name of the CSV database to read.
+    Example: $0 count_cards --name magiccards.csv
     
     * check_dups: Check CSV database for duplicate cards based on card name.
         --name: Name of the CSV database to read.
@@ -110,6 +115,12 @@ given ($CMD)
             unless $NAME;
         check_dups(db => $NAME);
         fetch_images_db(db => $NAME, dry_run => 1);
+    }
+    when ('count_cards')
+    {
+        die "count_cards: Missing required param 'name', e.g. --name card_database_name.csv.\n"
+            unless $NAME;
+        count_cards(db => $NAME);
     }
     default
     {
@@ -239,6 +250,29 @@ sub fetch_images_db
             dry_run    => $dry_run
         );
     }
+}
+################################################################################
+sub count_cards
+{
+    my %args = @_;
+    my $db = $args{db};
+    
+    my $dbh = DBI->connect ("dbi:CSV:", {f_ext=>'csv'})
+        or die "Cannot connect: $DBI::errstr";
+    
+    my $stmt = $dbh->prepare("select Count from $db");
+    $stmt->execute();
+
+    my $unique_cards = 0;
+    my $total_cards  = 0;
+    while (my $row = $stmt->fetchrow_hashref())
+    {
+        $unique_cards++;
+        $total_cards += $row->{Count};
+    }
+
+    _msg("Unique Cards: $unique_cards");
+    _msg("Total Cards: $total_cards");
 }
 ################################################################################
 sub check_dups
