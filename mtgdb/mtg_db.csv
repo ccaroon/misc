@@ -1,4 +1,4 @@
-Name,Type,Subtype,Edition,Cost,Legal,Premium,Rarity,Count,Image,ImageName
+Name,Type,Subtype,Edition,Cost,Legal,Foil,Rarity,Count,Image,ImageName
 Abbey Matron,Creature,Cleric,Homelands,2W,0,0,Common,1,,abbey_matron.jpg
 Accelerated Mutation,Instant,,Scourge,3GG,0,0,Common,2,,accelerated_mutation.jpg
 Accorder Paladin,Creature,Human Knight,Mirrodin Besieged,1W,1,0,Uncommon,1,,accorder_paladin.jpg
@@ -7,7 +7,7 @@ Acid Web Spider,Creature,Spider,Scars of Mirrodin,3GG,1,0,Uncommon,1,,acid_web_s
 Acidic Slime,Creature,Ooze,M12,3GG,1,0,Uncommon,5,,acidic_slime.jpg
 Act of Treason,Sorcery,,"M11,M12",2R,1,0,Common,2,,act_of_treason.jpg
 Aegis Angel,Creature,Angel,M12,4WW,1,1,Rare,1,,aegis_angel.jpg
-Aether Adept,Creature,Human Wizard,"M11,M12",1BB,1,0,Common,6,,aether_adept.jpg
+Æther Adept,Creature,Human Wizard,"M11,M12",1BB,1,0,Common,6,,aether_adept.jpg
 Afflicted Deserter,Creature,Human Werewolf,Dark Ascension,3R,1,0,Uncommon,1,,afflicted_deserter.jpg
 Ageless Sentinels,Creature,Wall,Scourge,3W,0,0,Rare,1,,ageless_sentinels.jpg
 Air Elemental,Creature,Elemental,DOP,3BB,0,0,Uncommon,2,,air_elemental.jpg
