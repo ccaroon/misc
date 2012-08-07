@@ -2,7 +2,6 @@
 use strict;
 
 use feature 'switch';
-use utf8;
 
 use DBI;
 use File::Slurp;
@@ -13,6 +12,18 @@ use constant BASE_SYNC_IP =>'192.168';
 use constant SYNC_PORT    => 8080;
 
 my $UA  = LWP::UserAgent->new();
+
+use constant STANDARD_LEGAL_EDITIONS => qw(
+Scars of Mirrodin
+Mirrodin Besieged
+New Phyrexia
+M12
+Innistrad
+Dark Ascension
+Avacyn Restored
+M13
+);
+
 my $DBH = DBI->connect ("dbi:CSV:", {f_ext=>'csv'})
     or die "Cannot connect: $DBI::errstr";
 
@@ -37,14 +48,24 @@ my %EDITION_MAP = (
 my $DONE = 0;
 while (!$DONE)
 {
-    print "mtg_db> ";
-    my $input = <STDIN>;
-    chomp $input;
+    my $input = _prompt("mtg_db> ");
 
     my ($cmd, $args) = split /\s+/, $input, 2;
 
     given ($cmd)
     {
+        when ('add')
+        {
+            add_card(name => $args);
+        }
+        when ('show')
+        {
+            show_card(name => $args);
+        }
+        when ('search')
+        {
+            search_card(name => $args);
+        }
         when ('fetch_images_db')
         {
             fetch_images_db();
@@ -58,7 +79,7 @@ while (!$DONE)
             check_dups();
             fetch_images_db(dry_run => 1);
         }
-        when ('count_cards')
+        when ('count')
         {
             count_cards();
         }
@@ -93,14 +114,106 @@ while (!$DONE)
 #    sync();
 #}
 ################################################################################
+sub add_card
+{
+    my %args = @_;
+    my $name = $args{name};
+
+    $name = _prompt("Name: ") unless $name;
+    
+    my $stmt = $DBH->prepare("select * from ".DB_NAME." where Name = ?");
+    $stmt->execute($name);
+    my $card = $stmt->fetchrow_hashref();
+    $stmt->finish();
+
+    if ($card)
+    {
+        _display_card($card);
+        
+        my $add_edition = _prompt("Add Edition: ");
+        my $is_foil     = _prompt("Is Foil: ");
+        my $add_copies  = _prompt("Add X Copies: ");
+
+        print "\n<---------------------------------------------->\n\n";
+
+        # Recompute Legality
+        my @editions = split /,/, $card->{Edition};
+        push @editions, $add_edition if defined $add_edition;
+        my $is_legal = _is_legal(editions => \@editions);
+
+        print "Adding '$add_edition' to Editions.\n" if defined $add_edition;
+
+        my $legal_status = ($is_legal) ? "Legal" : "Not Legal";
+        print "Card is now $legal_status.\n" if $is_legal != $card->{Legal};
+
+        my $foil_status = (defined $is_foil and $is_foil) ? "Yes" : "No";
+        print "Changing Foil Status to $foil_status.\n" if defined $is_foil;
+        
+        print "Adding $add_copies copies.\n" if defined $add_copies;
+
+        my $ok = _prompt_for_val("\nConfirm (y|n)? ", 'y', 'n');
+        if ($ok eq 'y' )
+        {
+            _msg("Updated '$card->{name}'.");
+        }
+        else
+        {
+            _msg("Discarding changes to '$card->{name}'!");
+        }
+    }
+    else
+    {
+        _msg("Adding new card with name '$name'");
+        
+    }
+}
+################################################################################
+sub show_card
+{
+    my %args = @_;
+    my $name = $args{name};
+
+    $name = _prompt("Name: ") unless $name;
+    
+    my $stmt = $DBH->prepare("select * from ".DB_NAME." where Name = ?");
+    $stmt->execute($name);
+    my $card = $stmt->fetchrow_hashref();
+    $stmt->finish();
+
+    if ($card)
+    {
+        _display_card($card);
+    }
+    else
+    {
+        _msg("No card found with name '$name'");
+    }
+}
+################################################################################
+sub search_card
+{
+    my %args = @_;
+    my $name = $args{name};
+
+    $name = _prompt("Name: ") unless $name;
+
+    my $stmt = $DBH->prepare("select * from ".DB_NAME." where Name clike ?");
+    $stmt->execute("%$name%");
+
+    while (my $card = $stmt->fetchrow_hashref())
+    {
+        _display_card($card);
+    }
+    $stmt->finish();
+}
+################################################################################
 sub _fetch_image
 {
     my %args = @_;
-
     my $found = 0;
-    my $card_name    = $args{name};
-    my $card_type    = $args{type}    || '';
-    my $card_edition = $args{edition} || '';
+    my $card_name     = $args{name};
+    my $card_type     = $args{type}     || '';
+    my $card_edition  = $args{edition}  || '';
 
     my $image_name = $args{image_name};
     unless ($image_name)
@@ -113,8 +226,9 @@ sub _fetch_image
 
     my $url = "http://magiccards.info/query?q=$card_name";
     $url .= "+e%3A$card_edition" if $card_edition and $card_type ne 'Scheme';
+
     my $response = $UA->get($url);
-    _msg("[".$response->status_line()."] Request failed for '$card_name'")
+    die "[".$response->status_line()."] Request failed for '$card_name'"
         if $response->is_error();
 
     my $regex;
@@ -124,7 +238,7 @@ sub _fetch_image
         when ('Scheme')
         {
             $img_url = "http://magiccards.info/extras/scheme/archenemy";
-            $regex = qr|<img src="http://magiccards.info/extras/scheme/archenemy/(.*)\.jpg"\s+alt="([^"]+)"|;
+            $regex = qr|<img src="http://magiccards.info/extras/scheme/archenemy/(.*)\.jpg"\s+alt="Scheme - Archenemy - ([^"]+)"|;
         }
         default
         {
@@ -138,21 +252,20 @@ sub _fetch_image
     {
         my $img_path = $1;
         my $name     = $2;
-        utf8::encode($name);
 
         if (lc ($name) eq lc($card_name))
         {
             $found = 1;
-                
+
             # Fetch Image
             unless ($args{dry_run})
             {
-                _msg("Fetching '$card_name' as '$image_name'...\n");
+                _msg("Fetching '$card_name' as '$image_name'.\n");
 
                 my $response = $UA->get("$img_url/$img_path.jpg",
                     ':content_file' => $image_name);
 
-                _msg("[".$response->status_line()."] Failed to fetch image '$image_name'")
+                die "[".$response->status_line()."] Failed to fetch image '$image_name'"
                     if $response->is_error();
             }
 
@@ -167,10 +280,10 @@ sub fetch_images_db
 {
     my %args = @_;
     my $dry_run = $args{dry_run} || 0;
-    
+
     my $stmt = $DBH->prepare("select Name,Type,Edition,ImageName from ".DB_NAME);
     $stmt->execute();
-    
+
     while (my $row = $stmt->fetchrow_hashref())
     {
         next if -f $row->{ImageName};
@@ -181,13 +294,20 @@ sub fetch_images_db
         $card_edition =~ s/\s+$//;
         $card_edition = $EDITION_MAP{$card_edition} || $card_edition;
 
-        _fetch_image(
-            name       => $row->{Name},
-            type       => $row->{Type},
-            edition    => $card_edition,
-            image_name => $row->{ImageName},
-            dry_run    => $dry_run
-        );
+        eval
+        {
+            _fetch_image(
+                name       => $row->{Name},
+                type       => $row->{Type},
+                edition    => $card_edition,
+                image_name => $row->{ImageName},
+                dry_run    => $dry_run
+            );
+        };
+        if ($@)
+        {
+            _msg($@);
+        }
     }
 }
 ################################################################################
@@ -224,6 +344,21 @@ sub check_dups
         _msg("Duplicate Card Found: [$_] ($dups{$_})\n")
             if $dups{$_} > 1;
     } keys %dups;
+}
+################################################################################
+sub _is_legal
+{
+    my %args = @_;
+    my $editions = $args{editions};
+
+    my $is_legal = 0;
+    foreach my $e (@$editions)
+    {
+        $is_legal = grep /^$e$/, STANDARD_LEGAL_EDITIONS;
+        last if $is_legal;
+    }
+
+    return($is_legal);
 }
 #################################################################################
 #sub sync
@@ -281,6 +416,52 @@ sub check_dups
 #    }
 #}
 ################################################################################
+sub _display_card
+{
+    my $card = shift;
+    
+    print <<EOF;
+<---------------------------------------------->
+--=== $card->{name} ($card->{cost}) ===---
+$card->{type} -- $card->{subtype} -- $card->{rarity}
+$card->{edition}
+
+Legal: $card->{legal} | Foil: $card->{foil}
+
+$card->{count} copies
+<---------------------------------------------->
+EOF
+}
+################################################################################
+sub _prompt
+{
+    my $msg = shift;
+
+    print "$msg";
+    my $input = <STDIN>;
+    chomp $input;
+
+    $input = undef if $input eq '';
+
+    return ($input);
+}
+################################################################################
+sub _prompt_for_val
+{
+    my $msg = shift;
+    my @expected_values = @_;
+
+    my $DONE = 0;
+    my $val;
+    while (!$DONE)
+    {
+        $val = _prompt($msg);
+        $DONE = (grep /^$val$/, @expected_values) ? 1 :  0;
+    }
+
+    return ($val);
+}
+################################################################################
 sub _msg
 {
     my $msg = shift;
@@ -288,4 +469,14 @@ sub _msg
     $msg .= "\n" unless $msg =~ m|\n$|;
     print $msg;
 }
+################################################################################
+#function name2image_name(name) {
+#  name = name.toLowerCase();
+#  name = name.replace(/\s+/g,'_');
+#  name = name.replace(/[',\/]/g, '');
+#  name = name.replace(/\)/g, '');
+#  name = name.replace(/\(/g, '');
+#  
+#  return (name + ".jpg")
+#}
 ################################################################################
