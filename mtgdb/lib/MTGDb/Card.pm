@@ -9,6 +9,8 @@ __PACKAGE__->connection("dbi:CSV:", undef, undef, {
     f_dir => $ENV{MTGDB_CODEBASE}.'/db'
 });
 
+__PACKAGE__->autoupdate(0);
+
 __PACKAGE__->table('cards');
 __PACKAGE__->columns(Primary => qw/name/);
 # NOTE: These have to be 'Essential' to work with DBD::CSV b/c lazy loading

@@ -21,6 +21,8 @@ use constant SYNC_PORT    => 8080;
 
 my $UA  = LWP::UserAgent->new();
 
+my $LAST_IMAGE_FETCH_TIME = time;
+
 my %EDITION_MAP = (
     'Avacyn Restored'     => 'avr',
     'Dark Ascension'      => 'dka',
@@ -45,10 +47,12 @@ while (!$DONE)
     my $input = _prompt("\nmtg_db");
 
     my ($cmd, $args) = split /\s+/, $input, 2;
+    print "\n";
 
     given ($cmd)
     {
         # TODO: command to re-calculate legalness
+        # TODO: command to "sell/trade" a card, i.e. decrement count
         when ('add')
         {
             add_card(name => $args);
@@ -63,6 +67,7 @@ while (!$DONE)
         }
         when ('fetch_images')
         {
+            $LAST_IMAGE_FETCH_TIME = time-1;
             fetch_images();
         }
         when ('check_dups')
@@ -78,6 +83,11 @@ while (!$DONE)
         {
             count_cards();
         }
+        when ('sync')
+        {
+            my ($what, $ip) = split /\s+/, $args;
+            sync(what => $what, ip => $ip);
+        }
         when ('help') {
             print <<EOF;
 Commands:
@@ -88,6 +98,8 @@ Commands:
     * check_dups   --> Check for duplicates in the database.
     * verify_db    --> Check for dups and verify card with magiccards.info
     * count        --> Count unique cards and total cards.
+    * sync         --> Sync DB and images to HanDBase.
+                       sync <db|images> <IP>
     * help         --> This Message.
 EOF
         }
@@ -133,7 +145,7 @@ sub add_card
         # Foil - Assumes won't change from True to False only from False to True
         if ($is_foil)
         {
-            print "Changing Foil Status to Yes.\n";
+            print "Setting Foil Status to Yes.\n";
         }
         else
         {
@@ -148,7 +160,20 @@ sub add_card
         my $ok = _prompt_for_bool("Confirm");
         if ($ok)
         {
-            _msg("Updated '".$card->name."'.");
+            $card->edition(join ',', @editions) if defined $add_edition;
+            $card->legal($is_legal);
+            $card->foil($is_foil);
+            $card->count($card->count() + $add_copies) if $add_copies;
+
+            my $cnt = $card->update();
+            if ($cnt > 0)
+            {
+                _msg("Updated '".$card->name."'.");
+            }
+            else
+            {
+                _msg("Failed to update '".$card->name."'.");
+            }
         }
         else
         {
@@ -159,22 +184,31 @@ sub add_card
     {
         _msg("Adding new card with name '$name'");
 
-        $card = {name => $name};
-        $card->{type}       = _prompt_for_val("Type", MTGDb::Card->CARD_TYPES);
-        $card->{subtype}    = _prompt("Subtype");
-        $card->{edition}    = _prompt("Edition");
-        $card->{cost}       = uc(_prompt("Mana Cost"));
-        $card->{legal}      = _is_legal(editions => [$card->{edition}]);
-        $card->{foil}       = _prompt_for_val("Foil", '0','1');
-        $card->{rarity}     = _prompt_for_val("Rarity", MTGDb::Card->CARD_RARITIES);
-        $card->{count}      = _prompt("Count");
-        $card->{imagename}  = _image_name(card_name => $card->{name});
+        my $card_data = {name => $name};
+        $card_data->{type}       = _prompt_for_val("Type", MTGDb::Card->CARD_TYPES);
+        $card_data->{subtype}    = _prompt("Subtype");
+        $card_data->{edition}    = _prompt("Edition");
+        $card_data->{cost}       = uc(_prompt("Mana Cost"));
+        $card_data->{legal}      = _is_legal(editions => [$card_data->{edition}]);
+        $card_data->{foil}       = _prompt_for_bool("Foil");
+        $card_data->{rarity}     = _prompt_for_val("Rarity", MTGDb::Card->CARD_RARITIES);
+        $card_data->{count}      = _prompt("Count");
+        $card_data->{imagename}  = _image_name(card_name => $card_data->{name});
 
-        _display_card(card_data => $card);
+        _display_card(card_data => $card_data);
 
         my $ok = _prompt_for_bool("Confirm");
         if ($ok)
         {
+            my $card = MTGDb::Card->insert($card_data);
+            if ($card)
+            {
+                _msg("Successfully added new card '".$card->name."'.");
+            }
+            else
+            {
+                _msg("Failed to add new card.");
+            }
         }
         else
         {
@@ -223,6 +257,7 @@ sub _fetch_image
     my $card_name     = $args{name};
     my $card_type     = $args{type}     || '';
     my $card_edition  = $args{edition}  || '';
+    my $img_dir       = "$ENV{MTGDB_CODEBASE}/images";
 
     my $image_name = $args{image_name};
     unless ($image_name)
@@ -272,7 +307,7 @@ sub _fetch_image
                 _msg("Fetching '$card_name' as '$image_name'.\n");
 
                 my $response = $UA->get("$img_url/$img_path.jpg",
-                    ':content_file' => $image_name);
+                    ':content_file' => "$img_dir/$image_name");
 
                 die "[".$response->status_line()."] Failed to fetch image '$image_name'"
                     if $response->is_error();
@@ -294,7 +329,7 @@ sub fetch_images
 
     while(my $card = $card_it->next())
     {
-        next if -f $card->imagename;
+        next if -f "$ENV{MTGDB_CODEBASE}/images/".$card->imagename;
     
         my @editions = split ',', $card->edition;
         my $card_edition = pop @editions;
@@ -381,60 +416,87 @@ sub _image_name
     return ($image_name . ".jpg")
 }
 #################################################################################
-#sub sync
-#{
-#    my %args = @_;
-#
-#    sync_db() if $CMD eq 'fetch_images_db';
-#    sync_images();
-#}
+sub sync
+{
+    my %args = @_;
+    my $ip = $args{ip};
+
+    given ($ip)
+    {
+        when (/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)
+        {
+            $ip .= ':'.SYNC_PORT;
+        }
+        when (/\d{1,3}\.\d{1,3}/)
+        {
+            $ip = BASE_SYNC_IP.".$ip:".SYNC_PORT;
+        }
+        default
+        {
+            $ip = undef;
+            _msg("IP [$ip] does not look valid.");
+        }
+    }
+
+    if (defined $ip)
+    {
+        _sync_db(host => $ip)     if $args{what} eq 'db';
+        _sync_images(host => $ip) if $args{what} eq 'images';
+    }
+}
 #################################################################################
-#sub sync_db
-#{
-#    my %args = @_;
-#    
-#    _msg("Syncing $NAME to HanDBase...\n");
-#    my $response = $UA->post(
-#        "http://$SYNC/applet_add.html",
-#        {
-#            localfile => [$NAME],
-#            appletname => "Magic Cards" #TODO: don't hard-code DB name
-#        },
-#        'Content_Type' => 'form-data'
-#    );
-#
-#    _msg("[".$response->status_line()."] Error uploading DB to HanDBase: $NAME")
-#        if $response->is_msgor();    
-#}
+sub _sync_db
+{
+    my %args = @_;
+
+    my $host = $args{host};
+    my $file = "$ENV{MTGDB_CODEBASE}/db/cards.csv";
+
+    _msg("Syncing Db to host @ $host...\n");
+    my $response = $UA->post(
+        "http://$host/applet_add.html",
+        {
+            localfile => [$file],
+            appletname => "Magic Cards" #TODO: don't hard-code DB name
+        },
+        'Content_Type' => 'form-data'
+    );
+
+    _msg("Error syncing db: [".$response->status_line()."]")
+        if $response->is_error();    
+}
 #################################################################################
-#sub sync_images
-#{
-#    my %args = @_;
-#
-#    my @files = read_dir('.');
-#    @files = sort @files;
-#    foreach my $image_name (@files)
-#    {
-#        next unless $image_name =~ /\.jpg$/;
-#
-#        my @stats = stat $image_name;
-#        #9 == mtime
-#        if ($stats[9] > $START_TIME)
-#        {
-#            _msg("Syncing '$image_name' to HanDBase @ $SYNC...\n");
-#            my $response = $UA->post(
-#                "http://$SYNC/applet_add.html",
-#                {
-#                    localfile => [$image_name],
-#                    UpPDB     => 'Add File'
-#                },
-#                'Content_Type' => 'multipart/form-data'
-#            );
-#            _msg("[".$response->status_line()."] Error uploading image to HanDBase '$image_name'")
-#                if $response->is_msgor();
-#        }
-#    }
-#}
+sub _sync_images
+{
+    my %args = @_;
+    my $host = $args{host};
+
+    my $img_path = "$ENV{MTGDB_CODEBASE}/images";
+
+    my @files = read_dir($img_path);
+    @files = sort @files;
+    foreach my $image_name (@files)
+    {
+        next unless $image_name =~ /\.jpg$/;
+
+        my @stats = stat "$img_path/$image_name";
+        #9 == mtime
+        if ($stats[9] > $LAST_IMAGE_FETCH_TIME)
+        {
+            _msg("Syncing '$image_name' to host @ $host...\n");
+            my $response = $UA->post(
+                "http://$host/applet_add.html",
+                {
+                    localfile => ["$img_path/$image_name"],
+                    UpPDB     => 'Add File'
+                },
+                'Content_Type' => 'multipart/form-data'
+            );
+            _msg("Error uploading image '$image_name': [".$response->status_line()."]")
+                if $response->is_error();
+        }
+    }
+}
 ################################################################################
 sub _display_card
 {
@@ -452,18 +514,16 @@ EOF
     else
     {
         print <<EOF;
-<---------------------------------------------->
---=== $card->{name} ($card->{cost}) ===---
+
+--=== $card->{name} ($card->{cost}) ===--
 $card->{type} -- $card->{subtype} -- $card->{rarity}
 
-$card->{imagename}
+Editions: $card->{edition}
+Legal:    $card->{legal}
+Foil:     $card->{foil}
+Image:    $card->{imagename}
+Copies:   $card->{count}
 
-$card->{edition}
-
-Legal: $card->{legal} | Foil: $card->{foil}
-
-$card->{count} copies
-<---------------------------------------------->
 EOF
     }
 }
@@ -515,24 +575,3 @@ sub _msg
     print $msg;
 }
 ################################################################################
-################################################################################
-#if ($SYNC)
-#{
-#    given ($SYNC)
-#    {
-#        when (/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)
-#        {
-#            $SYNC .= ':'.SYNC_PORT;
-#        }
-#        when (/\d{1,3}\.\d{1,3}/)
-#        {
-#            $SYNC = BASE_SYNC_IP.".$SYNC:".SYNC_PORT;
-#        }
-#        default
-#        {
-#            die "IP [$SYNC] does not look valid.";
-#        }
-#    }
-#
-#    sync();
-#}
