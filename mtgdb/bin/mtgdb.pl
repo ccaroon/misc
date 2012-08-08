@@ -126,7 +126,7 @@ sub add_card
     {
         _display_card(card => $card);
         
-        my $add_edition = _prompt("Add Edition");
+        my $add_edition = _prompt_for_val("Add Edition", MTGDb::Card->RECENT_EDITIONS);
         my $is_foil     = _prompt_for_bool("Is Foil");
         my $add_copies  = _prompt("Add # Copies");
 

@@ -28,6 +28,14 @@ use constant STANDARD_LEGAL_EDITIONS => (
 'M13'
 );
 
+use constant RECENT_EDITIONS => (
+'M12',
+'Innistrad',
+'Dark Ascension',
+'Avacyn Restored',
+'M13'
+);
+
 use constant CARD_RARITIES => (
 'Common',
 'Uncommon',
