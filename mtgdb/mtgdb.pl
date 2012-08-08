@@ -24,6 +24,24 @@ Avacyn Restored
 M13
 );
 
+use constant CARD_RARITIES => qw(
+Common
+Uncommon
+Rare
+Mythic Rare
+);
+
+use constant CARD_TYPES => qw(
+Basic Land
+Creature
+Instant
+Sorcery
+Land
+Artifact
+Legendary Creature
+Enchantment
+);
+
 my $DBH = DBI->connect ("dbi:CSV:", {f_ext=>'csv'})
     or die "Cannot connect: $DBI::errstr";
 
@@ -48,12 +66,13 @@ my %EDITION_MAP = (
 my $DONE = 0;
 while (!$DONE)
 {
-    my $input = _prompt("mtg_db> ");
+    my $input = _prompt("mtg_db");
 
     my ($cmd, $args) = split /\s+/, $input, 2;
 
     given ($cmd)
     {
+        # TODO: command to re-calculate legalness
         when ('add')
         {
             add_card(name => $args);
@@ -82,6 +101,19 @@ while (!$DONE)
         when ('count')
         {
             count_cards();
+        }
+        when ('help') {
+            print <<EOF;
+Commands:
+    * add          --> Add a new card.
+    * show         --> Show a card by name.
+    * search       --> Search for a card by name match.
+    * fetch_images --> Fetch images.
+    * check_dups   --> Check for duplicates in the database.
+    * verify_db    --> Check for dups and verify card with magiccards.info
+    * count        --> Count unique cards and total cards.
+    * help         --> This Message.
+EOF
         }
         when ('exit') {
             $DONE = 1;
@@ -119,7 +151,7 @@ sub add_card
     my %args = @_;
     my $name = $args{name};
 
-    $name = _prompt("Name: ") unless $name;
+    $name = _prompt("Name") unless $name;
     
     my $stmt = $DBH->prepare("select * from ".DB_NAME." where Name = ?");
     $stmt->execute($name);
@@ -130,9 +162,9 @@ sub add_card
     {
         _display_card($card);
         
-        my $add_edition = _prompt("Add Edition: ");
-        my $is_foil     = _prompt("Is Foil: ");
-        my $add_copies  = _prompt("Add X Copies: ");
+        my $add_edition = _prompt("Add Edition");
+        my $is_foil     = _prompt("Is Foil");
+        my $add_copies  = _prompt("Add X Copies");
 
         print "\n<---------------------------------------------->\n\n";
 
@@ -151,7 +183,7 @@ sub add_card
         
         print "Adding $add_copies copies.\n" if defined $add_copies;
 
-        my $ok = _prompt_for_val("\nConfirm (y|n)? ", 'y', 'n');
+        my $ok = _prompt_for_val("\nConfirm", 'y', 'n');
         if ($ok eq 'y' )
         {
             _msg("Updated '$card->{name}'.");
@@ -164,7 +196,18 @@ sub add_card
     else
     {
         _msg("Adding new card with name '$name'");
-        
+
+        $card = {name => $name};
+        $card->{type}       = _prompt_for_val("Type", CARD_TYPES);
+        $card->{subtype}    = _prompt("Subtype");
+        $card->{edition}    = _prompt("Edition");
+        $card->{cost}       = _prompt("Mana Cost");
+        $card->{legal}      = _is_legal(editions => [$card->{edition}]);
+        $card->{foil}       = _prompt_for_val("Foil", 'y','n');
+        $card->{rarity}     = _prompt_for_val("Rarity", CARD_RARITIES);
+        $card->{count}      = _prompt("Count");
+        $card->{image_name} = _image_name(name => $name);
+        _display_card($card);
     }
 }
 ################################################################################
@@ -173,7 +216,7 @@ sub show_card
     my %args = @_;
     my $name = $args{name};
 
-    $name = _prompt("Name: ") unless $name;
+    $name = _prompt("Name") unless $name;
     
     my $stmt = $DBH->prepare("select * from ".DB_NAME." where Name = ?");
     $stmt->execute($name);
@@ -195,7 +238,7 @@ sub search_card
     my %args = @_;
     my $name = $args{name};
 
-    $name = _prompt("Name: ") unless $name;
+    $name = _prompt("Name") unless $name;
 
     my $stmt = $DBH->prepare("select * from ".DB_NAME." where Name clike ?");
     $stmt->execute("%$name%");
@@ -360,6 +403,21 @@ sub _is_legal
 
     return($is_legal);
 }
+################################################################################
+sub _image_name
+{
+    my %args = @_;
+    my $card_name = $args{card_name};
+    
+    my $image_name = lc $card_name;
+    $image_name =~ s/\s/_/g;
+    $image_name =~ s/[^A-Za-z0-9\-_]//g;
+    #$image_name =~ s/[',\/]//g;
+    #$image_name =~ s/\)//g;
+    #$image_name =~ s/\(//g;
+  
+    return ($image_name + ".jpg")
+}
 #################################################################################
 #sub sync
 #{
@@ -437,7 +495,7 @@ sub _prompt
 {
     my $msg = shift;
 
-    print "$msg";
+    print "$msg: ";
     my $input = <STDIN>;
     chomp $input;
 
@@ -453,9 +511,10 @@ sub _prompt_for_val
 
     my $DONE = 0;
     my $val;
+    my $val_str = join ',', @expected_values;
     while (!$DONE)
     {
-        $val = _prompt($msg);
+        $val = _prompt("$msg ($val_str)");
         $DONE = (grep /^$val$/, @expected_values) ? 1 :  0;
     }
 
@@ -469,14 +528,4 @@ sub _msg
     $msg .= "\n" unless $msg =~ m|\n$|;
     print $msg;
 }
-################################################################################
-#function name2image_name(name) {
-#  name = name.toLowerCase();
-#  name = name.replace(/\s+/g,'_');
-#  name = name.replace(/[',\/]/g, '');
-#  name = name.replace(/\)/g, '');
-#  name = name.replace(/\(/g, '');
-#  
-#  return (name + ".jpg")
-#}
 ################################################################################
