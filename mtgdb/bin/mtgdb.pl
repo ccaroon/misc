@@ -13,33 +13,33 @@ use constant SYNC_PORT    => 8080;
 
 my $UA  = LWP::UserAgent->new();
 
-use constant STANDARD_LEGAL_EDITIONS => qw(
-Scars of Mirrodin
-Mirrodin Besieged
-New Phyrexia
-M12
-Innistrad
-Dark Ascension
-Avacyn Restored
-M13
+use constant STANDARD_LEGAL_EDITIONS => (
+'Scars of Mirrodin',
+'Mirrodin Besieged',
+'New Phyrexia',
+'M12',
+'Innistrad',
+'Dark Ascension',
+'Avacyn Restored',
+'M13'
 );
 
-use constant CARD_RARITIES => qw(
-Common
-Uncommon
-Rare
-Mythic Rare
+use constant CARD_RARITIES => (
+'Common',
+'Uncommon',
+'Rare',
+'Mythic Rare'
 );
 
-use constant CARD_TYPES => qw(
-Basic Land
-Creature
-Instant
-Sorcery
-Land
-Artifact
-Legendary Creature
-Enchantment
+use constant CARD_TYPES => (
+'Basic Land',
+'Creature',
+'Instant',
+'Sorcery',
+'Land',
+'Artifact',
+'Legendary Creature',
+'Enchantment'
 );
 
 my $DBH = DBI->connect ("dbi:CSV:", {f_ext=>'csv'})
@@ -85,7 +85,7 @@ while (!$DONE)
         {
             search_card(name => $args);
         }
-        when ('fetch_images_db')
+        when ('fetch_images')
         {
             fetch_images_db();
         }
@@ -153,7 +153,7 @@ sub add_card
 
     $name = _prompt("Name") unless $name;
     
-    my $stmt = $DBH->prepare("select * from ".DB_NAME." where Name = ?");
+    my $stmt = $DBH->prepare("select * from ".DB_NAME." where name = ?");
     $stmt->execute($name);
     my $card = $stmt->fetchrow_hashref();
     $stmt->finish();
@@ -163,28 +163,30 @@ sub add_card
         _display_card($card);
         
         my $add_edition = _prompt("Add Edition");
-        my $is_foil     = _prompt("Is Foil");
-        my $add_copies  = _prompt("Add X Copies");
+        my $is_foil     = _prompt_for_bool("Is Foil");
+        my $add_copies  = _prompt("Add # Copies");
 
         print "\n<---------------------------------------------->\n\n";
 
         # Recompute Legality
-        my @editions = split /,/, $card->{Edition};
+        my @editions = split /,/, $card->{edition};
         push @editions, $add_edition if defined $add_edition;
         my $is_legal = _is_legal(editions => \@editions);
 
         print "Adding '$add_edition' to Editions.\n" if defined $add_edition;
 
         my $legal_status = ($is_legal) ? "Legal" : "Not Legal";
-        print "Card is now $legal_status.\n" if $is_legal != $card->{Legal};
+        print "Card is now $legal_status.\n" if $is_legal != $card->{legal};
 
         my $foil_status = (defined $is_foil and $is_foil) ? "Yes" : "No";
         print "Changing Foil Status to $foil_status.\n" if defined $is_foil;
         
         print "Adding $add_copies copies.\n" if defined $add_copies;
 
-        my $ok = _prompt_for_val("\nConfirm", 'y', 'n');
-        if ($ok eq 'y' )
+        print "\n";
+
+        my $ok = _prompt_for_bool("Confirm");
+        if ($ok)
         {
             _msg("Updated '$card->{name}'.");
         }
@@ -201,13 +203,16 @@ sub add_card
         $card->{type}       = _prompt_for_val("Type", CARD_TYPES);
         $card->{subtype}    = _prompt("Subtype");
         $card->{edition}    = _prompt("Edition");
-        $card->{cost}       = _prompt("Mana Cost");
+        $card->{cost}       = uc(_prompt("Mana Cost"));
         $card->{legal}      = _is_legal(editions => [$card->{edition}]);
-        $card->{foil}       = _prompt_for_val("Foil", 'y','n');
+        $card->{foil}       = _prompt_for_val("Foil", '0','1');
         $card->{rarity}     = _prompt_for_val("Rarity", CARD_RARITIES);
         $card->{count}      = _prompt("Count");
-        $card->{image_name} = _image_name(name => $name);
+        $card->{imagename}  = _image_name(card_name => $card->{name});
+
         _display_card($card);
+
+        my $ok = _prompt_for_bool("Confirm");
     }
 }
 ################################################################################
@@ -218,7 +223,7 @@ sub show_card
 
     $name = _prompt("Name") unless $name;
     
-    my $stmt = $DBH->prepare("select * from ".DB_NAME." where Name = ?");
+    my $stmt = $DBH->prepare("select * from ".DB_NAME." where name = ?");
     $stmt->execute($name);
     my $card = $stmt->fetchrow_hashref();
     $stmt->finish();
@@ -240,7 +245,7 @@ sub search_card
 
     $name = _prompt("Name") unless $name;
 
-    my $stmt = $DBH->prepare("select * from ".DB_NAME." where Name clike ?");
+    my $stmt = $DBH->prepare("select * from ".DB_NAME." where name clike ?");
     $stmt->execute("%$name%");
 
     while (my $card = $stmt->fetchrow_hashref())
@@ -356,7 +361,7 @@ sub fetch_images_db
 ################################################################################
 sub count_cards
 {      
-    my $stmt = $DBH->prepare("select Count from ".DB_NAME);
+    my $stmt = $DBH->prepare("select count from ".DB_NAME);
     $stmt->execute();
 
     my $unique_cards = 0;
@@ -364,7 +369,7 @@ sub count_cards
     while (my $row = $stmt->fetchrow_hashref())
     {
         $unique_cards++;
-        $total_cards += $row->{Count};
+        $total_cards += $row->{count};
     }
 
     _msg("Unique Cards: $unique_cards");
@@ -373,13 +378,13 @@ sub count_cards
 ################################################################################
 sub check_dups
 {   
-    my $stmt = $DBH->prepare("select Name from ".DB_NAME);
+    my $stmt = $DBH->prepare("select name from ".DB_NAME);
     $stmt->execute();
     
     my %dups;
     while (my $row = $stmt->fetchrow_hashref())
     {
-        $dups{lc($row->{Name})}++;
+        $dups{lc($row->{name})}++;
     }
 
     map
@@ -407,16 +412,15 @@ sub _is_legal
 sub _image_name
 {
     my %args = @_;
-    my $card_name = $args{card_name};
     
-    my $image_name = lc $card_name;
+    my $image_name = lc $args{card_name};
     $image_name =~ s/\s/_/g;
     $image_name =~ s/[^A-Za-z0-9\-_]//g;
     #$image_name =~ s/[',\/]//g;
     #$image_name =~ s/\)//g;
     #$image_name =~ s/\(//g;
   
-    return ($image_name + ".jpg")
+    return ($image_name . ".jpg")
 }
 #################################################################################
 #sub sync
@@ -482,6 +486,9 @@ sub _display_card
 <---------------------------------------------->
 --=== $card->{name} ($card->{cost}) ===---
 $card->{type} -- $card->{subtype} -- $card->{rarity}
+
+$card->{imagename}
+
 $card->{edition}
 
 Legal: $card->{legal} | Foil: $card->{foil}
@@ -504,6 +511,15 @@ sub _prompt
     return ($input);
 }
 ################################################################################
+sub _prompt_for_bool
+{
+    my $msg = shift;
+    
+    my $val_str = _prompt_for_val($msg, 'y','n');
+    
+    return (($val_str eq 'y') ? 1 : 0);
+}
+################################################################################
 sub _prompt_for_val
 {
     my $msg = shift;
@@ -511,7 +527,7 @@ sub _prompt_for_val
 
     my $DONE = 0;
     my $val;
-    my $val_str = join ',', @expected_values;
+    my $val_str = join '|', @expected_values;
     while (!$DONE)
     {
         $val = _prompt("$msg ($val_str)");
