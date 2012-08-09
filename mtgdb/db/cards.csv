@@ -1,4 +1,4 @@
-Name,Type,Subtype,Edition,Cost,Legal,Foil,Rarity,Count,Image,ImageName
+Name,Type,Subtype,Editions,Cost,Legal,Foil,Rarity,Count,Image,ImageName
 "Abbey Matron",Creature,Cleric,Homelands,2W,0,0,Common,1,,abbey_matron.jpg
 "Accelerated Mutation",Instant,,Scourge,3GG,0,0,Common,2,,accelerated_mutation.jpg
 "Accorder Paladin",Creature,"Human Knight","Mirrodin Besieged",1W,1,0,Uncommon,1,,accorder_paladin.jpg

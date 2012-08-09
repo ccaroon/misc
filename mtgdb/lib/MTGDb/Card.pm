@@ -15,7 +15,7 @@ __PACKAGE__->table('cards');
 __PACKAGE__->columns(Primary => qw/name/);
 # NOTE: These have to be 'Essential' to work with DBD::CSV b/c lazy loading
 #       does not work.
-__PACKAGE__->columns(Essential => qw/type subtype edition cost legal foil rarity count image imagename/);
+__PACKAGE__->columns(Essential => qw/type subtype editions cost legal foil rarity count image imagename/);
 ################################################################################
 use constant STANDARD_LEGAL_EDITIONS => (
 'Scars of Mirrodin',

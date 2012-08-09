@@ -51,13 +51,12 @@ while (!$DONE)
 
     given ($cmd)
     {
-        # TODO: command to re-calculate legalness
         # TODO: command to "sell/trade" a card, i.e. decrement count
         when ('add')
         {
             add_card(name => $args);
         }
-        when ('show')
+        when (/^(show|view)$/)
         {
             show_card(name => $args);
         }
@@ -79,6 +78,10 @@ while (!$DONE)
             check_dups();
             fetch_images(dry_run => 1);
         }
+        when ('recalc_legal')
+        {
+            recalc_legal();
+        }
         when ('count')
         {
             count_cards();
@@ -93,10 +96,12 @@ while (!$DONE)
 Commands:
     * add          --> Add a new card.
     * show         --> Show a card by name.
+    * view         --> Alias for 'show'
     * search       --> Search for a card by name match.
     * fetch_images --> Fetch images.
     * check_dups   --> Check for duplicates in the database.
     * verify_db    --> Check for dups and verify card with magiccards.info
+    * recalc_legal --> Recalculate the legalness of each card.
     * count        --> Count unique cards and total cards.
     * sync         --> Sync DB and images to HanDBase.
                        sync <db|images> <IP>
@@ -134,7 +139,7 @@ sub add_card
         print "\n<---------------------------------------------->\n\n";
 
         # Editions and Legality
-        my @editions = split /,/, $card->edition;
+        my @editions = split /,/, $card->editions;
         push @editions, $add_edition if defined $add_edition;
         my $is_legal = _is_legal(editions => \@editions);
 
@@ -161,7 +166,7 @@ sub add_card
         my $ok = _prompt_for_bool("Confirm");
         if ($ok)
         {
-            $card->edition(join ',', @editions) if defined $add_edition;
+            $card->editions(join ',', @editions) if defined $add_edition;
             $card->legal($is_legal);
             $card->foil($is_foil);
             $card->count($card->count() + $add_copies) if $add_copies;
@@ -188,9 +193,9 @@ sub add_card
         my $card_data = {name => $name};
         $card_data->{type}       = _prompt_for_val("Type", MTGDb::Card->CARD_TYPES);
         $card_data->{subtype}    = _prompt("Subtype");
-        $card_data->{edition}    = _prompt_for_val("Edition", MTGDb::Card->RECENT_EDITIONS);
+        $card_data->{editions}    = _prompt_for_val("Edition", MTGDb::Card->RECENT_EDITIONS);
         $card_data->{cost}       = uc(_prompt("Mana Cost"));
-        $card_data->{legal}      = _is_legal(editions => [$card_data->{edition}]);
+        $card_data->{legal}      = _is_legal(editions => [$card_data->{editions}]);
         $card_data->{foil}       = _prompt_for_bool("Foil");
         $card_data->{rarity}     = _prompt_for_val("Rarity", MTGDb::Card->CARD_RARITIES);
         $card_data->{count}      = _prompt("Count");
@@ -332,7 +337,7 @@ sub fetch_images
     {
         next if -f "$ENV{MTGDB_CODEBASE}/images/".$card->imagename;
     
-        my @editions = split ',', $card->edition;
+        my @editions = split ',', $card->editions();
         my $card_edition = pop @editions;
         $card_edition =~ s/^\s+//;
         $card_edition =~ s/\s+$//;
@@ -386,6 +391,29 @@ sub check_dups
         _msg("Duplicate Card Found: [$_] ($dups{$_})\n")
             if $dups{$_} > 1;
     } keys %dups;
+}
+################################################################################
+sub recalc_legal
+{
+    my $this = shift;
+    
+    my $card_it = MTGDb::Card->retrieve_all();
+    while (my $card = $card_it->next())
+    {
+        my @editions = split /,/, $card->editions();
+
+        my $old_legal = $card->legal();
+        my $new_legal = _is_legal(editions => \@editions);
+
+        if ($new_legal != $old_legal)
+        {
+            my $legal_str = $new_legal ? 'Now Legal' : 'No Longer Legal';
+            _msg("'".$card->name."' is $legal_str");
+
+            $card->legal($new_legal);
+            $card->update();
+        }
+    }
 }
 ################################################################################
 sub _is_legal
@@ -519,7 +547,7 @@ EOF
 --=== $card->{name} ($card->{cost}) ===--
 $card->{type} -- $card->{subtype} -- $card->{rarity}
 
-Editions: $card->{edition}
+Editions: $card->{editions}
 Legal:    $card->{legal}
 Foil:     $card->{foil}
 Image:    $card->{imagename}
