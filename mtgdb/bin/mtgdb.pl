@@ -166,15 +166,21 @@ sub show_card
 sub search_card
 {
     my %args = @_;
-    my $name = $args{name};
-
-    $name = _prompt("Name") unless $name;
-
-    my @cards = MTGDb::Card->search_like(name => "%$name%");
+    my $field = $args{field};
+    my $term  = $args{term};
+    
+    unless (defined $term)
+    {
+        $term = $field;
+        $field = 'name';
+    }
+    
+    my @cards = MTGDb::Card->search_like($field => "%$term%");
     foreach my $card (@cards)
     {
         _display_card(card => $card, format => 'summary');
     }
+    _msg("\nFound ".scalar(@cards)." records.");
 }
 ################################################################################
 sub _fetch_image
@@ -547,7 +553,8 @@ while (!$DONE)
         }
         when ('search')
         {
-            search_card(name => $args);
+            my ($field, $term) = split /\s+/, $args, 2;
+            search_card(field => $field, term => $term);
         }
         when ('fetch_images')
         {
@@ -573,7 +580,7 @@ while (!$DONE)
         }
         when ('sync')
         {
-            my ($what, $ip) = split /\s+/, $args;
+            my ($what, $ip) = split /\s+/, $args, 2;
             sync(what => $what, ip => $ip);
         }
         when ('help') {
@@ -582,7 +589,10 @@ Commands:
     * add          --> Add a new card.
     * show         --> Show a card by name.
     * view         --> Alias for 'show'
-    * search       --> Search for a card by name match.
+    * search       --> Search for a card by any field. Defaults to name.
+                       search Doom Blade
+                       search name Doom Blade
+                       search type Creature
     * fetch_images --> Fetch images.
     * check_dups   --> Check for duplicates in the database.
     * verify_db    --> Check for dups and verify card with magiccards.info
