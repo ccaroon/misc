@@ -20,9 +20,7 @@ use constant BASE_SYNC_IP =>'192.168';
 use constant SYNC_PORT    => 8080;
 
 my $UA  = LWP::UserAgent->new();
-
 my $LAST_IMAGE_FETCH_TIME = time;
-
 my %EDITION_MAP = (
     'Avacyn Restored'     => 'avr',
     'Dark Ascension'      => 'dka',
@@ -40,83 +38,6 @@ my %EDITION_MAP = (
     'Planechase 2012'         => 'pc2',
     'Unglued'                 => 'ug',
 );
-
-my $DONE = 0;
-while (!$DONE)
-{
-    my $input = _prompt("\nmtg_db");
-
-    my ($cmd, $args) = split /\s+/, $input, 2;
-    print "\n";
-
-    given ($cmd)
-    {
-        # TODO: command to "sell/trade" a card, i.e. decrement count
-        when ('add')
-        {
-            add_card(name => $args);
-        }
-        when (/^(show|view)$/)
-        {
-            show_card(name => $args);
-        }
-        when ('search')
-        {
-            search_card(name => $args);
-        }
-        when ('fetch_images')
-        {
-            $LAST_IMAGE_FETCH_TIME = time-1;
-            fetch_images();
-        }
-        when ('check_dups')
-        {
-            check_dups();
-        }
-        when ('verify_db')
-        {
-            check_dups();
-            fetch_images(dry_run => 1);
-        }
-        when ('recalc_legal')
-        {
-            recalc_legal();
-        }
-        when ('count')
-        {
-            count_cards();
-        }
-        when ('sync')
-        {
-            my ($what, $ip) = split /\s+/, $args;
-            sync(what => $what, ip => $ip);
-        }
-        when ('help') {
-            print <<EOF;
-Commands:
-    * add          --> Add a new card.
-    * show         --> Show a card by name.
-    * view         --> Alias for 'show'
-    * search       --> Search for a card by name match.
-    * fetch_images --> Fetch images.
-    * check_dups   --> Check for duplicates in the database.
-    * verify_db    --> Check for dups and verify card with magiccards.info
-    * recalc_legal --> Recalculate the legalness of each card.
-    * count        --> Count unique cards and total cards.
-    * sync         --> Sync DB and images to HanDBase.
-                       sync <db|images> <IP>
-    * help         --> This Message.
-EOF
-        }
-        when ('exit') {
-            $DONE = 1;
-        }
-        default
-        {
-            _msg("Unknown command [$cmd].\n");
-        }
-    }
-}
 ################################################################################
 sub add_card
 {
@@ -604,3 +525,80 @@ sub _msg
     print $msg;
 }
 ################################################################################
+# TODO: command to "sell/trade" a card, i.e. decrement count
+################################################################################
+my $DONE = 0;
+while (!$DONE)
+{
+    my $input = _prompt("\nmtg_db");
+
+    my ($cmd, $args) = split /\s+/, $input, 2;
+    print "\n";
+
+    given ($cmd)
+    {
+        when ('add')
+        {
+            add_card(name => $args);
+        }
+        when (/^(show|view)$/)
+        {
+            show_card(name => $args);
+        }
+        when ('search')
+        {
+            search_card(name => $args);
+        }
+        when ('fetch_images')
+        {
+            $LAST_IMAGE_FETCH_TIME = time-1;
+            fetch_images();
+        }
+        when ('check_dups')
+        {
+            check_dups();
+        }
+        when ('verify_db')
+        {
+            check_dups();
+            fetch_images(dry_run => 1);
+        }
+        when ('recalc_legal')
+        {
+            recalc_legal();
+        }
+        when ('count')
+        {
+            count_cards();
+        }
+        when ('sync')
+        {
+            my ($what, $ip) = split /\s+/, $args;
+            sync(what => $what, ip => $ip);
+        }
+        when ('help') {
+            print <<EOF;
+Commands:
+    * add          --> Add a new card.
+    * show         --> Show a card by name.
+    * view         --> Alias for 'show'
+    * search       --> Search for a card by name match.
+    * fetch_images --> Fetch images.
+    * check_dups   --> Check for duplicates in the database.
+    * verify_db    --> Check for dups and verify card with magiccards.info
+    * recalc_legal --> Recalculate the legalness of each card.
+    * count        --> Count unique cards and total cards.
+    * sync         --> Sync DB and images to HanDBase.
+                       sync <db|images> <IP>
+    * help         --> This Message.
+EOF
+        }
+        when ('exit') {
+            $DONE = 1;
+        }
+        default
+        {
+            _msg("Unknown command [$cmd].\n");
+        }
+    }
+}
