@@ -126,7 +126,8 @@ sub add_card
     {
         _display_card(card => $card);
         
-        my $add_edition = _prompt_for_val("Add Edition", MTGDb::Card->RECENT_EDITIONS);
+        my $add_edition = _prompt_for_val("Add Edition",
+            MTGDb::Card->RECENT_EDITIONS, undef);
         my $is_foil     = _prompt_for_bool("Is Foil");
         my $add_copies  = _prompt("Add # Copies");
 
@@ -187,7 +188,7 @@ sub add_card
         my $card_data = {name => $name};
         $card_data->{type}       = _prompt_for_val("Type", MTGDb::Card->CARD_TYPES);
         $card_data->{subtype}    = _prompt("Subtype");
-        $card_data->{edition}    = _prompt("Edition");
+        $card_data->{edition}    = _prompt_for_val("Edition", MTGDb::Card->RECENT_EDITIONS);
         $card_data->{cost}       = uc(_prompt("Mana Cost"));
         $card_data->{legal}      = _is_legal(editions => [$card_data->{edition}]);
         $card_data->{foil}       = _prompt_for_bool("Foil");
