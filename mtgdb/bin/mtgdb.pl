@@ -112,14 +112,15 @@ sub add_card
         _msg("Adding new card with name '$name'");
 
         my $card_data = {name => $name};
+        $card_data->{cost}       = uc(_prompt("Mana Cost"));
         $card_data->{type}       = _prompt_for_val("Type", MTGDb::Card->CARD_TYPES);
         $card_data->{subtype}    = _prompt("Subtype");
         $card_data->{editions}    = _prompt_for_val("Edition", MTGDb::Card->RECENT_EDITIONS);
-        $card_data->{cost}       = uc(_prompt("Mana Cost"));
         $card_data->{legal}      = _is_legal(editions => [$card_data->{editions}]);
-        $card_data->{foil}       = _prompt_for_bool("Foil");
         $card_data->{rarity}     = _prompt_for_val("Rarity", MTGDb::Card->CARD_RARITIES);
+        $card_data->{foil}       = _prompt_for_bool("Foil");
         $card_data->{count}      = _prompt("Count");
+
         $card_data->{imagename}  = _image_name(card_name => $card_data->{name});
 
         _display_card(card_data => $card_data);
