@@ -19,6 +19,12 @@ use MTGDb::Card;
 use constant BASE_SYNC_IP =>'192.168';
 use constant SYNC_PORT    => 8080;
 
+use constant LOWER_WORDS => {
+    the => 1,
+    of  => 1,
+    a   => 1
+};
+
 my $UA  = LWP::UserAgent->new();
 my $LAST_IMAGE_FETCH_TIME = time;
 my %EDITION_MAP = (
@@ -45,7 +51,8 @@ sub add_card
     my $name = $args{name};
 
     $name = _prompt("Name") unless $name;
-    
+    $name = _normalize_name($name);
+
     my $card = MTGDb::Card->retrieve($name);
 
     if ($card)
@@ -109,7 +116,7 @@ sub add_card
     }
     else
     {
-        _msg("Adding new card with name '$name'");
+        _msg("New Card: '$name'\n\n");
 
         my $card_data = {name => $name};
         $card_data->{cost}       = uc(_prompt("Mana Cost"));
@@ -151,6 +158,7 @@ sub show_card
     my $name = $args{name};
 
     $name = _prompt("Name") unless $name;
+    $name = _normalize_name($name);
 
     my $card = MTGDb::Card->retrieve($name);
 
@@ -175,13 +183,15 @@ sub search_card
         $term = $field;
         $field = 'name';
     }
-    
+
+    $term = _normalize_name($term);
+
     my @cards = MTGDb::Card->search_like($field => "%$term%");
     foreach my $card (@cards)
     {
         _display_card(card => $card, format => 'summary');
     }
-    _msg("\nFound ".scalar(@cards)." records.");
+    _msg("\nSearch for '$term' found ".scalar(@cards)." records.");
 }
 ################################################################################
 sub _fetch_image
@@ -522,6 +532,26 @@ sub _prompt_for_val
     }
 
     return ($val);
+}
+################################################################################
+sub _normalize_name
+{
+    my $name = shift;
+    
+    my $new_name = "";
+    foreach (split /\s+/, $name)
+    {
+        my $word = lc $_;
+        unless (LOWER_WORDS->{$word})
+        {
+            $word = ucfirst $word;
+        }
+        
+        $new_name .= "$word ";
+    }
+    chop $new_name;
+
+    return ($new_name);
 }
 ################################################################################
 sub _msg
