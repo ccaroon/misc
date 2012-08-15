@@ -101,7 +101,7 @@ Backslide,Instant,,Onslaught,1B,0,0,Common,1,,backslide.jpg
 "Black Cat",Creature,"Zombie Cat","Dark Ascension",1K,1,0,Common,1,,black_cat.jpg
 "Black Knight",Creature,"Human Knight",M11,KK,0,0,Uncommon,1,,black_knight.jpg
 "Bladed Sentinel","Artifact Creature",Construct,"Mirrodin Besieged",4,1,0,Common,1,,bladed_sentinel.jpg
-"Bladetusk Boar",Creature,Boar,Zendikar,3R,0,0,Common,1,,bladetusk_boar.jpg
+"Bladetusk Boar",Creature,Boar,"Zendikar,M13",3R,1,0,Common,3,,bladetusk_boar.jpg
 Blaze,Sorcery,,"Seventh Edition",XR,0,0,Uncommon,1,,blaze.jpg
 "Blazing Torch",Artifact,Equipment,Zendikar,1,0,0,Uncommon,1,,blazing_torch.jpg
 "Blessings of Nature",Sorcery,,"Avacyn Restored",4G,1,0,Uncommon,1,,blessings_of_nature.jpg
@@ -157,7 +157,7 @@ Bramblesnap,Creature,Elemental,"Rise of the Eldrazi",1G,0,0,Uncommon,1,,brambles
 "Call to Serve",Enchantment,Aura,"Avacyn Restored",1W,1,0,Common,2,,call_to_serve.jpg
 Cancel,Instant,,"M10,DOP,Zendikar,M12,Planechase 2012",1BB,1,0,Common,10,,cancel.jpg
 "Canopy Cover",Enchantment,Aura,Worldwake,1G,0,0,Uncommon,1,,canopy_cover.jpg
-"Canyon Minotaur",Creature,"Minotaur Warrior",M11,3R,0,0,Common,2,,canyon_minotaur.jpg
+"Canyon Minotaur",Creature,"Minotaur Warrior","M11,M13",3R,1,0,Common,3,,canyon_minotaur.jpg
 "Captain's Call",Sorcery,,M13,3W,1,0,Common,2,,captains_call.jpg
 "Captivating Vampire",Creature,Vampire,M11,1KK,0,0,Rare,1,,captivating_vampire.jpg
 "Carapace Forger",Creature,"Elf Artificer","Scars of Mirrodin",1G,1,0,Common,1,,carapace_forger.jpg
@@ -254,7 +254,7 @@ Deathmark,Sorcery,,M12,K,1,0,Uncommon,1,,deathmark.jpg
 "Defy Gravity",Instant,,Judgment,B,0,0,Common,1,,defy_gravity.jpg
 Deluge,Instant,,DOP,2B,0,0,Uncommon,2,,deluge.jpg
 "Delver of Secrets",Creature,"Human Wizard",Innistrad,B,1,0,Common,2,,delver_of_secrets.jpg
-Demolish,Sorcery,,"Zendikar,Avacyn Restored",3R,1,0,Common,3,,demolish.jpg
+Demolish,Sorcery,,"Zendikar,Avacyn Restored",3R,1,0,Common,4,,demolish.jpg
 "Demon's Horn",Artifact,,"M11,M12",2,1,0,Uncommon,2,,demons_horn.jpg
 "Demonic Appetite",Enchantment,Aura,"Rise of the Eldrazi",K,0,0,Common,1,,demonic_appetite.jpg
 "Demonic Dread",Sorcery,,"Alara Reborn",1KR,0,0,Common,1,,demonic_dread.jpg
@@ -355,16 +355,16 @@ Farseek,Sorcery,,M13,1G,1,0,Common,3,,farseek.jpg
 "Feral Hydra",Creature,"Hydra Beast",Archenemy,XG,0,0,Rare,1,,feral_hydra.jpg
 Ferrovore,Creature,Beast,"Scars of Mirrodin",2R,1,0,Common,1,,ferrovore.jpg
 Fertilid,Creature,Elemental,Archenemy,2G,0,0,Common,2,,fertilid.jpg
-"Fervent Cathar",Creature,"Human Knight","Avacyn Restored",2R,1,0,Common,1,,fervent_cathar.jpg
+"Fervent Cathar",Creature,"Human Knight","Avacyn Restored",2R,1,0,Common,2,,fervent_cathar.jpg
 "Festering Goblin",Creature,"Zombie Goblin",Onslaught,K,0,0,Common,1,,festering_goblin.jpg
 "Fiend Hunter",Creature,"Human Cleric",Innistrad,1WW,1,0,Uncommon,1,,fiend_hunter.jpg
 "Fierce Empath",Creature,Elf,Scourge,2G,0,0,Common,3,,fierce_empath.jpg
 "Fiery Hellhound",Creature,"Elemental Hellhound","M10,M12",1RR,1,0,Common,5,,fiery_hellhound.jpg
 "Final Punishment",Sorcery,,Scourge,3KK,0,0,Rare,1,,final_punishment.jpg
-"Fire Elemental",Creature,Elemental,"Seventh Edition",3RR,0,0,Uncommon,1,,fire_elemental.jpg
+"Fire Elemental",Creature,Elemental,"Seventh Edition,M13",3RR,1,0,Uncommon,2,,fire_elemental.jpg
 Fireball,Sorcery,,"M11,M12",XR,1,0,Uncommon,3,,fireball.jpg
 Firebreathing,Enchantment,Aura,"M10,M12",R,1,0,Common,6,,firebreathing.jpg
-"Fires of Undeath",Instant,,"Dark Ascension",2R,1,0,Common,3,,fires_of_undeath.jpg
+"Fires of Undeath",Instant,,"Dark Ascension",2R,1,0,Common,4,,fires_of_undeath.jpg
 "Flameblast Dragon",Creature,Dragon,M12,4RR,1,0,Rare,3,,flameblast_dragon.jpg
 "Flameborn Hellion",Creature,Hellion,"Scars of Mirrodin",5R,1,0,Common,2,,flameborn_hellion.jpg
 "Flash Foliage",Instant,,Dissension,2G,0,0,Uncommon,2,,flash_foliage.jpg
@@ -382,7 +382,7 @@ Fog,Instant,,"Archenemy,M12",G,1,0,Common,3,,fog.jpg
 "Forbidden Alchemy",Instant,,Innistrad,2B,1,1,Common,6,,forbidden_alchemy.jpg
 Foresee,Sorcery,,M11,3B,0,0,Common,2,,foresee.jpg
 Forest,"Basic Land",Forest,"M12,Avacyn Restored,M13",,1,1,Common,205,,forest.jpg
-"Forge Devil",Creature,Devil,"Dark Ascension",R,1,0,Common,1,,forge_devil.jpg
+"Forge Devil",Creature,Devil,"Dark Ascension",R,1,0,Common,2,,forge_devil.jpg
 "Forgotten Ancient",Creature,Elemental,Archenemy,3G,0,0,Rare,1,,forgotten_ancient.jpg
 "Fortress Crab",Creature,Crab,Innistrad,3B,1,0,Common,5,,fortress_crab.jpg
 "Fractured Powerstone",Artifact,,"Planechase 2012",2,0,0,Common,1,,fractured_powerstone.jpg
@@ -456,7 +456,7 @@ Glowrider,Creature,"Cleric Soldier",Legions,2W,0,0,Rare,1,,glowrider.jpg
 Gnathosaur,Creature,Lizard,"Mirrodin Besieged",4RR,1,0,Common,3,,gnathosaur.jpg
 "Gnaw to the Bone",Instant,,Innistrad,2G,1,0,Common,5,,gnaw_to_the_bone.jpg
 "Go for the Throat",Instant,,"Mirrodin Besieged",1K,1,0,Uncommon,2,,go_for_the_throat.jpg
-"Goblin Arsonist",Creature,"Goblin Shaman","Rise of the Eldrazi,M12,M13",R,1,0,Common,4,,goblin_arsonist.jpg
+"Goblin Arsonist",Creature,"Goblin Shaman","Rise of the Eldrazi,M12,M13",R,1,0,Common,5,,goblin_arsonist.jpg
 "Goblin Assassin",Creature,"Goblin Assassin",Legions,3RR,0,0,Uncommon,1,,goblin_assassin.jpg
 "Goblin Balloon Brigade",Creature,"Goblin Warrior",M11,R,0,0,Common,2,,goblin_balloon_brigade.jpg
 "Goblin Bangchuckers",Creature,"Goblin Warrior",M12,2RR,1,0,Uncommon,1,,goblin_bangchuckers.jpg
@@ -808,7 +808,7 @@ Phyresis,Enchantment,Aura,"Mirrodin Besieged",1K,1,0,Common,4,,phyresis.jpg
 Pillage,Sorcery,,"Seventh Edition",1RR,0,0,Uncommon,2,,pillage.jpg
 "Pinpoint Avalanche",Instant,,Onslaught,3RR,0,0,Common,1,,pinpoint_avalanche.jpg
 "Pistus Strike",Instant,,"Mirrodin Besieged",2G,1,0,Common,1,,pistus_strike.jpg
-"Pitchburn Devils",Creature,Devil,Innistrad,4R,1,0,Common,1,,pitchburn_devils.jpg
+"Pitchburn Devils",Creature,Devil,Innistrad,4R,1,0,Common,2,,pitchburn_devils.jpg
 "Plague Myr","Artifact Creature",Mry,"Mirrodin Besieged",2,1,1,Uncommon,1,,plague_myr.jpg
 "Plaguemaw Beast",Creature,Beast,"Mirrodin Besieged",3GG,1,0,Uncommon,0,,plaguemaw_beast.jpg
 Plains,"Basic Land",Plains,"M12,M13",,1,1,Common,183,,plains.jpg
@@ -841,7 +841,7 @@ Preordain,Sorcery,,M11,B,0,0,Common,1,,preordain.jpg
 "Pulse Tracker",Creature,"Vampire Rogue",Worldwake,K,0,0,Common,1,,pulse_tracker.jpg
 "Puncturing Light",Instant,,"Rise of the Eldrazi",1W,0,0,Common,2,,puncturing_light.jpg
 "Purify the Grave",Instant,,Innistrad,W,1,0,Uncommon,1,,purify_the_grave.jpg
-"Pyreheart Wolf",Creature,Wolf,"Dark Ascension",2R,1,0,Uncommon,1,,pyreheart_wolf.jpg
+"Pyreheart Wolf",Creature,Wolf,"Dark Ascension",2R,1,0,Uncommon,2,,pyreheart_wolf.jpg
 "Pyretic Ritual",Instant,,M11,1R,0,0,Common,1,,pyretic_ritual.jpg
 "Quag Sickness",Enchantment,Aura,M11,2K,0,0,Common,1,,quag_sickness.jpg
 "Quest for Pure Flame",Enchantment,,Zendikar,R,0,0,Uncommon,1,,quest_for_pure_flame.jpg
@@ -1109,7 +1109,7 @@ Thrive,Sorcery,,Dissension,XG,0,0,Common,2,,thrive.jpg
 "Throat Slitter",Creature,"Rat Ninja","Planechase 2012",4K,0,0,Uncommon,1,,throat_slitter.jpg
 "Throne of Empires",Artifact,,M12,4,1,0,Rare,2,,throne_of_empires.jpg
 "Thunder Strike",Instant,,M11,1R,0,0,Common,1,,thunder_strike.jpg
-Thunderbolt,Instant,,"Avacyn Restored",1R,1,0,Common,1,,thunderbolt.jpg
+Thunderbolt,Instant,,"Avacyn Restored",1R,1,0,Common,3,,thunderbolt.jpg
 "Timbermaw Larva",Creature,Beast,Zendikar,3G,0,0,Common,1,,timbermaw_larva.jpg
 "Timberwatch Elf",Creature,Elf,Legions,2G,0,0,Common,1,,timberwatch_elf.jpg
 "Timely Reinforcements",Sorcery,,M12,2W,1,0,Uncommon,2,,timely_reinforcements.jpg
@@ -1117,7 +1117,7 @@ Thunderbolt,Instant,,"Avacyn Restored",1R,1,0,Common,1,,thunderbolt.jpg
 "Tireless Missionaries",Creature,"Human Cleric",M11,4W,0,0,Common,1,,tireless_missionaries.jpg
 "Titanic Growth",Instant,,"M12,M13",1G,1,0,Common,7,,titanic_growth.jpg
 "Tome Scour",Sorcery,,M11,B,0,0,Common,2,,tome_scour.jpg
-"Torch Fiend",Creature,Devil,"Dark Ascension",1R,1,0,Common,3,,torch_fiend.jpg
+"Torch Fiend",Creature,Devil,"Dark Ascension,M13",1R,1,0,Common,5,,torch_fiend.jpg
 "Tormented Pariah",Creature,"Human Warrior Werewolf",Innistrad,3R,1,0,Common,2,,tormented_pariah.jpg
 "Tormented Soul",Creature,Spirit,"M12,Planechase 2012,M13",K,1,0,Common,5,,tormented_soul.jpg
 "Tormentor Exarch",Creature,Cleric,"New Phyrexia",3R,1,0,Uncommon,1,,tormentor_exarch.jpg
@@ -1128,7 +1128,7 @@ Thunderbolt,Instant,,"Avacyn Restored",1R,1,0,Common,1,,thunderbolt.jpg
 "Tragic Slip",Instant,,"Dark Ascension",K,1,0,Common,2,,tragic_slip.jpg
 "Trained Orgg",Creature,Beast,"Seventh Edition",6R,0,0,Rare,1,,trained_orgg.jpg
 "Training Drone","Artifact Creature",Drone,"Mirrodin Besieged",3,1,0,Common,2,,training_drone.jpg
-"Traitorous Blood",Sorcery,,Innistrad,1RR,1,0,Common,2,,traitorous_blood.jpg
+"Traitorous Blood",Sorcery,,Innistrad,1RR,1,0,Common,3,,traitorous_blood.jpg
 "Tranquil Thicket",Land,,"Onslaught,Archenemy",,0,0,Common,2,,tranquil_thicket.jpg
 "Trapfinder's Trick",Sorcery,,Zendikar,1B,0,0,Common,1,,trapfinders_trick.jpg
 "Travel Preparations",Sorcery,,Innistrad,1G,1,0,Common,2,,travel_preparations.jpg
@@ -1143,7 +1143,7 @@ Thunderbolt,Instant,,"Avacyn Restored",1R,1,0,Common,1,,thunderbolt.jpg
 "Trigon of Rage",Artifact,,"Scars of Mirrodin",2,1,0,Uncommon,2,,trigon_of_rage.jpg
 Trollhide,Enchantment,Aura,M12,2G,1,0,Common,4,,trollhide.jpg
 "True Conviction",Enchantment,,"Scars of Mirrodin",3WWW,1,0,Rare,1,,true_conviction.jpg
-"Trumpet Blast",Instant,,M13,2R,1,0,Common,1,,trumpet_blast.jpg
+"Trumpet Blast",Instant,,M13,2R,1,0,Common,2,,trumpet_blast.jpg
 "Trusty Machete",Artifact,Equipment,Zendikar,1,0,0,Uncommon,1,,trusty_machete.jpg
 "Tumble Magnet",Artifact,,"Scars of Mirrodin",3,1,0,Common,2,,tumble_magnet.jpg
 "Turn the Tide",Instant,,"Mirrodin Besieged",1B,1,0,Common,1,,turn_the_tide.jpg
@@ -1229,7 +1229,7 @@ Whipcorder,Creature,"Soldier Rebel",Onslaught,WW,0,0,Uncommon,1,,whipcorder.jpg
 "Whispersilk Cloak",Artifact,Equipment,"M11,Planechase 2012",3,0,0,Uncommon,2,,whispersilk_cloak.jpg
 "White Knight",Creature,"Human Knight","Legions,M11",WW,0,1,Uncommon,3,,white_knight.jpg
 "Wickerbough Elder",Creature,"Treefolk Shaman",Archenemy,3G,0,0,Common,2,,wickerbough_elder.jpg
-"Wild Guess",Sorcery,,M13,RR,1,0,Common,1,,wild_guess.jpg
+"Wild Guess",Sorcery,,M13,RR,1,0,Common,2,,wild_guess.jpg
 "Wild Hunger",Instant,,"Dark Ascension",2G,1,0,Common,1,,wild_hunger.jpg
 "Wild Nacatl",Creature,"Cat Warrior","Shards of Alara",G,0,0,Common,1,,wild_nacatl.jpg
 "Wildfield Borderpost",Artifact,,"Alara Reborn",1GW,0,0,Common,1,,wildfield_borderpost.jpg
@@ -1259,7 +1259,7 @@ Whipcorder,Creature,"Soldier Rebel",Onslaught,WW,0,0,Uncommon,1,,whipcorder.jpg
 "Zombie Goliath",Creature,"Zombie Giant","M10,M12",4K,1,0,Common,6,,zombie_goliath.jpg
 "Zombie Infestation",Enchantment,,M12,1K,1,0,Uncommon,2,,zombie_infestation.jpg
 "Zulaport Enforcer",Creature,"Human Warrior","Rise of the Eldrazi",K,0,0,Common,1,,zulaport_enforcer.jpg
-"Battle Hymn",Instant,,"Avacyn Restored",1R,1,0,Common,1,,battle_hymn.jpg
+"Battle Hymn",Instant,,"Avacyn Restored",1R,1,0,Common,2,,battle_hymn.jpg
 Grounded,Enchantment,Aura,"Avacyn Restored",1G,1,0,Common,2,,grounded.jpg
 "Druids' Repository",Enchantment,,"Avacyn Restored",1GG,1,0,Rare,1,,druids_repository.jpg
 "Scrapskin Drake",Creature,"Zombie Drake","Avacyn Restored",2B,1,0,Common,1,,scrapskin_drake.jpg
@@ -1345,3 +1345,25 @@ Hydrosurge,Instant,,M13,B,1,0,Common,1,,hydrosurge.jpg
 "Mwonvuli Beast Tracker",Creature,"Human Scout",M13,1GG,1,0,Uncommon,2,,mwonvuli_beast_tracker.jpg
 "Yeva, Nature's Herald","Legendary Creature","Elf Shaman",M13,2GG,1,0,Rare,1,,yeva_natures_herald.jpg
 "Roaring Primadox",Creature,Beast,M13,3G,1,0,Uncommon,2,,roaring_primadox.jpg
+"Riot Devils",Creature,Devil,Innistrad,2R,1,0,Common,1,,riot_devils.jpg
+"Ancient Grudge",Instant,,Innistrad,1R,1,0,Common,1,,ancient_grudge.jpg
+"Brimstone Volley",Instant,,Innistrad,2R,1,0,Common,1,,brimstone_volley.jpg
+"Pillar of Flame",Sorcery,,"Avacyn Restored",R,1,0,Common,3,,pillar_of_flame.jpg
+"Malicious Intent",Enchantment,Aura,"Avacyn Restored",1R,1,0,Common,1,,malicious_intent.jpg
+"Somberwald Vigilante",Creature,"Human Warrior","Avacyn Restored",R,1,0,Common,1,,somberwald_vigilante.jpg
+"Heirs of Stromkirk",Creature,Vampire,"Avacyn Restored",2RR,1,0,Common,1,,heirs_of_stromkirk.jpg
+"Gang of Devils",Creature,Devil,"Avacyn Restored",5R,1,0,Uncommon,1,,gang_of_devils.jpg
+"Falkenrath Exterminator",Creature,"Vampire Archer","Avacyn Restored",1R,1,0,Uncommon,2,,falkenrath_exterminator.jpg
+"Raging Poltergeist",Creature,Spirit,"Avacyn Restored",4R,1,0,Common,2,,raging_poltergeist.jpg
+"Kessig Malcontents",Creature,"Human Warrior","Avacyn Restored",2R,1,0,Uncommon,1,,kessig_malcontents.jpg
+"Riot Ringleader",Creature,"Human Warrior","Avacyn Restored",2R,1,0,Common,1,,riot_ringleader.jpg
+"Kindled Fury",Instant,,M13,R,1,0,Common,1,,kindled_fury.jpg
+"Chandra's Fury",Instant,,M13,4R,1,0,Common,1,,chandras_fury.jpg
+"Krenko's Command",Sorcery,,M13,1R,1,0,Common,1,,krenkos_command.jpg
+"Wall of Fire",Creature,Wall,M13,1RR,1,0,Common,3,,wall_of_fire.jpg
+"Arms Dealer",Creature,"Goblin Rogue",M13,2R,1,0,Uncommon,2,,arms_dealer.jpg
+Craterize,Sorcery,,M13,3R,1,0,Common,3,,craterize.jpg
+"Rummaging Goblin",Creature,"Goblin Rogue",M13,2R,1,0,Common,2,,rummaging_goblin.jpg
+"Searing Spear",Instant,,M13,1R,1,0,Common,3,,searing_spear.jpg
+Smelt,Instant,,M13,R,1,0,Common,1,,smelt.jpg
+"Cleaver Riot",Sorcery,,M13,4R,1,0,Uncommon,1,,cleaver_riot.jpg
