@@ -4,18 +4,12 @@ use strict;
 
 use base 'Class::DBI';
 
-__PACKAGE__->connection("dbi:CSV:", undef, undef, {
-    f_ext => '.csv',
-    f_dir => $ENV{MTGDB_CODEBASE}.'/db'
-});
-
+__PACKAGE__->connection("dbi:SQLite:$ENV{MTGDB_CODEBASE}/db/mtgdb.db");
 __PACKAGE__->autoupdate(0);
 
 __PACKAGE__->table('cards');
-__PACKAGE__->columns(Primary => qw/name/);
-# NOTE: These have to be 'Essential' to work with DBD::CSV b/c lazy loading
-#       does not work.
-__PACKAGE__->columns(Essential => qw/type subtype editions cost legal foil rarity count image imagename/);
+__PACKAGE__->columns(All => qw/id name type sub_type editions cost legal foil
+                               rarity count image_name/);
 ################################################################################
 use constant STANDARD_LEGAL_EDITIONS => (
 'Scars of Mirrodin',
@@ -63,7 +57,10 @@ sub as_hash
     my @cols = __PACKAGE__->columns('All');
     foreach my $c (@cols)
     {
-        $card_as_hash{$c} = $this->$c();
+        my $name     = $c->name();
+        my $accessor = $c->accessor();
+
+        $card_as_hash{$name} = $this->$accessor();
     }
 
     return (wantarray ? %card_as_hash : \%card_as_hash);

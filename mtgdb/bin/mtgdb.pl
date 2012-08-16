@@ -53,7 +53,7 @@ sub add_card
     $name = _prompt("Name") unless $name;
     $name = _normalize_name($name);
 
-    my $card = MTGDb::Card->retrieve($name);
+    my $card = MTGDb::Card->retrieve(name => $name);
 
     if ($card)
     {
@@ -118,17 +118,17 @@ sub add_card
     {
         _msg("New Card: '$name'\n\n");
 
-        my $card_data = {name => $name};
+        my $card_data            = {id => undef, name => $name};
         $card_data->{cost}       = uc(_prompt("Mana Cost"));
         $card_data->{type}       = _prompt_for_val("Type", MTGDb::Card->CARD_TYPES);
-        $card_data->{subtype}    = _prompt("Subtype");
-        $card_data->{editions}    = _prompt_for_val("Edition", MTGDb::Card->RECENT_EDITIONS);
+        $card_data->{sub_type}   = _prompt("Subtype");
+        $card_data->{editions}   = _prompt_for_val("Edition", MTGDb::Card->RECENT_EDITIONS);
         $card_data->{legal}      = _is_legal(editions => [$card_data->{editions}]);
         $card_data->{rarity}     = _prompt_for_val("Rarity", MTGDb::Card->CARD_RARITIES);
         $card_data->{foil}       = _prompt_for_bool("Foil");
         $card_data->{count}      = _prompt("Count");
 
-        $card_data->{imagename}  = _image_name(card_name => $card_data->{name});
+        $card_data->{image_name}  = _image_name(card_name => $card_data->{name});
 
         _display_card(card_data => $card_data);
 
@@ -160,7 +160,7 @@ sub show_card
     $name = _prompt("Name") unless $name;
     $name = _normalize_name($name);
 
-    my $card = MTGDb::Card->retrieve($name);
+    my $card = MTGDb::Card->retrieve(name => $name);
 
     if ($card)
     {
@@ -273,7 +273,7 @@ sub fetch_images
 
     while(my $card = $card_it->next())
     {
-        next if -f "$ENV{MTGDB_CODEBASE}/images/".$card->imagename;
+        next if -f "$ENV{MTGDB_CODEBASE}/images/".$card->image_name;
     
         my @editions = split ',', $card->editions();
         my $card_edition = pop @editions;
@@ -287,7 +287,7 @@ sub fetch_images
                 name       => $card->name,
                 type       => $card->type,
                 edition    => $card_edition,
-                image_name => $card->imagename,
+                image_name => $card->image_name,
                 dry_run    => $dry_run
             );
         };
@@ -475,7 +475,7 @@ sub _display_card
     if (lc $format eq 'summary')
     {
         print <<EOF;
---=== $card->{name} ($card->{cost}) ===---
+$card->{id}) --=== $card->{name} ($card->{cost}) ===---
 EOF
     }
     else
@@ -483,12 +483,12 @@ EOF
         print <<EOF;
 
 --=== $card->{name} ($card->{cost}) ===--
-$card->{type} -- $card->{subtype} -- $card->{rarity}
+$card->{type} -- $card->{sub_type} -- $card->{rarity}
 
 Editions: $card->{editions}
 Legal:    $card->{legal}
 Foil:     $card->{foil}
-Image:    $card->{imagename}
+Image:    $card->{image_name}
 Copies:   $card->{count}
 
 EOF
