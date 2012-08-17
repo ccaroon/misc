@@ -68,7 +68,7 @@ sub add_card
         print "\n<---------------------------------------------->\n\n";
 
         # Editions and Legality
-        my @editions = split /,/, $card->editions;
+        my @editions = split /\|/, $card->editions;
         push @editions, $add_edition if defined $add_edition;
         my $is_legal = _is_legal(editions => \@editions);
 
@@ -95,7 +95,7 @@ sub add_card
         my $ok = _prompt_for_bool("Confirm");
         if ($ok)
         {
-            $card->editions(join ',', @editions) if defined $add_edition;
+            $card->editions(join '|', @editions) if defined $add_edition;
             $card->legal($is_legal);
             $card->foil($is_foil);
             $card->count($card->count() + $add_copies) if $add_copies;
@@ -187,7 +187,7 @@ sub search_card
 
     $term = _normalize_name($term);
 
-    my @cards = MTGDb::Card->search_like($field => "%$term%");
+    my @cards = MTGDb::Card->search_like($field => "%$term%", { order_by => 'name'});
     foreach my $card (@cards)
     {
         _display_card(card => $card, format => 'summary');
@@ -276,7 +276,7 @@ sub fetch_images
     {
         next if -f "$ENV{MTGDB_CODEBASE}/images/".$card->image_name;
     
-        my @editions = split ',', $card->editions();
+        my @editions = split /\|/, $card->editions();
         my $card_edition = pop @editions;
         $card_edition =~ s/^\s+//;
         $card_edition =~ s/\s+$//;
@@ -339,7 +339,7 @@ sub recalc_legal
     my $card_it = MTGDb::Card->retrieve_all();
     while (my $card = $card_it->next())
     {
-        my @editions = split /,/, $card->editions();
+        my @editions = split /\|/, $card->editions();
 
         my $old_legal = $card->legal();
         my $new_legal = _is_legal(editions => \@editions);
@@ -428,7 +428,7 @@ EOF
         my $count = 0;
         while (my $card = $card_it->next())
         {
-            my @values = split /,/, $card->as_csv(cols => [qw(name type sub_type editions cost legal foil rarity count image_name)]);
+            my @values = map {$card->$_()} qw(name type sub_type editions cost legal foil rarity count image_name);
             $stmt->execute(@values);
 
             $count++;

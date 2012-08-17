@@ -70,21 +70,4 @@ sub as_hash
     return (wantarray ? %card_as_hash : \%card_as_hash);
 }
 ################################################################################
-sub as_csv
-{
-    my $this = shift;
-    my %args = @_;
-
-    my @cols = defined $args{cols} ? @{$args{cols}} : __PACKAGE__->columns('All');
-    my $card_as_csv = "";
-
-    foreach my $c (@cols)
-    {
-        $card_as_csv .= $this->$c().',';
-    }
-    chop $card_as_csv;
-
-    return ($card_as_csv);
-}
-################################################################################
 1;
