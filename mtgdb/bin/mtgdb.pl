@@ -4,6 +4,7 @@ use strict;
 use feature 'switch';
 
 use Cwd 'abs_path';
+use DBI;
 use File::Basename;
 use File::Slurp;
 use LWP::UserAgent;
@@ -263,7 +264,7 @@ sub _fetch_image
 
     _msg("Card not found: [$card_name]\n") unless $found;
 }
-###############################################################################
+################################################################################
 sub fetch_images
 {
     my %args = @_;
@@ -354,6 +355,37 @@ sub recalc_legal
     }
 }
 ################################################################################
+sub import_csv
+{
+    my %args = @_;
+
+    if (defined $args{file})
+    {
+        my $path = dirname($args{file});
+        my $name = basename($args{file});
+        my $dbh = DBI->connect("dbi:CSV:", undef, undef, {
+            f_dir => $path,
+            f_ext => '.csv',
+        });
+
+        _msg("Importing. Please wait...");
+
+        my $stmt = $dbh->prepare("select * from $name");
+        $stmt->execute();
+
+        while (my $row = $stmt->fetchrow_hashref())
+        {
+            delete $row->{image};
+            MTGDb::Card->insert($row);
+        }
+        $stmt->finish();
+    }
+    else
+    {
+        _msg("Missing filename argument i.e. import /path/to/file.csv");
+    }
+}
+################################################################################
 sub _is_legal
 {
     my %args = @_;
@@ -382,7 +414,7 @@ sub _image_name
   
     return ($image_name . ".jpg")
 }
-#################################################################################
+################################################################################
 sub sync
 {
     my %args = @_;
@@ -411,7 +443,7 @@ sub sync
         _sync_images(host => $ip) if $args{what} eq 'images';
     }
 }
-#################################################################################
+################################################################################
 sub _sync_db
 {
     my %args = @_;
@@ -432,7 +464,7 @@ sub _sync_db
     _msg("Error syncing db: [".$response->status_line()."]")
         if $response->is_error();    
 }
-#################################################################################
+################################################################################
 sub _sync_images
 {
     my %args = @_;
@@ -587,6 +619,10 @@ while (!$DONE)
             my ($field, $term) = split /\s+/, $args, 2;
             search_card(field => $field, term => $term);
         }
+        when ('import')
+        {
+            import_csv(file => $args);
+        }
         when ('fetch_images')
         {
             $LAST_IMAGE_FETCH_TIME = time-1;
@@ -628,6 +664,8 @@ Commands:
     * check_dups   --> Check for duplicates in the database.
     * verify_db    --> Check for dups and verify card with magiccards.info
     * recalc_legal --> Recalculate the legalness of each card.
+    * import       --> Import records from a CSV file into the Card database.
+                       import /path/to/file.csv
     * count        --> Count unique cards and total cards.
     * sync         --> Sync DB and images to HanDBase.
                        sync <db|images> <IP>
