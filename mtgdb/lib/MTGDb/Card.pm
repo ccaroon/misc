@@ -8,6 +8,10 @@ __PACKAGE__->connection("dbi:SQLite:$ENV{MTGDB_CODEBASE}/db/mtgdb.db");
 __PACKAGE__->autoupdate(0);
 
 __PACKAGE__->table('cards');
+# Changing the column names may require changes to mtgdb.pl
+# * add_card
+# * export_csv
+# * ...???...
 __PACKAGE__->columns(All => qw/id name type sub_type editions cost legal foil
                                rarity count image_name/);
 ################################################################################
@@ -64,6 +68,23 @@ sub as_hash
     }
 
     return (wantarray ? %card_as_hash : \%card_as_hash);
+}
+################################################################################
+sub as_csv
+{
+    my $this = shift;
+    my %args = @_;
+
+    my @cols = defined $args{cols} ? @{$args{cols}} : __PACKAGE__->columns('All');
+    my $card_as_csv = "";
+
+    foreach my $c (@cols)
+    {
+        $card_as_csv .= $this->$c().',';
+    }
+    chop $card_as_csv;
+
+    return ($card_as_csv);
 }
 ################################################################################
 1;

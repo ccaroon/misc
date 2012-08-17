@@ -382,7 +382,63 @@ sub import_csv
     }
     else
     {
-        _msg("Missing filename argument i.e. import /path/to/file.csv");
+        _msg("Missing filename argument. Usage: import /path/to/file.csv");
+    }
+}
+################################################################################
+sub export_csv
+{
+    my %args = @_;
+
+    if (defined $args{file})
+    {
+        my $path = dirname($args{file});
+        my $name = basename($args{file});
+        my $dbh = DBI->connect("dbi:CSV:", undef, undef, {
+            f_dir => $path,
+            f_ext => '.csv',
+        });
+
+        my $total_cards = MTGDb::Card->count_all();
+        _msg("Exporting $total_cards cards. Please wait...");
+
+        # Create CSV "table" whose name is $name
+        # Types don't matter to DBD::CSV
+        # Order needs to match order of HanDbase cols
+        $dbh->do(<<EOF);
+create table $name (
+    name       varchar(256),
+    type       varchar(256),
+    sub_type   varchar(256),
+    editions   varchar(256),
+    cost       varchar(256),
+    legal      integer,
+    foil       integer,
+    rarity     varchar(256),
+    count      integer,
+    image      varchar(256),
+    image_name varchar(256)
+)
+EOF
+
+        # Export cards
+        my $card_it    = MTGDb::Card->retrieve_all();
+        my $insert_sql = "insert into $name values (?,?,?,?,?,?,?,?,?,null,?)";
+        my $stmt = $dbh->prepare($insert_sql);
+        my $count = 0;
+        while (my $card = $card_it->next())
+        {
+            my @values = split /,/, $card->as_csv(cols => [qw(name type sub_type editions cost legal foil rarity count image_name)]);
+            $stmt->execute(@values);
+
+            $count++;
+            print "$count/$total_cards\r";
+        }
+        $stmt->finish();
+    }
+    else
+    {
+        _msg("Missing filename argument. Usage: export /path/to/file.csv");
     }
 }
 ################################################################################
@@ -449,7 +505,8 @@ sub _sync_db
     my %args = @_;
 
     my $host = $args{host};
-    my $file = "$ENV{MTGDB_CODEBASE}/db/cards.csv";
+    my $file = "$ENV{MTGDB_CODEBASE}/export.csv";
+    export_csv(file => $file);
 
     _msg("Syncing Db to host @ $host...\n");
     my $response = $UA->post(
@@ -462,7 +519,9 @@ sub _sync_db
     );
 
     _msg("Error syncing db: [".$response->status_line()."]")
-        if $response->is_error();    
+        if $response->is_error();
+
+    unlink $file if -f $file;
 }
 ################################################################################
 sub _sync_images
@@ -623,6 +682,10 @@ while (!$DONE)
         {
             import_csv(file => $args);
         }
+        when ('export')
+        {
+            export_csv(file => $args);
+        }
         when ('fetch_images')
         {
             $LAST_IMAGE_FETCH_TIME = time-1;
@@ -666,6 +729,8 @@ Commands:
     * recalc_legal --> Recalculate the legalness of each card.
     * import       --> Import records from a CSV file into the Card database.
                        import /path/to/file.csv
+    * export       --> Export database to a CSV file.
+                       export /path/to/output.csv
     * count        --> Count unique cards and total cards.
     * sync         --> Sync DB and images to HanDBase.
                        sync <db|images> <IP>
