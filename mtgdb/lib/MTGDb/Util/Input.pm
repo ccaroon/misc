@@ -22,7 +22,7 @@ sub prompt_for_bool
 {
     my $msg = shift;
     
-    my $val_str = _prompt_for_val($msg, 'y','n');
+    my $val_str = prompt_for_val($msg, 'y','n');
     
     return (($val_str eq 'y') ? 1 : 0);
 }
@@ -37,7 +37,7 @@ sub prompt_for_val
     my $val_str = join '|', @expected_values;
     while (!$DONE)
     {
-        $val = _prompt("$msg ($val_str)");
+        $val = prompt("$msg ($val_str)");
         $DONE = (grep /^$val$/, @expected_values) ? 1 :  0;
     }
 
