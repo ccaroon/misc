@@ -21,7 +21,8 @@ use constant LOWER_WORDS  =>
     the => 1,
     of  => 1,
     a   => 1,
-    to  => 1
+    to  => 1,
+    by  => 1
 };
 
 my $UA  = LWP::UserAgent->new();
