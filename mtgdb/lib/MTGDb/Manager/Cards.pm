@@ -12,18 +12,10 @@ use lib "$ENV{MTGDB_CODEBASE}/lib";
 use MTGDb::Card;
 use MTGDb::Util::Input;
 use MTGDb::Util::Output;
+use MTGDb::Util::Misc;
 
 use constant BASE_SYNC_IP =>'192.168';
 use constant SYNC_PORT    => 8080;
-
-use constant LOWER_WORDS  =>
-{
-    the => 1,
-    of  => 1,
-    a   => 1,
-    to  => 1,
-    by  => 1
-};
 
 my $UA  = LWP::UserAgent->new();
 my $LAST_IMAGE_FETCH_TIME = time;
@@ -51,7 +43,7 @@ sub add
     my $name  = shift;
 
     $name = prompt("Name") unless $name;
-    $name = $class->_normalize_name($name);
+    $name = title_case($name);
 
     my $card = MTGDb::Card->retrieve(name => $name);
 
@@ -158,7 +150,7 @@ sub show
     my $name  = shift;
 
     $name = prompt("Name") unless $name;
-    $name = $class->_normalize_name($name);
+    $name = title_case($name);
 
     my $card = MTGDb::Card->retrieve(name => $name);
 
@@ -185,7 +177,7 @@ sub search
         $field = 'name';
     }
 
-    $term = $class->_normalize_name($term);
+    $term = title_case($term);
 
     my @cards = MTGDb::Card->search_like($field => "%$term%", { order_by => 'name'});
     foreach my $card (@cards)
@@ -611,27 +603,6 @@ sub _sync_images
                 if $response->is_error();
         }
     }
-}
-################################################################################
-sub _normalize_name
-{
-    my $class = shift;
-    my $name  = shift;
-    
-    my $new_name = "";
-    foreach (split /\s+/, $name)
-    {
-        my $word = lc $_;
-        unless (LOWER_WORDS->{$word})
-        {
-            $word = ucfirst $word;
-        }
-        
-        $new_name .= "$word ";
-    }
-    chop $new_name;
-
-    return ($new_name);
 }
 ################################################################################
 sub help

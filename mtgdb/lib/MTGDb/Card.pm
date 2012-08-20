@@ -14,6 +14,9 @@ __PACKAGE__->table('cards');
 # * ...???...
 __PACKAGE__->columns(All => qw/id name type sub_type editions cost legal foil
                                rarity count image_name/);
+
+#__PACKAGE__->has_many(decks => ['MTGDb::CardDeckAssoc' => 'deck']);
+__PACKAGE__->has_many(decks => 'MTGDb::CardDeckAssoc');
 ################################################################################
 use constant STANDARD_LEGAL_EDITIONS => (
 'Scars of Mirrodin',

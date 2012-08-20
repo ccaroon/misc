@@ -10,7 +10,8 @@ __PACKAGE__->autoupdate(0);
 __PACKAGE__->table('decks');
 __PACKAGE__->columns(All => qw/id name type/);
 
-# TODO: has many cards
+#__PACKAGE__->has_many(cards => ['MTGDb::CardDeckAssoc' => 'card']);
+__PACKAGE__->has_many(cards => 'MTGDb::CardDeckAssoc');
 ################################################################################
 use constant DECK_TYPES => (
     'Standard Legal',
@@ -18,5 +19,23 @@ use constant DECK_TYPES => (
     'Vintage',
     'Commander'
 );
+################################################################################
+sub as_hash
+{
+    my $this = shift;
+
+    my %as_hash;
+
+    my @cols = __PACKAGE__->columns('All');
+    foreach my $c (@cols)
+    {
+        my $name     = $c->name();
+        my $accessor = $c->accessor();
+
+        $as_hash{$name} = $this->$accessor();
+    }
+
+    return (wantarray ? %as_hash : \%as_hash);
+}
 ################################################################################
 1;

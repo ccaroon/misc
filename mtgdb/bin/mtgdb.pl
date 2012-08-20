@@ -11,6 +11,7 @@ BEGIN
 
 use lib "$ENV{MTGDB_CODEBASE}/lib";
 use MTGDb::Manager::Cards;
+use MTGDb::Manager::Decks;
 use MTGDb::Util::Input;
 use MTGDb::Util::Output;
 ################################################################################
