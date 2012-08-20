@@ -48,6 +48,7 @@ use constant CARD_TYPES => (
 'Sorcery',
 'Land',
 'Artifact',
+'Artifact Creature',
 'Legendary Creature',
 'Enchantment'
 );
