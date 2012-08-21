@@ -16,10 +16,14 @@ use MTGDb::Util::Input;
 use MTGDb::Util::Output;
 ################################################################################
 my $DONE = 0;
-my $manager = 'MTGDb::Manager::Cards';
+my $context = undef;
+my $manager = 'MTGDb::Manager::Decks';
 while (!$DONE)
 {
-    my $input = prompt("MTGDb ($manager)");
+    my $prompt = $manager;
+    $prompt =~ s/^MTGDb::Manager:://;
+    $prompt .= "($context)" if $context;
+    my $input = prompt($prompt);
 
     my ($cmd, $args) = split /\s+/, $input, 2;
 
@@ -32,6 +36,7 @@ while (!$DONE)
         when (/cards|decks/)
         {
             $manager = 'MTGDb::Manager::'.ucfirst($cmd);
+            $context = $manager->context();
         }
         when ('exit')
         {
@@ -44,6 +49,8 @@ while (!$DONE)
                 print "\n";
                 $manager->$cmd($args);
                 print "\n";
+                
+                $context = $manager->context();
             }
             else
             {

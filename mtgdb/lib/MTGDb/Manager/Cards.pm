@@ -51,7 +51,7 @@ sub add
     {
         $class->_display(card => $card);
         
-        my $add_edition = prompt_for_val("Add Edition",
+        my $add_edition = prompt_for_item("Add Edition",
             MTGDb::Card->RECENT_EDITIONS, undef);
         my $is_foil     = prompt_for_bool("Is Foil");
         my $add_copies  = prompt("Add # Copies");
@@ -112,11 +112,11 @@ sub add
 
         my $card_data            = {id => undef, name => $name};
         $card_data->{cost}       = uc(prompt("Mana Cost"));
-        $card_data->{type}       = prompt_for_val("Type", MTGDb::Card->CARD_TYPES);
+        $card_data->{type}       = prompt_for_item("Type", MTGDb::Card->CARD_TYPES);
         $card_data->{sub_type}   = prompt("Subtype");
-        $card_data->{editions}   = prompt_for_val("Edition", MTGDb::Card->RECENT_EDITIONS);
+        $card_data->{editions}   = prompt_for_item("Edition", MTGDb::Card->RECENT_EDITIONS);
         $card_data->{legal}      = $class->_is_legal(editions => [$card_data->{editions}]);
-        $card_data->{rarity}     = prompt_for_val("Rarity", MTGDb::Card->CARD_RARITIES);
+        $card_data->{rarity}     = prompt_for_item("Rarity", MTGDb::Card->CARD_RARITIES);
         $card_data->{foil}       = prompt_for_bool("Foil");
         $card_data->{count}      = prompt("Count");
 
@@ -142,7 +142,11 @@ sub add
             msg("Add cancelled.");
         }
     }
+    
+    return;
 }
+################################################################################
+# TODO: show which decks the card is in
 ################################################################################
 sub show
 {
@@ -162,6 +166,8 @@ sub show
     {
         msg("No card found with name '$name'");
     }
+    
+    return;
 }
 ################################################################################
 sub search
@@ -185,6 +191,8 @@ sub search
         $class->_display(card => $card, format => 'summary');
     }
     msg("\nSearch for '$term' found ".scalar(@cards)." records.");
+    
+    return;
 }
 ################################################################################
 sub _fetch_image
@@ -295,6 +303,8 @@ sub fetch_images
             msg($@);
         }
     }
+    
+    return;
 }
 ################################################################################
 sub count
@@ -313,6 +323,8 @@ sub count
 
     msg("Unique Cards: $unique_cards");
     msg("Total Cards: $total_cards");
+    
+    return;
 }
 ################################################################################
 sub check_dups
@@ -332,6 +344,8 @@ sub check_dups
         msg("Duplicate Card Found: [$_] ($dups{$_})\n")
             if $dups{$_} > 1;
     } keys %dups;
+    
+    return;
 }
 ################################################################################
 sub recalc_legal
@@ -355,6 +369,8 @@ sub recalc_legal
             $card->update();
         }
     }
+    
+    return;
 }
 ################################################################################
 sub import_csv
@@ -387,6 +403,8 @@ sub import_csv
     {
         msg("Missing filename argument. Usage: import /path/to/file.csv");
     }
+    
+    return;
 }
 ################################################################################
 sub export_csv
@@ -444,6 +462,8 @@ EOF
     {
         msg("Missing filename argument. Usage: export /path/to/file.csv");
     }
+    
+    return;
 }
 ################################################################################
 sub _is_legal
@@ -536,6 +556,8 @@ sub sync
         $class->_sync_db(host => $ip)     if $what eq 'db';
         $class->_sync_images(host => $ip) if $what eq 'images';
     }
+    
+    return;
 }
 ################################################################################
 sub verify
@@ -544,6 +566,8 @@ sub verify
     
     $class->check_dups();
     $class->fetch_images(dry_run => 1);
+    
+    return;
 }
 ################################################################################
 sub _sync_db
@@ -605,6 +629,12 @@ sub _sync_images
     }
 }
 ################################################################################
+sub context
+{
+    my $class = shift;
+    return (undef);
+}
+################################################################################
 sub help
 {
     my $class = shift;
@@ -631,6 +661,8 @@ Card Manager Commands
                    sync <db|images> <IP>
 * help         --> This Message.
 EOF
+
+    return;
 }
 ################################################################################
 1;
