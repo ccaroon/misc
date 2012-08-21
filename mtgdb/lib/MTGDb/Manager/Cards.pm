@@ -489,7 +489,7 @@ sub _display
     if (lc $format eq 'summary')
     {
         print <<EOF;
-$card->{id}) --=== $card->{name} ($card->{cost}) ===---
+---=== $card->{name} ($card->{cost}) ===---
 EOF
     }
     else
