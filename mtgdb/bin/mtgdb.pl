@@ -16,21 +16,27 @@ use MTGDb::Util::Input;
 use MTGDb::Util::Output;
 ################################################################################
 my $DONE = 0;
+my $manager = 'MTGDb::Manager::Cards';
 while (!$DONE)
 {
-    my $input = prompt("MTGDb");
+    my $input = prompt("MTGDb ($manager)");
 
     my ($cmd, $args) = split /\s+/, $input, 2;
 
-    my $target = ($args =~ s/^(card|deck)s?\s*//) ? $1 : 'card';
-    my $manager = "MTGDb::Manager::".ucfirst($target).'s';
+    #my $target = ($args =~ s/^(card|deck)s?\s*//) ? $1 : 'card';
+    #my $manager = "MTGDb::Manager::".ucfirst($target).'s';
 
     given ($cmd)
     {
-        when ('exit') {
+        when (undef) {}
+        when (/cards|decks/)
+        {
+            $manager = 'MTGDb::Manager::'.ucfirst($cmd);
+        }
+        when ('exit')
+        {
             $DONE = 1;
         }
-        when (undef) {}
         default
         {
             if ($manager->can($cmd))
@@ -41,7 +47,7 @@ while (!$DONE)
             }
             else
             {
-                msg("$target does not support command: $cmd");
+                msg("$manager does not support command: $cmd");
             }
         }
     }

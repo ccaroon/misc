@@ -12,6 +12,34 @@ use MTGDb::Util::Misc;
 sub add
 {
     my $class = shift;
+    my $args  = shift;
+    
+    my ($what,$what_args) = split /\s+/, $args, 2;
+    
+    given ($what)
+    {
+        when ('deck')
+        {
+            $class->_add_deck($what_args);
+        }
+        when (undef)
+        {
+            $class->_add_deck($what_args);
+        }
+        when ('card')
+        {
+            $class->_add_card($what_args);
+        }
+        default
+        {
+            msg("$class 'add' does not support '$what'.");
+        }
+    }
+}
+################################################################################
+sub _add_deck
+{
+    my $class = shift;
     my $name  = shift;
     
     $name = prompt("Name") unless $name;
@@ -60,6 +88,12 @@ sub show
     {
         msg("No deck found with name '$name'");
     }
+}
+################################################################################
+sub _add_card
+{
+    my $class = shift;
+
 }
 ################################################################################
 sub _display_deck
