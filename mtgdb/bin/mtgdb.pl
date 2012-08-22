@@ -32,16 +32,23 @@ while (!$DONE)
 
     my ($cmd, $args) = split /\s+/, $input, 2;
 
-    #my $target = ($args =~ s/^(card|deck)s?\s*//) ? $1 : 'card';
-    #my $manager = "MTGDb::Manager::".ucfirst($target).'s';
-
     given ($cmd)
     {
         when (undef) {}
         when (/cards|decks/)
         {
-            $manager = 'MTGDb::Manager::'.ucfirst($cmd);
-            $context = $manager->context();
+            if ($args)
+            {
+                my $tmp_mgr = 'MTGDb::Manager::'.ucfirst($cmd);
+
+                ($cmd, $args) = split /\s+/, $args, 2;
+                _exec_cmd($tmp_mgr,$cmd,$args);
+            }
+            else
+            {
+                $manager = 'MTGDb::Manager::'.ucfirst($cmd);
+                $context = $manager->context();
+            }
         }
         when ('exit')
         {
@@ -49,19 +56,29 @@ while (!$DONE)
         }
         default
         {
-            if ($manager->can($cmd))
-            {
-                print "\n";
-                $manager->$cmd($args);
-                print "\n";
-                
-                $context = $manager->context();
-            }
-            else
-            {
-                msg("$manager does not support command: $cmd");
-            }
+            $context = _exec_cmd($manager,$cmd,$args);
         }
     }
+}
+################################################################################
+sub _exec_cmd
+{
+    my ($mgr, $cmd, $args) = @_;
+
+    my $new_ctx;
+    if ($mgr->can($cmd))
+    {
+        print "\n";
+        $mgr->$cmd($args);
+        print "\n";
+
+        $new_ctx = $mgr->context();
+    }
+    else
+    {
+        msg("$mgr does not support command: $cmd");
+    }
+    
+    return ($new_ctx);
 }
 ################################################################################

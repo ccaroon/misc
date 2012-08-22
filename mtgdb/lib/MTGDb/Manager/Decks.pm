@@ -32,26 +32,8 @@ sub add
         }
         default
         {
-            #msg("$class 'add' does not support '$what'.");
             $class->_add_deck($args);
         }
-    }
-}
-################################################################################
-sub deck
-{
-    my $class = shift;
-    my $name  = shift;
-    
-    $name = title_case($name);
-    my $deck = MTGDb::Deck->retrieve(name => $name);
-    if ($deck)
-    {
-        $class->context($deck);
-    }
-    else
-    {
-        msg("Deck not found: $name");
     }
 }
 ################################################################################
@@ -86,33 +68,6 @@ sub _add_deck
     }
 }
 ################################################################################
-sub show
-{
-    my $class = shift;
-    my $name  = shift;
-    
-    my $deck;
-    if (defined $name)
-    {
-        $name = title_case($name);
-        $deck = MTGDb::Deck->retrieve(name => $name);
-    }
-    else
-    {
-        $deck = $class->context();
-    }
-    
-    if ($deck)
-    {
-        $class->_display_deck($deck);
-    }
-    else
-    {
-        msg("No deck found with name '$name'");
-    }
-}
-################################################################################
-# TODO: don't allow more copies than owned, including copies in other decks
 # TODO: don't allow adding non-legal cards to standard legal decks
 ################################################################################
 sub _add_card
@@ -134,17 +89,11 @@ sub _add_card
         $card = prompt_for_item("Choose Card", @cards);
     }
 
-    unless ($class->context())
-    {
-        my $deck_name = prompt("Deck");
-        $deck_name = title_case($deck_name);
-        my $deck = MTGDb::Deck->retrieve(name => $deck_name);
-        $class->context($deck) if $deck;
-    }
+    my $deck = $class->_get_deck();
 
-    my $deck = $class->context();
-    if ($deck and $card)
+    if ($deck and $card and $card->available_copies())
     {
+        my $avail_copies = $card->available_copies();
         msg("\n---=== ".$card->name()." ===---\n");
 
         my $cda = MTGDb::CardDeckAssoc->retrieve(
@@ -154,11 +103,18 @@ sub _add_card
 
         my $msg = $cda
             ? "Card '".$card->name()."' already exists in deck. Will update copies."
-            : "Adding card '".$card->name()."' to deck '".$deck->name()."'";
+            : "Adding card '".$card->name()."' to '".$deck->name()."' deck.";
         msg($msg);
 
-        my $main_copies = prompt_for_num("Copies in Main Deck");
-        my $side_copies = prompt_for_num("Copies in Sideboard");
+        my $main_copies = 0;
+        my $side_copies = 0;
+        do
+        {
+            msg("There are $avail_copies of '".$card->name()."' available.");
+            $main_copies = prompt_for_num("Main copies");
+            $side_copies = prompt_for_num("Sideboard copies");
+        }
+        while ($main_copies + $side_copies > $avail_copies);
 
         # Card already exists in deck, update copies
         if ($cda)
@@ -184,7 +140,153 @@ sub _add_card
     else
     {
         msg("Card not found: $name") unless $card;
-        msg("Deck not found!") unless $deck;
+        msg ("No copies available.") if $card and !$card->available_copies();
+        msg("Deck not found!")       unless $deck;
+    }
+}
+################################################################################
+sub destroy
+{
+    my $class = shift;
+    my $name  = shift;
+
+    $name = prompt("Name") unless $name;
+    $name = title_case($name);
+
+    my $deck = MTGDb::Deck->retrieve(name => $name);
+    if($deck)
+    {
+        $deck->delete();
+        msg("Destoryed '$name'.");
+        $CONTEXT = undef;
+    }
+    else
+    {
+        msg("Deck '$name' not found.");
+    }
+}
+################################################################################
+sub remove
+{
+    my $class = shift;
+    my $args  = shift;
+    
+    my ($what,$what_args) = split /\s+/, $args, 2;
+
+    given ($what)
+    {
+        when ('card')
+        {
+            $class->_remove_card($what_args);
+        }
+        default
+        {
+            msg("Remove what?");
+        }
+    }
+}
+################################################################################
+sub _remove_card
+{
+    my $class = shift;
+    my $name = shift;
+
+    $name = prompt("Card Name") unless $name;
+    $name = title_case($name);
+    
+    my $card = MTGDb::Card->retrieve(name => $name);
+    my $deck = $class->_get_deck();
+    
+    if ($card and $deck)
+    {
+        my @cda = $deck->cards(card_id => $card);
+        given (scalar @cda)
+        {
+            when (0)
+            {
+                msg("'$name' not found in deck.");
+            }
+            when (1)
+            {
+                $cda[0]->delete();
+                msg("'$name' has been removed from '$deck'.");
+            }
+            when ($_ > 1)
+            {
+                msg("Found more than 1 '$name' in deck. Db corrupt?");
+            }
+        }
+    }
+    else
+    {
+        msg("Removal failed.");
+    }
+}
+################################################################################
+sub _get_deck
+{
+    my $class = shift;
+
+    unless ($class->context())
+    {
+        my $deck_name = prompt("Deck");
+        $deck_name = title_case($deck_name);
+
+        my $deck = MTGDb::Deck->retrieve(name => $deck_name);
+        if ($deck)
+        {
+            $class->context($deck);
+        }
+        else
+        {
+            msg("Deck not found: $deck_name");
+        }
+    }
+
+    return ($class->context());
+}
+################################################################################
+sub deck
+{
+    my $class = shift;
+    my $name  = shift;
+    
+    $name = title_case($name);
+    my $deck = MTGDb::Deck->retrieve(name => $name);
+    if ($deck)
+    {
+        $class->context($deck);
+        msg("Deck context changed to '$deck'");
+    }
+    else
+    {
+        msg("Deck not found: $name");
+    }
+}
+################################################################################
+sub show
+{
+    my $class = shift;
+    my $name  = shift;
+    
+    my $deck;
+    if (defined $name)
+    {
+        $name = title_case($name);
+        $deck = MTGDb::Deck->retrieve(name => $name);
+    }
+    else
+    {
+        $deck = $class->_get_deck();
+    }
+
+    if ($deck)
+    {
+        $class->_display_deck($deck);
+    }
+    else
+    {
+        msg("No deck found with name '$name'");
     }
 }
 ################################################################################

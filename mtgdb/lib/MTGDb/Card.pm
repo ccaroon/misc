@@ -57,17 +57,7 @@ use constant CARD_TYPES => (
 sub available_copies
 {
     my $this = shift;
-
-    my $avail_copies = $this->count();
-
-    my @decks = $this->decks();
-    foreach my $d (@decks)
-    {
-        my $total_copies = $d->main_copies() + $d->side_copies();
-        $avail_copies -= $total_copies;
-    }
-
-    return($avail_copies);
+    return($this->count() - MTGDb::CardDeckAssoc->copies_in_decks($this));
 }
 ################################################################################
 1;

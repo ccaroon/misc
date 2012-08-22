@@ -526,9 +526,6 @@ EOF
 
         if ($card)
         {
-            my $avail_copies
-                = $card->count() - MTGDb::CardDeckAssoc->copies_in_decks($card);
-
             my @decks = $card->decks();
             print "\n-- Decks --\n" if @decks;
             foreach my $d (@decks)
@@ -536,7 +533,8 @@ EOF
                 my $total_copies = $d->main_copies() + $d->side_copies();
                 print "* ".$d->deck()->name()." (x$total_copies)\n";
             }
-
+            
+            my $avail_copies = $card->available_copies();
             print "\nAvailable Copies: $avail_copies\n";
         }
     }
