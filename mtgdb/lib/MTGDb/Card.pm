@@ -2,10 +2,7 @@ package MTGDb::Card;
 ################################################################################
 use strict;
 
-use base 'Class::DBI';
-
-__PACKAGE__->connection("dbi:SQLite:$ENV{MTGDB_CODEBASE}/db/mtgdb.db");
-__PACKAGE__->autoupdate(0);
+use base 'MTGDb::Base';
 
 __PACKAGE__->table('cards');
 # Changing the column names may require changes to mtgdb.pl
@@ -14,6 +11,7 @@ __PACKAGE__->table('cards');
 # * ...???...
 __PACKAGE__->columns(All => qw/id name type sub_type editions cost legal foil
                                rarity count image_name/);
+__PACKAGE__->columns(Stringify => qw/name/);
 
 #__PACKAGE__->has_many(decks => ['MTGDb::CardDeckAssoc' => 'deck']);
 __PACKAGE__->has_many(decks => 'MTGDb::CardDeckAssoc');
@@ -56,22 +54,20 @@ use constant CARD_TYPES => (
 'Enchantment'
 );
 ################################################################################
-sub as_hash
+sub available_copies
 {
     my $this = shift;
 
-    my %card_as_hash;
+    my $avail_copies = $this->count();
 
-    my @cols = __PACKAGE__->columns('All');
-    foreach my $c (@cols)
+    my @decks = $this->decks();
+    foreach my $d (@decks)
     {
-        my $name     = $c->name();
-        my $accessor = $c->accessor();
-
-        $card_as_hash{$name} = $this->$accessor();
+        my $total_copies = $d->main_copies() + $d->side_copies();
+        $avail_copies -= $total_copies;
     }
 
-    return (wantarray ? %card_as_hash : \%card_as_hash);
+    return($avail_copies);
 }
 ################################################################################
 1;

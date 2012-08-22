@@ -10,6 +10,7 @@ use LWP::UserAgent;
 
 use lib "$ENV{MTGDB_CODEBASE}/lib";
 use MTGDb::Card;
+use MTGDb::CardDeckAssoc;
 use MTGDb::Util::Input;
 use MTGDb::Util::Output;
 use MTGDb::Util::Misc;
@@ -487,14 +488,11 @@ sub _image_name
 {
     my $class = shift;
     my %args = @_;
-    
+
     my $image_name = lc $args{card_name};
     $image_name =~ s/\s/_/g;
     $image_name =~ s/[^A-Za-z0-9\-_]//g;
-    #$image_name =~ s/[',\/]//g;
-    #$image_name =~ s/\)//g;
-    #$image_name =~ s/\(//g;
-  
+
     return ($image_name . ".jpg")
 }
 ################################################################################
@@ -503,27 +501,44 @@ sub _display
     my $class = shift;
     my %args = @_;
 
-    my $format = $args{format};
-    my $card   = (defined $args{card}) ? $args{card}->as_hash() : $args{card_data};
+    my $format    = $args{format};
+    my $card      = $args{card};
+    my $card_data = defined $card ? $card->as_hash() : $args{card_data};
 
     if (lc $format eq 'summary')
     {
         print <<EOF;
----=== $card->{name} ($card->{cost}) ===---
+---=== $card_data->{name} ($card_data->{cost}) ===---
 EOF
     }
     else
     {
         print <<EOF;
---=== $card->{name} ($card->{cost}) ===--
-$card->{type} -- $card->{sub_type} -- $card->{rarity}
+--=== $card_data->{name} ($card_data->{cost}) ===--
+$card_data->{type} -- $card_data->{sub_type} -- $card_data->{rarity}
 
-Editions: $card->{editions}
-Legal:    $card->{legal}
-Foil:     $card->{foil}
-Image:    $card->{image_name}
-Copies:   $card->{count}
+Editions: $card_data->{editions}
+Legal:    $card_data->{legal}
+Foil:     $card_data->{foil}
+Image:    $card_data->{image_name}
+Copies:   $card_data->{count}
 EOF
+
+        if ($card)
+        {
+            my $avail_copies
+                = $card->count() - MTGDb::CardDeckAssoc->copies_in_decks($card);
+
+            my @decks = $card->decks();
+            print "\n-- Decks --\n" if @decks;
+            foreach my $d (@decks)
+            {
+                my $total_copies = $d->main_copies() + $d->side_copies();
+                print "* ".$d->deck()->name()." (x$total_copies)\n";
+            }
+
+            print "\nAvailable Copies: $avail_copies\n";
+        }
     }
 }
 ################################################################################

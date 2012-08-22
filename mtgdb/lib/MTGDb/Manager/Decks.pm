@@ -75,14 +75,10 @@ sub _add_deck
             type => $type
         });
         
-        if ($deck)
-        {
-            msg("Successfully add new deck '$name'");
-        }
-        else
-        {
-            msg("Failed to add new deck.");
-        }
+        my $msg = $deck
+            ? "Successfully add new deck '$name'"
+            : "Failed to add new deck.";
+        msg($msg);
     }
     else
     {
@@ -135,14 +131,7 @@ sub _add_card
     }
     elsif (@cards > 1)
     {
-        my $num = 1;
-        foreach my $c (@cards)
-        {
-            print "$num) ".$c->name()."\n";
-            $num++;
-        }
-        my $choice = prompt("Choose Card");
-        $card = $cards[$choice-1];
+        $card = prompt_for_item("Choose Card", @cards);
     }
 
     unless ($class->context())
@@ -157,21 +146,25 @@ sub _add_card
     if ($deck and $card)
     {
         msg("\n---=== ".$card->name()." ===---\n");
-        my $main_copies = prompt_for_num("Copies in Main Deck");
-        my $side_copies = prompt_for_num("Copies in Sideboard");
-
-        msg("Adding '".$card->name()."' to '".$deck->name()."' deck.");
 
         my $cda = MTGDb::CardDeckAssoc->retrieve(
             card_id => $card,
             deck_id => $deck,
         );
 
+        my $msg = $cda
+            ? "Card '".$card->name()."' already exists in deck. Will update copies."
+            : "Adding card '".$card->name()."' to deck '".$deck->name()."'";
+        msg($msg);
+
+        my $main_copies = prompt_for_num("Copies in Main Deck");
+        my $side_copies = prompt_for_num("Copies in Sideboard");
+
         # Card already exists in deck, update copies
         if ($cda)
         {
-            $cda->copies_main($main_copies);
-            $cda->copies_side($side_copies);
+            $cda->main_copies($main_copies);
+            $cda->side_copies($side_copies);
             
             my $msg = $cda->update() ? "Success!" : "Failed to update deck.";
             msg($msg);
@@ -180,8 +173,8 @@ sub _add_card
         {
             $cda = $deck->add_to_cards({
                 card_id     => $card,
-                copies_main => $main_copies,
-                copies_side => $side_copies
+                main_copies => $main_copies,
+                side_copies => $side_copies
             });
             
             my $msg = $cda ? 'Success!' : 'Failed to add card to deck.';
@@ -217,14 +210,14 @@ sub _display_deck
     my $side_cards_str = "";
     while(my $c = $cards_it->next())
     {
-        $main_cards_str .= $c->copies_main() ." x " . $c->card->name()."\n"
-            if $c->copies_main();
+        $main_cards_str .= $c->main_copies() ." x " . $c->card->name()."\n"
+            if $c->main_copies();
             
-        $side_cards_str .= $c->copies_side() ." x " . $c->card->name()."\n"
-            if $c->copies_side();
+        $side_cards_str .= $c->side_copies() ." x " . $c->card->name()."\n"
+            if $c->side_copies();
 
-        $main_count += $c->copies_main();
-        $side_count += $c->copies_side();
+        $main_count += $c->main_copies();
+        $side_count += $c->side_copies();
     }
     chomp $main_cards_str;
     chomp $side_cards_str;

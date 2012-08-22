@@ -4,6 +4,8 @@ use feature 'switch';
 
 use Cwd 'abs_path';
 use File::Basename;
+use Term::ReadLine;
+
 BEGIN
 {
     $ENV{MTGDB_CODEBASE} = dirname(abs_path($0)).'/..';
@@ -15,15 +17,18 @@ use MTGDb::Manager::Decks;
 use MTGDb::Util::Input;
 use MTGDb::Util::Output;
 ################################################################################
+my $initial_manager = shift || 'cards';
 my $DONE = 0;
 my $context = undef;
-my $manager = 'MTGDb::Manager::Decks';
+my $manager = 'MTGDb::Manager::'.ucfirst($initial_manager);
+
+my $term = Term::ReadLine->new('MTGDb');
 while (!$DONE)
 {
     my $prompt = $manager;
     $prompt =~ s/^MTGDb::Manager:://;
     $prompt .= "($context)" if $context;
-    my $input = prompt($prompt);
+    my $input = $term->readline("$prompt:");
 
     my ($cmd, $args) = split /\s+/, $input, 2;
 
