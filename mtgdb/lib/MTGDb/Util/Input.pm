@@ -5,6 +5,7 @@ use strict;
 use base 'Exporter';
 our @EXPORT = qw(prompt prompt_for_bool prompt_for_val prompt_for_num prompt_for_item);
 ################################################################################
+# TODO: capture Ctl-C so that can return to app cmd line
 sub prompt
 {
     my $msg = shift;

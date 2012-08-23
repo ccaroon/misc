@@ -13,6 +13,17 @@ use MTGDb::Util::Misc;
 
 my $CONTEXT = undef;
 ################################################################################
+sub list
+{
+    my $class = shift;
+    
+    my $deck_it = MTGDb::Deck->retrieve_all();
+    while (my $deck = $deck_it->next())
+    {
+        msg("* $deck (".$deck->type().")\n");
+    }
+}
+################################################################################
 sub add
 {
     my $class = shift;
@@ -136,6 +147,7 @@ sub _add_card
             my $msg = $cda ? 'Success!' : 'Failed to add card to deck.';
             msg($msg);
         }
+        $class->_display_deck($deck);
     }
     else
     {
@@ -300,6 +312,7 @@ sub verify
     msg("Not Yet Implemented!");
 }
 ################################################################################
+# TODO: show cards in order of count
 sub _display_deck
 {
     my $class = shift;
