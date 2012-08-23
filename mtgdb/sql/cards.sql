@@ -6,7 +6,6 @@ create table cards (
     -- eventually 'editions' needs to be split out into another table
     editions   varchar(256) not null,
     cost       varchar(32)  not null,
-    legal      tinyint      not null default 0,
     foil       tinyint      not null default 0,
     rarity     varchar(16)  not null,
     count      integer      not null,

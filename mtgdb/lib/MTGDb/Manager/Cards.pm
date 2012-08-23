@@ -10,6 +10,7 @@ use LWP::UserAgent;
 
 use lib "$ENV{MTGDB_CODEBASE}/lib";
 use MTGDb::Card;
+use MTGDb::Deck;
 use MTGDb::CardDeckAssoc;
 use MTGDb::Util::Input;
 use MTGDb::Util::Output;
@@ -59,15 +60,8 @@ sub add
 
         print "\n<---------------------------------------------->\n\n";
 
-        # Editions and Legality
-        my @editions = split /\|/, $card->editions;
-        push @editions, $add_edition if defined $add_edition;
-        my $is_legal = $class->_is_legal(editions => \@editions);
-
+        # Editions
         print "Adding '$add_edition' to Editions.\n" if defined $add_edition;
-
-        my $legal_status = ($is_legal) ? "Legal" : "Not Legal";
-        print "Card is now $legal_status.\n" if $is_legal != $card->legal;
 
         # Foil - Assumes won't change from True to False only from False to True
         if ($is_foil)
@@ -80,15 +74,17 @@ sub add
         }
 
         # Copies
-        print "Adding $add_copies copies.\n" if defined $add_copies;
-
-        print "\n";
+        print "Adding $add_copies copies.\n\n" if defined $add_copies;
 
         my $ok = prompt_for_bool("Confirm");
         if ($ok)
         {
-            $card->editions(join '|', @editions) if defined $add_edition;
-            $card->legal($is_legal);
+            if ($add_edition)
+            {
+                my $editions = $card->editions();
+                $editions .= "|$add_edition";
+                $card->editions($editions);
+            }
             $card->foil($is_foil);
             $card->count($card->count() + $add_copies) if $add_copies;
 
@@ -115,13 +111,13 @@ sub add
         $card_data->{cost}       = uc(prompt("Mana Cost"));
         $card_data->{type}       = prompt_for_item("Type", MTGDb::Card->CARD_TYPES);
         $card_data->{sub_type}   = prompt("Subtype");
-        $card_data->{editions}   = prompt_for_item("Edition", MTGDb::Card->RECENT_EDITIONS);
-        $card_data->{legal}      = $class->_is_legal(editions => [$card_data->{editions}]);
-        $card_data->{rarity}     = prompt_for_item("Rarity", MTGDb::Card->CARD_RARITIES);
+        $card_data->{editions}
+            = prompt_for_item("Edition", MTGDb::Card->RECENT_EDITIONS);
+        $card_data->{rarity}
+            = prompt_for_item("Rarity", MTGDb::Card->CARD_RARITIES);
         $card_data->{foil}       = prompt_for_bool("Foil");
         $card_data->{count}      = prompt("Count");
-
-        $card_data->{image_name}  = $class->_image_name(card_name => $card_data->{name});
+        $card_data->{image_name} = $class->_image_name(card_name => $card_data->{name});
 
         $class->_display(card_data => $card_data);
 
@@ -146,8 +142,6 @@ sub add
     
     return;
 }
-################################################################################
-# TODO: show which decks the card is in
 ################################################################################
 sub show
 {
@@ -349,31 +343,6 @@ sub check_dups
     return;
 }
 ################################################################################
-sub recalc_legal
-{
-    my $class = shift;
-    
-    my $card_it = MTGDb::Card->retrieve_all();
-    while (my $card = $card_it->next())
-    {
-        my @editions = split /\|/, $card->editions();
-
-        my $old_legal = $card->legal();
-        my $new_legal = $class->_is_legal(editions => \@editions);
-
-        if ($new_legal != $old_legal)
-        {
-            my $legal_str = $new_legal ? 'Now Legal' : 'No Longer Legal';
-            msg("'".$card->name."' is $legal_str");
-
-            $card->legal($new_legal);
-            $card->update();
-        }
-    }
-    
-    return;
-}
-################################################################################
 sub import_csv
 {
     my $class = shift;
@@ -395,6 +364,7 @@ sub import_csv
 
         while (my $row = $stmt->fetchrow_hashref())
         {
+            delete $row->{legal};
             delete $row->{image};
             MTGDb::Card->insert($row);
         }
@@ -467,23 +437,6 @@ EOF
     return;
 }
 ################################################################################
-sub _is_legal
-{
-    my $class = shift;
-    my %args = @_;
-
-    my $editions = $args{editions};
-
-    my $is_legal = 0;
-    foreach my $e (@$editions)
-    {
-        $is_legal = grep /^$e$/, MTGDb::Card->STANDARD_LEGAL_EDITIONS;
-        last if $is_legal;
-    }
-
-    return($is_legal);
-}
-################################################################################
 sub _image_name
 {
     my $class = shift;
@@ -518,7 +471,6 @@ EOF
 $card_data->{type} -- $card_data->{sub_type} -- $card_data->{rarity}
 
 Editions: $card_data->{editions}
-Legal:    $card_data->{legal}
 Foil:     $card_data->{foil}
 Image:    $card_data->{image_name}
 Copies:   $card_data->{count}
@@ -526,6 +478,15 @@ EOF
 
         if ($card)
         {
+            # Legality
+            print "\n-- Legal Formats --\n";
+            foreach my $name (MTGDb::Deck->DECK_TYPES())
+            {
+                print "* $name\n"
+                    if $card->legal(format => MTGDb::Deck->FORMATS->{$name});
+            }
+
+            # Decks
             my @decks = $card->decks();
             print "\n-- Decks --\n" if @decks;
             foreach my $d (@decks)
@@ -663,8 +624,7 @@ Card Manager Commands
                    search type Creature
 * fetch_images --> Fetch images.
 * check_dups   --> Check for duplicates in the database.
-* verify_db    --> Check for dups and verify card with magiccards.info
-* recalc_legal --> Recalculate the legalness of each card.
+* verify       --> Check for dups and verify card with magiccards.info
 * import_csv   --> Import records from a CSV file into the Card database.
                    import /path/to/file.csv
 * export_csv   --> Export database to a CSV file.

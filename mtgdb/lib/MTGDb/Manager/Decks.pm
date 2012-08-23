@@ -303,7 +303,9 @@ sub show
 }
 ################################################################################
 # TODO: min card count for deck type
-# TODO: all cards are legal for deck type
+# TODO: are all cards are legal for deck type
+# TODO: Commander specific stuff like...
+#       ...all cards have ONLY commanders colors
 ################################################################################
 sub verify
 {
@@ -312,44 +314,47 @@ sub verify
     msg("Not Yet Implemented!");
 }
 ################################################################################
-# TODO: show cards in order of count
 sub _display_deck
 {
     my $class = shift;
     my $deck  = shift;
 
-    my $cards_it = $deck->cards();
     my $main_count = 0;
     my $side_count = 0;
-    my $main_cards_str = "";
-    my $side_cards_str = "";
+    my @main_deck;
+    my @sideboard;
+    my $cards_it = $deck->cards();
     while(my $c = $cards_it->next())
     {
-        $main_cards_str .= $c->main_copies() ." x " . $c->card->name()."\n"
+        push @main_deck, {name => $c->card->name(), copies => $c->main_copies()}
             if $c->main_copies();
             
-        $side_cards_str .= $c->side_copies() ." x " . $c->card->name()."\n"
+        push @sideboard, {name => $c->card->name(), copies => $c->side_copies()}
             if $c->side_copies();
 
         $main_count += $c->main_copies();
         $side_count += $c->side_copies();
     }
-    chomp $main_cards_str;
-    chomp $side_cards_str;
 
     $deck = $deck->as_hash();
 
-    print STDERR <<EOF;
+    print <<EOF;
 ---=== $deck->{name} ===---
 $deck->{type}
 
---- Main Deck ($main_count) ---
-$main_cards_str
- 
---- Sideboard ($side_count) ---
-$side_cards_str
-
 EOF
+
+    print "--- Main Deck ($main_count) ---\n";
+    foreach my $c (sort {$a->{copies} <=> $b->{copies}} @main_deck)
+    {
+        printf "%2d x %s\n", $c->{copies}, $c->{name};
+    }
+
+    print "\n--- Sideboard ($side_count) ---\n";
+    foreach my $c (sort {$a->{copies} <=> $b->{copies}} @sideboard)
+    {
+        printf "%2d x %s\n", $c->{copies}, $c->{name};
+    }
 }
 ################################################################################
 sub context
@@ -372,13 +377,16 @@ sub help
     print <<EOF;
 Deck Manager Commands
 ---------------------
-* add      --> Add a new deck.
-* add deck --> Add a new deck.
-* add card --> Add a card to a deck.
-* deck     --> Set Deck Manager context to a specific deck.
-* show     --> Display deck.
-* verify   --> Verify a deck.
-* help         --> This Message.
+* add         --> Add a new deck.
+* add deck    --> Add a new deck.
+* add card    --> Add a card to a deck.
+* deck        --> Set Deck Manager context to a specific deck.
+* destroy     --> Destroy a deck.
+* list        --> Display a list of all decks.
+* remove card --> Remove a card from a deck.
+* show        --> Display deck.
+* verify      --> Verify a deck.
+* help        --> This Message.
 EOF
 }
 ################################################################################

@@ -5,28 +5,13 @@ use strict;
 use base 'MTGDb::Base';
 
 __PACKAGE__->table('cards');
-# Changing the column names may require changes to mtgdb.pl
-# * add_card
-# * export_csv
-# * ...???...
-__PACKAGE__->columns(All => qw/id name type sub_type editions cost legal foil
+__PACKAGE__->columns(All => qw/id name type sub_type editions cost foil
                                rarity count image_name/);
 __PACKAGE__->columns(Stringify => qw/name/);
 
 #__PACKAGE__->has_many(decks => ['MTGDb::CardDeckAssoc' => 'deck']);
 __PACKAGE__->has_many(decks => 'MTGDb::CardDeckAssoc');
 ################################################################################
-use constant STANDARD_LEGAL_EDITIONS => (
-'Scars of Mirrodin',
-'Mirrodin Besieged',
-'New Phyrexia',
-'M12',
-'Innistrad',
-'Dark Ascension',
-'Avacyn Restored',
-'M13'
-);
-
 use constant RECENT_EDITIONS => (
 'M12',
 'Innistrad',
@@ -53,6 +38,30 @@ use constant CARD_TYPES => (
 'Legendary Creature',
 'Enchantment'
 );
+################################################################################
+sub legal
+{
+    my $this = shift;
+    my %args = @_;
+    
+    my $format = $args{format} || MTGDb::Deck->FORMAT_STANDARD;
+
+    my $is_legal = 0;    
+    if ($format->{legal_editions} == undef)
+    {
+        $is_legal = 1;
+    }
+    else
+    {
+        foreach my $e (split /\|/, $this->editions())
+        {
+            $is_legal = grep /^$e$/, @{$format->{legal_editions}};
+            last if $is_legal;
+        }
+    }
+
+    return($is_legal);
+}
 ################################################################################
 sub available_copies
 {
