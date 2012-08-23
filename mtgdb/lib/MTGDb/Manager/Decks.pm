@@ -252,24 +252,28 @@ sub _remove_card
 sub _get_deck
 {
     my $class = shift;
+    my $name  = shift;
 
-    unless ($class->context())
+    my $deck;
+    if ($name)
     {
-        my $deck_name = prompt("Deck");
-        $deck_name = title_case($deck_name);
-
-        my $deck = MTGDb::Deck->retrieve(name => $deck_name);
-        if ($deck)
+        $name = title_case($name);
+        $deck = MTGDb::Deck->retrieve(name => $name);
+    }
+    else
+    {
+        $deck = $class->context();
+        unless ($deck)
         {
-            $class->context($deck);
-        }
-        else
-        {
-            print "Deck not found: $deck_name\n";
+            $name = prompt("Deck");
+            $name = title_case($name);
+            $deck = MTGDb::Deck->retrieve(name => $name);
         }
     }
 
-    return ($class->context());
+    print "Deck not found: $name\n" unless $deck;
+
+    return ($deck);
 }
 ################################################################################
 sub deck
@@ -294,18 +298,8 @@ sub show
 {
     my $class = shift;
     my $name  = shift;
-    
-    my $deck;
-    if (defined $name)
-    {
-        $name = title_case($name);
-        $deck = MTGDb::Deck->retrieve(name => $name);
-    }
-    else
-    {
-        $deck = $class->_get_deck();
-    }
 
+    my $deck = $class->_get_deck($name);
     if ($deck)
     {
         $class->_display_deck($deck);
@@ -316,16 +310,47 @@ sub show
     }
 }
 ################################################################################
-# TODO: min card count for deck type
-# TODO: are all cards are legal for deck type
 # TODO: Commander specific stuff like...
 #       ...all cards have ONLY commanders colors
 ################################################################################
 sub verify
 {
     my $class = shift;
-    
-    print "Not Yet Implemented!\n";
+    my $name  = shift;
+
+    my $deck = $class->_get_deck($name);
+
+    if ($deck)
+    {
+        print "---=== $deck ===---\n";
+
+        my $format = MTGDb::Deck->FORMATS->{$deck->type()};
+
+        my $cards_it = $deck->cards();
+        my $main_count = 0;
+        my $side_count = 0;
+        while (my $card = $cards_it->next())
+        {
+            $main_count += $card->main_copies();
+            $side_count += $card->side_copies();
+
+            my $count = $card->main_copies() + $card->side_copies();
+            print "* Too many copies of '".$card->card()."' in deck.\n"
+                if $count > $format->{max_copies}
+                    and $card->card()->type() ne MTGDb::Card->TYPE_BASIC_LAND;
+
+            print "* '".$card->card()."' not legal in this deck."
+                unless $card->card()->legal(format => $format);
+        }
+
+        print "* Too many cards in main deck ($main_count).\n"
+            if defined $format->{max_cards} and $main_count > $format->{max_cards};
+        print "* Not enough cards in main deck ($main_count).\n"
+            if $main_count < $format->{min_cards};
+
+        print "* Sideboard must have exactly $format->{sideboard_size} cards ($side_count).\n"
+            if $side_count > 0 and $side_count != $format->{sideboard_size};
+    }
 }
 ################################################################################
 sub _display_deck

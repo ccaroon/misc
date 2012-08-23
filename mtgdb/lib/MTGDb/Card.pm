@@ -27,8 +27,10 @@ use constant CARD_RARITIES => (
 'Mythic Rare'
 );
 
+use constant TYPE_BASIC_LAND => 'Basic Land';
+
 use constant CARD_TYPES => (
-'Basic Land',
+TYPE_BASIC_LAND,
 'Creature',
 'Instant',
 'Sorcery',
