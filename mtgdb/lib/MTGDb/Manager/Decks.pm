@@ -8,7 +8,6 @@ use MTGDb::Card;
 use MTGDb::Deck;
 use MTGDb::CardDeckAssoc;
 use MTGDb::Util::Input;
-use MTGDb::Util::Output;
 use MTGDb::Util::Misc;
 
 my $CONTEXT = undef;
@@ -20,7 +19,7 @@ sub list
     my $deck_it = MTGDb::Deck->retrieve_all();
     while (my $deck = $deck_it->next())
     {
-        msg("* $deck (".$deck->type().")\n");
+        print "* $deck (".$deck->type().")\n";
     }
 }
 ################################################################################
@@ -43,7 +42,14 @@ sub add
         }
         default
         {
-            $class->_add_deck($args);
+            if ($class->context())
+            {
+                $class->_add_card($args);
+            }
+            else
+            {
+                $class->_add_deck($args);
+            }
         }
     }
 }
@@ -59,7 +65,7 @@ sub _add_deck
     my $deck = MTGDb::Deck->retrieve(name => $name);
     if($deck == undef)
     {
-        msg("New Deck: $name\n\n");
+        print "New Deck: $name\n\n";
 
         my $type = prompt_for_item("Type", MTGDb::Deck->DECK_TYPES);
         
@@ -69,17 +75,17 @@ sub _add_deck
         });
         
         my $msg = $deck
-            ? "Successfully add new deck '$name'"
-            : "Failed to add new deck.";
-        msg($msg);
+            ? "Successfully added new deck '$name'\n"
+            : "Failed to add new deck.\n";
+        print $msg;
     }
     else
     {
-        msg("Deck named '$name' already exists.");
+        print "Deck named '$name' already exists.\n";
     }
 }
 ################################################################################
-# TODO: don't allow adding non-legal cards to standard legal decks
+# TODO: verify legal number of copies of cards
 ################################################################################
 sub _add_card
 {
@@ -102,26 +108,30 @@ sub _add_card
 
     my $deck = $class->_get_deck();
 
-    if ($deck and $card and $card->available_copies())
+    eval
     {
-        my $avail_copies = $card->available_copies();
-        msg("\n---=== ".$card->name()." ===---\n");
+        die "Deck not found.\n"       unless $deck;
+        die "Card not found: $name\n" unless $card;
+        die "No copies available.\n"  unless $card->available_copies();
+
+        my $is_legal = $card->legal(format => MTGDb::Deck->FORMATS->{$deck->type()});
+        die "'$card' is not legal in a '".$deck->type()."' format deck.\n"
+            unless $is_legal;
 
         my $cda = MTGDb::CardDeckAssoc->retrieve(
             card_id => $card,
             deck_id => $deck,
         );
 
-        my $msg = $cda
-            ? "Card '".$card->name()."' already exists in deck. Will update copies."
-            : "Adding card '".$card->name()."' to '".$deck->name()."' deck.";
-        msg($msg);
+        print "'$card' already exists in deck. Will update copies.\n\n"
+            if $cda;
 
         my $main_copies = 0;
         my $side_copies = 0;
+        my $avail_copies = $card->available_copies();
         do
         {
-            msg("There are $avail_copies of '".$card->name()."' available.");
+            print "$card -- $avail_copies available.\n\n";
             $main_copies = prompt_for_num("Main copies");
             $side_copies = prompt_for_num("Sideboard copies");
         }
@@ -133,8 +143,10 @@ sub _add_card
             $cda->main_copies($main_copies);
             $cda->side_copies($side_copies);
             
-            my $msg = $cda->update() ? "Success!" : "Failed to update deck.";
-            msg($msg);
+            my $msg = $cda->update()
+                ? "Successfully updated '$deck'\n"
+                : "Failed to update '$deck'.\n";
+            print $msg;
         }
         else
         {
@@ -144,16 +156,18 @@ sub _add_card
                 side_copies => $side_copies
             });
             
-            my $msg = $cda ? 'Success!' : 'Failed to add card to deck.';
-            msg($msg);
+            my $msg = $cda
+                ? "Successfully added '$card' to '$deck'\n"
+                : "Failed to add '$card' to '$deck'.\n";
+            print $msg;
         }
+
+        print "\n";
         $class->_display_deck($deck);
-    }
-    else
+    };
+    if ($@)
     {
-        msg("Card not found: $name") unless $card;
-        msg ("No copies available.") if $card and !$card->available_copies();
-        msg("Deck not found!")       unless $deck;
+        print $@;
     }
 }
 ################################################################################
@@ -169,12 +183,12 @@ sub destroy
     if($deck)
     {
         $deck->delete();
-        msg("Destoryed '$name'.");
+        print "Destoryed '$name'.\n";
         $CONTEXT = undef;
     }
     else
     {
-        msg("Deck '$name' not found.");
+        print "Deck '$name' not found.\n";
     }
 }
 ################################################################################
@@ -193,7 +207,7 @@ sub remove
         }
         default
         {
-            msg("Remove what?");
+            print "Remove what?\n";
         }
     }
 }
@@ -216,22 +230,22 @@ sub _remove_card
         {
             when (0)
             {
-                msg("'$name' not found in deck.");
+                print "'$name' not found in deck.\n";
             }
             when (1)
             {
                 $cda[0]->delete();
-                msg("'$name' has been removed from '$deck'.");
+                print "'$name' has been removed from '$deck'.\n";
             }
             when ($_ > 1)
             {
-                msg("Found more than 1 '$name' in deck. Db corrupt?");
+                print "Found more than 1 '$name' in deck. Db corrupt?\n";
             }
         }
     }
     else
     {
-        msg("Removal failed.");
+        print "Removal failed.\n";
     }
 }
 ################################################################################
@@ -251,7 +265,7 @@ sub _get_deck
         }
         else
         {
-            msg("Deck not found: $deck_name");
+            print "Deck not found: $deck_name\n";
         }
     }
 
@@ -268,11 +282,11 @@ sub deck
     if ($deck)
     {
         $class->context($deck);
-        msg("Deck context changed to '$deck'");
+        print "Deck context changed to '$deck'\n";
     }
     else
     {
-        msg("Deck not found: $name");
+        print "Deck not found: $name\n";
     }
 }
 ################################################################################
@@ -298,7 +312,7 @@ sub show
     }
     else
     {
-        msg("No deck found with name '$name'");
+        print "No deck found with name '$name'\n";
     }
 }
 ################################################################################
@@ -311,7 +325,7 @@ sub verify
 {
     my $class = shift;
     
-    msg("Not Yet Implemented!");
+    print "Not Yet Implemented!\n";
 }
 ################################################################################
 sub _display_deck
@@ -339,8 +353,7 @@ sub _display_deck
     $deck = $deck->as_hash();
 
     print <<EOF;
----=== $deck->{name} ===---
-$deck->{type}
+---=== $deck->{name} ($deck->{type}) ===---
 
 EOF
 
@@ -377,7 +390,7 @@ sub help
     print <<EOF;
 Deck Manager Commands
 ---------------------
-* add         --> Add a new deck.
+* add         --> Contextually add a deck or a card to a deck.
 * add deck    --> Add a new deck.
 * add card    --> Add a card to a deck.
 * deck        --> Set Deck Manager context to a specific deck.

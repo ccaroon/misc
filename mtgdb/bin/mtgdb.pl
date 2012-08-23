@@ -15,7 +15,6 @@ use lib "$ENV{MTGDB_CODEBASE}/lib";
 use MTGDb::Manager::Cards;
 use MTGDb::Manager::Decks;
 use MTGDb::Util::Input;
-use MTGDb::Util::Output;
 ################################################################################
 my $initial_manager = shift || 'cards';
 my $DONE = 0;
@@ -76,7 +75,7 @@ sub _exec_cmd
     }
     else
     {
-        msg("$mgr does not support command: $cmd");
+        print "$mgr does not support command: $cmd\n";
     }
     
     return ($new_ctx);

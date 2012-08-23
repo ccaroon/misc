@@ -13,7 +13,6 @@ use MTGDb::Card;
 use MTGDb::Deck;
 use MTGDb::CardDeckAssoc;
 use MTGDb::Util::Input;
-use MTGDb::Util::Output;
 use MTGDb::Util::Misc;
 
 use constant BASE_SYNC_IP =>'192.168';
@@ -91,21 +90,21 @@ sub add
             my $cnt = $card->update();
             if ($cnt > 0)
             {
-                msg("Updated '".$card->name."'.");
+                print "Updated '".$card->name."'.\n";
             }
             else
             {
-                msg("Failed to update '".$card->name."'.");
+                print "Failed to update '".$card->name."'.\n";
             }
         }
         else
         {
-            msg("Discarding changes to '".$card->{name}."'!");
+            print "Discarding changes to '".$card->{name}."'!\n";
         }
     }
     else
     {
-        msg("New Card: '$name'\n\n");
+        print "New Card: '$name'\n\n";
 
         my $card_data            = {id => undef, name => $name};
         $card_data->{cost}       = uc(prompt("Mana Cost"));
@@ -127,16 +126,16 @@ sub add
             my $card = MTGDb::Card->insert($card_data);
             if ($card)
             {
-                msg("Successfully added new card '".$card->name."'.");
+                print "Successfully added new card '".$card->name."'.\n";
             }
             else
             {
-                msg("Failed to add new card.");
+                print "Failed to add new card.\n";
             }
         }
         else
         {
-            msg("Add cancelled.");
+            print "Add cancelled.\n";
         }
     }
     
@@ -159,7 +158,7 @@ sub show
     }
     else
     {
-        msg("No card found with name '$name'");
+        print "No card found with name '$name'\n";
     }
     
     return;
@@ -185,7 +184,7 @@ sub search
     {
         $class->_display(card => $card, format => 'summary');
     }
-    msg("\nSearch for '$term' found ".scalar(@cards)." records.");
+    print "\nSearch for '$term' found ".scalar(@cards)." records.\n";
     
     return;
 }
@@ -246,7 +245,7 @@ sub _fetch_image
             # Fetch Image
             unless ($args{dry_run})
             {
-                msg("Fetching '$card_name' as '$image_name'.\n");
+                print "Fetching '$card_name' as '$image_name'.\n";
 
                 my $response = $UA->get("$img_url/$img_path.jpg",
                     ':content_file' => "$img_dir/$image_name");
@@ -259,7 +258,7 @@ sub _fetch_image
         }
     }
 
-    msg("Card not found: [$card_name]\n") unless $found;
+    print "Card not found: [$card_name]\n" unless $found;
 }
 ################################################################################
 sub fetch_images
@@ -295,7 +294,7 @@ sub fetch_images
         };
         if ($@)
         {
-            msg($@);
+            print "$@\n";
         }
     }
     
@@ -316,8 +315,8 @@ sub count
         $total_cards += $card->count;
     }
 
-    msg("Unique Cards: $unique_cards");
-    msg("Total Cards: $total_cards");
+    print "Unique Cards: $unique_cards\n";
+    print "Total Cards: $total_cards\n";
     
     return;
 }
@@ -336,7 +335,7 @@ sub check_dups
 
     map
     {
-        msg("Duplicate Card Found: [$_] ($dups{$_})\n")
+        print "Duplicate Card Found: [$_] ($dups{$_})\n"
             if $dups{$_} > 1;
     } keys %dups;
     
@@ -357,7 +356,7 @@ sub import_csv
             f_ext => '.csv',
         });
 
-        msg("Importing. Please wait...");
+        print "Importing. Please wait...\n";
 
         my $stmt = $dbh->prepare("select * from $name");
         $stmt->execute();
@@ -372,7 +371,7 @@ sub import_csv
     }
     else
     {
-        msg("Missing filename argument. Usage: import /path/to/file.csv");
+        print "Missing filename argument. Usage: import /path/to/file.csv\n";
     }
     
     return;
@@ -393,7 +392,7 @@ sub export_csv
         });
 
         my $total_cards = MTGDb::Card->count_all();
-        msg("Exporting $total_cards cards. Please wait...");
+        print "Exporting $total_cards cards. Please wait...\n";
 
         # Create CSV "table" whose name is $name
         # Types don't matter to DBD::CSV
@@ -431,7 +430,7 @@ EOF
     }
     else
     {
-        msg("Missing filename argument. Usage: export /path/to/file.csv");
+        print "Missing filename argument. Usage: export /path/to/file.csv\n";
     }
     
     return;
@@ -521,7 +520,7 @@ sub sync
         default
         {
             $ip = undef;
-            msg("IP [$ip] does not look valid.");
+            print "IP [$ip] does not look valid.\n";
         }
     }
 
@@ -553,7 +552,7 @@ sub _sync_db
     my $file = "$ENV{MTGDB_CODEBASE}/export.csv";
     $class->export_csv($file);
 
-    msg("Syncing Db to host @ $host...\n");
+    print "Syncing Db to host @ $host...\n";
     my $response = $UA->post(
         "http://$host/applet_add.html",
         {
@@ -563,7 +562,7 @@ sub _sync_db
         'Content_Type' => 'form-data'
     );
 
-    msg("Error syncing db: [".$response->status_line()."]")
+    print "Error syncing db: [".$response->status_line()."]\n"
         if $response->is_error();
 
     unlink $file if -f $file;
@@ -588,7 +587,7 @@ sub _sync_images
         #9 == mtime
         if ($stats[9] > $LAST_IMAGE_FETCH_TIME)
         {
-            msg("Syncing '$image_name' to host @ $host...\n");
+            print "Syncing '$image_name' to host @ $host...\n";
             my $response = $UA->post(
                 "http://$host/applet_add.html",
                 {
@@ -597,7 +596,7 @@ sub _sync_images
                 },
                 'Content_Type' => 'multipart/form-data'
             );
-            msg("Error uploading image '$image_name': [".$response->status_line()."]")
+            print "Error uploading image '$image_name': [".$response->status_line()."]\n"
                 if $response->is_error();
         }
     }
