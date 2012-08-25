@@ -123,11 +123,22 @@ sub _add_card
             deck_id => $deck,
         );
 
-        print "'$card' already exists in deck. Will update copies.\n\n"
-            if $cda;
-
         my $main_copies = 0;
         my $side_copies = 0;
+        if ($cda)
+        {
+            $main_copies = $cda->main_copies();
+            $side_copies = $cda->side_copies();
+
+            print <<EOF;
+'$card' already exists in deck.
+* $main_copies x Main
+* $side_copies x Sideboard
+
+Will update copies.
+EOF
+        }
+  
         my $avail_copies = $card->available_copies();
         do
         {
