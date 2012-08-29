@@ -68,10 +68,16 @@ sub _exec_cmd
     if ($mgr->can($cmd))
     {
         print "\n";
-        $mgr->$cmd($args);
+        eval
+        {
+            $mgr->$cmd($args);
+            $new_ctx = $mgr->context();
+        };
+        if ($@)
+        {
+            print STDERR "'$cmd':  $@\n";
+        }
         print "\n";
-
-        $new_ctx = $mgr->context();
     }
     else
     {

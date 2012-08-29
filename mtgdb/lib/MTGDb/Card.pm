@@ -6,7 +6,7 @@ use base 'MTGDb::Base';
 
 __PACKAGE__->table('cards');
 __PACKAGE__->columns(All => qw/id name type sub_type editions cost foil
-                               rarity count image_name/);
+                               rarity count image_name card_text/);
 __PACKAGE__->columns(Stringify => qw/name/);
 
 #__PACKAGE__->has_many(decks => ['MTGDb::CardDeckAssoc' => 'deck']);
@@ -63,6 +63,14 @@ sub legal
     }
 
     return($is_legal);
+}
+################################################################################
+sub latest_edition
+{
+    my $this = shift;
+
+    my @editions = split /\|/, $this->editions();
+    return(pop @editions);
 }
 ################################################################################
 sub available_copies

@@ -9,5 +9,6 @@ create table cards (
     foil       tinyint      not null default 0,
     rarity     varchar(16)  not null,
     count      integer      not null,
-    image_name varchar(64)  not null
+    image_name varchar(64)  not null,
+    card_text  text         null
 );

@@ -15,11 +15,11 @@ use MTGDb::CardDeckAssoc;
 use MTGDb::Util::Input;
 use MTGDb::Util::Misc;
 
+use constant IMAGE_DIR => "$ENV{MTGDB_CODEBASE}/images";
 use constant BASE_SYNC_IP =>'192.168';
 use constant SYNC_PORT    => 8080;
 
 my $UA  = LWP::UserAgent->new();
-my $LAST_IMAGE_FETCH_TIME = time;
 my %EDITION_MAP = (
     'Avacyn Restored'     => 'avr',
     'Dark Ascension'      => 'dka',
@@ -138,8 +138,6 @@ sub add
             print "Add cancelled.\n";
         }
     }
-    
-    return;
 }
 ################################################################################
 sub show
@@ -160,8 +158,6 @@ sub show
     {
         print "No card found with name '$name'\n";
     }
-    
-    return;
 }
 ################################################################################
 sub search
@@ -185,8 +181,59 @@ sub search
         $class->_display(card => $card, format => 'summary');
     }
     print "\nSearch for '$term' found ".scalar(@cards)." records.\n";
-    
-    return;
+}
+################################################################################
+sub _fetch_card_info
+{
+    my $class = shift;
+    my %args = @_;
+
+    my $card = $args{card};
+    my $name = $card->name();
+    my $edition = $card->latest_edition();
+    $edition = $EDITION_MAP{$edition} || $edition;
+
+    my $url = "http://magiccards.info/query?q=$name";
+    $url .= "+e%3A$edition" if $edition;
+
+    my $response = $UA->get($url);
+    die "[".$response->status_line()."] Request failed for '$name'\n"
+        if $response->is_error();
+
+    my $html = $response->content();
+
+    my %info;
+    # Image URL
+    my $base_img_url = "http://magiccards.info/scans";
+    my $img_regex = qr|<img src="http://magiccards.info/scans/(.*)\.jpg"\s+alt="([^"]+)"|;
+    while($html =~ s|$img_regex||)
+    {
+        my $img_name = $1;
+        my $alt_txt  = $2;
+
+        if (lc ($alt_txt) eq lc($name))
+        {
+            $info{image_url} = "$base_img_url/$img_name.jpg";
+            last;
+        }
+    }
+
+    # Card Text
+    if ($html =~ m|<p class="ctext"><b>(.*)</b></p>|)
+    {
+        $info{card_text} = '';
+        if ($1)
+        {
+            $info{card_text} = $1;
+            $info{card_text} =~ s|<br>|\n|g;
+        }
+    }
+    else
+    {
+        $info{card_text} = undef;
+    }
+
+    return (wantarray ? %info : \%info);
 }
 ################################################################################
 sub _fetch_image
@@ -194,111 +241,19 @@ sub _fetch_image
     my $class = shift;
     my %args = @_;
 
-    my $found = 0;
-    my $card_name     = $args{name};
-    my $card_type     = $args{type}     || '';
-    my $card_edition  = $args{edition}  || '';
-    my $img_dir       = "$ENV{MTGDB_CODEBASE}/images";
+    print "Fetching $args{img_url}...";
 
-    my $image_name = $args{image_name};
-    unless ($image_name)
+    my $response = $UA->get($args{img_url},
+        ':content_file' => IMAGE_DIR."/$args{img_name}");
+
+    if ($response->is_success())
     {
-        $image_name = lc($card_name);
-        $image_name =~ s/\s+/_/g;
-        $image_name =~ s/[',]//g;
-        $image_name .= '.jpg';
+        print "Success!\n";
     }
-
-    my $url = "http://magiccards.info/query?q=$card_name";
-    $url .= "+e%3A$card_edition" if $card_edition and $card_type ne 'Scheme';
-
-    my $response = $UA->get($url);
-    die "[".$response->status_line()."] Request failed for '$card_name'"
-        if $response->is_error();
-
-    my $regex;
-    my $img_url;
-    given ($card_type)
+    else
     {
-        when ('Scheme')
-        {
-            $img_url = "http://magiccards.info/extras/scheme/archenemy";
-            $regex = qr|<img src="http://magiccards.info/extras/scheme/archenemy/(.*)\.jpg"\s+alt="Scheme - Archenemy - ([^"]+)"|;
-        }
-        default
-        {
-            $img_url = "http://magiccards.info/scans";
-            $regex = qr|<img src="http://magiccards.info/scans/(.*)\.jpg"\s+alt="([^"]+)"|;
-        }
+        print "Failed: ".$response->status_line()."\n";
     }
-
-    my $html = $response->content();
-    while ($html =~ s|$regex||)
-    {
-        my $img_path = $1;
-        my $name     = $2;
-
-        if (lc ($name) eq lc($card_name))
-        {
-            $found = 1;
-
-            # Fetch Image
-            unless ($args{dry_run})
-            {
-                print "Fetching '$card_name' as '$image_name'.\n";
-
-                my $response = $UA->get("$img_url/$img_path.jpg",
-                    ':content_file' => "$img_dir/$image_name");
-
-                die "[".$response->status_line()."] Failed to fetch image '$image_name'"
-                    if $response->is_error();
-            }
-
-            last;
-        }
-    }
-
-    print "Card not found: [$card_name]\n" unless $found;
-}
-################################################################################
-sub fetch_images
-{
-    my $class = shift;
-    my %args = (@_ == 1) ? split /\s+/, $_[0] : @_;
-
-    $LAST_IMAGE_FETCH_TIME = time-1;
-
-    my $dry_run = $args{dry_run} || 0;
-
-    my $card_it = MTGDb::Card->retrieve_all();
-
-    while(my $card = $card_it->next())
-    {
-        next if -f "$ENV{MTGDB_CODEBASE}/images/".$card->image_name;
-    
-        my @editions = split /\|/, $card->editions();
-        my $card_edition = pop @editions;
-        $card_edition =~ s/^\s+//;
-        $card_edition =~ s/\s+$//;
-        $card_edition = $EDITION_MAP{$card_edition} || $card_edition;
-
-        eval
-        {
-            $class->_fetch_image(
-                name       => $card->name,
-                type       => $card->type,
-                edition    => $card_edition,
-                image_name => $card->image_name,
-                dry_run    => $dry_run
-            );
-        };
-        if ($@)
-        {
-            print "$@\n";
-        }
-    }
-    
-    return;
 }
 ################################################################################
 sub count
@@ -317,8 +272,6 @@ sub count
 
     print "Unique Cards: $unique_cards\n";
     print "Total Cards: $total_cards\n";
-    
-    return;
 }
 ################################################################################
 sub check_dups
@@ -338,8 +291,6 @@ sub check_dups
         print "Duplicate Card Found: [$_] ($dups{$_})\n"
             if $dups{$_} > 1;
     } keys %dups;
-    
-    return;
 }
 ################################################################################
 sub import_csv
@@ -373,8 +324,6 @@ sub import_csv
     {
         print "Missing filename argument. Usage: import /path/to/file.csv\n";
     }
-    
-    return;
 }
 ################################################################################
 sub export_csv
@@ -432,8 +381,6 @@ EOF
     {
         print "Missing filename argument. Usage: export /path/to/file.csv\n";
     }
-    
-    return;
 }
 ################################################################################
 sub _image_name
@@ -473,6 +420,8 @@ Editions: $card_data->{editions}
 Foil:     $card_data->{foil}
 Image:    $card_data->{image_name}
 Copies:   $card_data->{count}
+
+[$card_data->{card_text}]
 EOF
 
         if ($card)
@@ -529,19 +478,109 @@ sub sync
         $class->_sync_db(host => $ip)     if $what eq 'db';
         $class->_sync_images(host => $ip) if $what eq 'images';
     }
-    
-    return;
 }
 ################################################################################
-sub verify
+sub fetch_info
 {
     my $class = shift;
-    
-    $class->check_dups();
-    $class->fetch_images(dry_run => 1);
-    
-    return;
+
+    print "Please wait...\n";
+
+    my $card_it = MTGDb::Card->retrieve_all();
+    while(my $card = $card_it->next())
+    {
+        my $img_path = IMAGE_DIR."/".$card->image_name();
+
+        next if $card->type() eq 'Scheme';
+        next if $card->card_text() and -f $img_path;
+
+        my $info = $class->_fetch_card_info(card => $card);
+
+        if($info->{image_url})
+        {
+            $class->_fetch_image(
+                img_url => $info->{image_url},
+                img_name => $card->image_name()
+            ) unless -f $img_path;
+        }
+        else
+        {
+            print "'$card' -- Unable to determine image URL.\n";
+        }
+
+        if (!defined $info->{card_text})
+        {
+            print "'$card' -- Unable to determine card text.\n";
+        }
+        elsif ($info->{card_text} ne '')
+        {
+            $card->card_text($info->{card_text});
+            $card->update()
+                ? print "Updated text for '$card'.\n"
+                : print "Failed to update text for '$card'.\n";
+        }
+    }
 }
+################################################################################
+#sub verify
+#{
+#    my $class = shift;
+#    my $args  = shift;
+#    
+#    my ($what,$what_args) = split /\s+/, $args, 2;
+#
+#    given ($what)
+#    {
+#        when ('db')
+#        {
+#            $class->_verify_db($what_args);
+#        }
+#        when ('card')
+#        {
+#            $class->_verify_card(card_name => $what_args);
+#        }
+#        default
+#        {
+#            $class->_verify_card(card_name => $args);
+#            #print STDERR "Usage: verify <card|db> [card name]\n";
+#        }
+#    }
+#}
+################################################################################
+#sub _verify_card
+#{
+#    my $class = shift;
+#    my %args = @_;
+#
+#    my $card = $args{card};
+#    unless ($card)
+#    {
+#        die "Missing argument 'card_name'\n"
+#            unless defined $args{card_name};
+#
+#        my $name = title_case($args{card_name});
+#        $card = MTGDb::Card->retrieve(name => $name);
+#        die "Card not found: $name\n" unless $card;
+#    }
+#
+#    my $info = $class->_fetch_card_info(card => $card);
+#
+#    
+#}
+################################################################################
+#sub _verify_db
+#{
+#    my $class = shift;
+#    my $args  = shift;
+#
+#    my $card_it = MTGDb::Card->retrieve_all();
+#    while(my $card = $card_it->next())
+#    {
+#        next unless $card->needs_verification();
+#
+#        $class->_verify_card(card => $card);
+#    }
+#}
 ################################################################################
 sub _sync_db
 {
@@ -585,7 +624,7 @@ sub _sync_images
 
         my @stats = stat "$img_path/$image_name";
         #9 == mtime
-        if ($stats[9] > $LAST_IMAGE_FETCH_TIME)
+        if ($stats[9] > time() - 30)
         {
             print "Syncing '$image_name' to host @ $host...\n";
             my $response = $UA->post(
@@ -621,9 +660,9 @@ Card Manager Commands
                    search Doom Blade
                    search name Doom Blade
                    search type Creature
-* fetch_images --> Fetch images.
+* fetch_info   --> Fetch images and card text.
 * check_dups   --> Check for duplicates in the database.
-* verify       --> Check for dups and verify card with magiccards.info
+* verify       --> UNDER CONSTRUCTION
 * import_csv   --> Import records from a CSV file into the Card database.
                    import /path/to/file.csv
 * export_csv   --> Export database to a CSV file.
@@ -633,8 +672,6 @@ Card Manager Commands
                    sync <db|images> <IP>
 * help         --> This Message.
 EOF
-
-    return;
 }
 ################################################################################
 1;
