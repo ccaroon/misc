@@ -126,7 +126,8 @@ sub add
             my $card = MTGDb::Card->insert($card_data);
             if ($card)
             {
-                print "Successfully added new card '".$card->name."'.\n";
+                $class->_verify_card(card => $card);
+                print "Successfully added new card '$card'.\n";
             }
             else
             {
@@ -218,13 +219,40 @@ sub _fetch_card_info
         }
     }
 
-    # Card Text
-    if ($html =~ m|<p class="ctext"><b>(.*)</b></p>|)
+    # Type, Subtype, Mana Cost & Card Text
+    if ($html =~ m|<p>(.*)</p>\s*<p class="ctext"><b>(.*?)</b></p>|s)
     {
-        $info{card_text} = '';
-        if ($1)
+        my $type_str = $1;
+        my $ctext    = $2;
+
+        $type_str =~ s/\n//g;
+        my ($type_info, $mana_cost) = split /,/, $type_str, 2;
+
+        # Type & Subtype
+        my ($type, $sub_type) = split /—/, $type_info, 2;
+        $type =~ s/^\s+//;
+        $type =~ s/\s+$//;
+        $type =~ s|\s+[0-9*]+/[0-9*]+$||; #strip off power/toughness
+        $info{type} = $type;
+        
+        $sub_type =~ s/^\s+//;
+        $sub_type =~ s/\s+$//;
+        $sub_type =~ s|\s+[0-9*]+/[0-9*]+$||; #strip off power/toughness
+        $info{sub_type} = $sub_type;
+
+        # Mana Cost
+        $mana_cost =~ s/^\s+//;
+        if ($mana_cost =~ m|(.*)\s+\((\d+)\)|)
         {
-            $info{card_text} = $1;
+            $info{mana_cost}           = $1;
+            $info{converted_mana_cost} = $2;
+        }
+
+        # Card Text
+        $info{card_text} = '';
+        if ($ctext)
+        {
+            $info{card_text} = $ctext;
             $info{card_text} =~ s|<br>|\n|g;
         }
     }
@@ -522,65 +550,87 @@ sub fetch_info
     }
 }
 ################################################################################
-#sub verify
-#{
-#    my $class = shift;
-#    my $args  = shift;
-#    
-#    my ($what,$what_args) = split /\s+/, $args, 2;
-#
-#    given ($what)
-#    {
-#        when ('db')
-#        {
-#            $class->_verify_db($what_args);
-#        }
-#        when ('card')
-#        {
-#            $class->_verify_card(card_name => $what_args);
-#        }
-#        default
-#        {
-#            $class->_verify_card(card_name => $args);
-#            #print STDERR "Usage: verify <card|db> [card name]\n";
-#        }
-#    }
-#}
+sub verify
+{
+    my $class = shift;
+    my $args  = shift;
+    
+    my ($what,$what_args) = split /\s+/, $args, 2;
+
+    given ($what)
+    {
+        when ('db')
+        {
+            $class->_verify_db($what_args);
+        }
+        when ('card')
+        {
+            $class->_verify_card(card_name => $what_args);
+        }
+        default
+        {
+            $class->_verify_card(card_name => $args);
+            #print STDERR "Usage: verify <card|db> [card name]\n";
+        }
+    }
+}
 ################################################################################
-#sub _verify_card
-#{
-#    my $class = shift;
-#    my %args = @_;
-#
-#    my $card = $args{card};
-#    unless ($card)
-#    {
-#        die "Missing argument 'card_name'\n"
-#            unless defined $args{card_name};
-#
-#        my $name = title_case($args{card_name});
-#        $card = MTGDb::Card->retrieve(name => $name);
-#        die "Card not found: $name\n" unless $card;
-#    }
-#
-#    my $info = $class->_fetch_card_info(card => $card);
-#
-#    
-#}
+sub _verify_card
+{
+    my $class = shift;
+    my %args = @_;
+
+    my $card = $args{card};
+    unless ($card)
+    {
+        die "Missing argument 'card_name'\n"
+            unless defined $args{card_name};
+
+        my $name = title_case($args{card_name});
+        $card = MTGDb::Card->retrieve(name => $name);
+        die "Card not found: $name\n" unless $card;
+    }
+
+    my $info = $class->_fetch_card_info(card => $card);
+
+    print "---=== $card ===---\n";
+    if ($card->type() ne $info->{type})
+    {
+        print "* Type mismatch [".$card->type()."] != [$info->{type}]\n";
+        my $update = prompt_for_bool("Update Type to '$info->{type}'");
+        $card->type($info->{type}) if $update;
+    }
+
+    if ($card->sub_type() ne $info->{sub_type})
+    {
+        print "* Subtype mismatch [".$card->sub_type()."] != [$info->{sub_type}]\n";
+        my $update = prompt_for_bool("Update Subtype to '$info->{sub_type}'");
+        $card->sub_type($info->{sub_type}) if $update;
+    }
+
+    if ($card->cost() ne $info->{mana_cost})
+    {
+        print "* Mana cost mismatch [".$card->cost()."] != [$info->{mana_cost}]\n";
+        my $update = prompt_for_bool("Update Mana Cost to '$info->{mana_cost}'");
+        $card->cost($info->{mana_cost}) if $update;
+    }
+
+    $card->update();
+}
 ################################################################################
-#sub _verify_db
-#{
-#    my $class = shift;
-#    my $args  = shift;
-#
-#    my $card_it = MTGDb::Card->retrieve_all();
-#    while(my $card = $card_it->next())
-#    {
-#        next unless $card->needs_verification();
-#
-#        $class->_verify_card(card => $card);
-#    }
-#}
+sub _verify_db
+{
+    my $class = shift;
+    my $args  = shift;
+
+    my $card_it = MTGDb::Card->retrieve_all();
+    while(my $card = $card_it->next())
+    {
+        next if $card->type() eq 'Scheme';
+
+        $class->_verify_card(card => $card);
+    }
+}
 ################################################################################
 sub _sync_db
 {
@@ -641,6 +691,16 @@ sub _sync_images
     }
 }
 ################################################################################
+#sub __repair__
+#{
+#    my $class = shift;
+#
+#    my $card_it = MTGDb::Card->retrieve_all();
+#    while (my $card = $card_it->next())
+#    {
+#    }
+#}
+################################################################################
 sub context
 {
     my $class = shift;
@@ -662,7 +722,10 @@ Card Manager Commands
                    search type Creature
 * fetch_info   --> Fetch images and card text.
 * check_dups   --> Check for duplicates in the database.
-* verify       --> UNDER CONSTRUCTION
+* verify       --> Verify singl card or db
+                   verify card Card Name
+                   verify Card Name
+                   verify db
 * import_csv   --> Import records from a CSV file into the Card database.
                    import /path/to/file.csv
 * export_csv   --> Export database to a CSV file.
