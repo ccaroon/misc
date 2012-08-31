@@ -219,11 +219,12 @@ sub _fetch_card_info
         }
     }
 
-    # Type, Subtype, Mana Cost & Card Text
-    if ($html =~ m|<p>(.*)</p>\s*<p class="ctext"><b>(.*?)</b></p>|s)
+    # Type, Subtype, Mana Cost, Card Text & Flavor Text
+    if ($html =~ m|<p>(.*)</p>\s*<p class="ctext"><b>(.*?)</b></p>\s+<p><i>(.*?)</i></p>|s)
     {
         my $type_str = $1;
         my $ctext    = $2;
+        my $ftext    = $3;
 
         $type_str =~ s/\n//g;
         my ($type_info, $mana_cost) = split /,/, $type_str, 2;
@@ -254,6 +255,14 @@ sub _fetch_card_info
         {
             $info{card_text} = $ctext;
             $info{card_text} =~ s|<br>|\n|g;
+        }
+        
+        # Flavor Text
+        $info{flavor_text} = '';
+        if ($ftext)
+        {
+            $info{flavor_text} = $ftext;
+            $info{flavor_text} =~ s|<br>|\n|g;
         }
     }
     else
@@ -701,6 +710,32 @@ sub _sync_images
 #    }
 #}
 ################################################################################
+#sub __test__
+#{
+#    my $class = shift;
+#
+#    open FH, ">/home/ccaroon/flavor.yml";
+#my $count = 0;
+#    my $card_it = MTGDb::Card->retrieve_all();
+#    while (my $card = $card_it->next())
+#    {
+#        my $info = $class->_fetch_card_info(card => $card);
+#        next unless $info->{flavor_text};
+#        $info->{flavor_text} =~ s/—/--/g;
+#        $info->{flavor_text} =~ s/"/\\"/g;
+#        $info->{flavor_text} =~ s/\n/ /g;
+#
+#        print "$card...\n";
+#        print FH <<EOF;
+#"$card": "$info->{flavor_text}"
+#EOF
+#        #$count++;
+#        #last if $count == 5;
+#    }
+#
+#    close FH;
+#}
+################################################################################
 sub context
 {
     my $class = shift;
@@ -722,7 +757,7 @@ Card Manager Commands
                    search type Creature
 * fetch_info   --> Fetch images and card text.
 * check_dups   --> Check for duplicates in the database.
-* verify       --> Verify singl card or db
+* verify       --> Verify single card or db
                    verify card Card Name
                    verify Card Name
                    verify db
