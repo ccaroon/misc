@@ -673,7 +673,7 @@ sub _sync_images
 
     my $host = $args{host};
 
-    my $img_path = "$ENV{MTGDB_CODEBASE}/images";
+    my $img_path = IMAGE_DIR;
 
     my @files = read_dir($img_path);
     @files = sort @files;
@@ -683,7 +683,7 @@ sub _sync_images
 
         my @stats = stat "$img_path/$image_name";
         #9 == mtime
-        if ($stats[9] > time() - 30)
+        if ($stats[9] > time() - 600)
         {
             print "Syncing '$image_name' to host @ $host...\n";
             my $response = $UA->post(
