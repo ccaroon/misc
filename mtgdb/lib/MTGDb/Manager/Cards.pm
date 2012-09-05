@@ -194,9 +194,10 @@ sub _fetch_card_info
     my $edition = $card->latest_edition();
     $edition = $EDITION_MAP{$edition} || $edition;
 
-    my $url = "http://magiccards.info/query?q=$name";
-    $url .= "+e%3A$edition" if $edition;
-
+    # NOTE: !$name means match full name
+    my $url = "http://magiccards.info/query?q=!$name";
+    # NOTE: !$name and edition (e:ED) do not work together.
+    #$url .= "+e%3A$edition" if $edition;
     my $response = $UA->get($url);
     die "[".$response->status_line()."] Request failed for '$name'\n"
         if $response->is_error();
@@ -243,11 +244,13 @@ sub _fetch_card_info
 
         # Mana Cost
         $mana_cost =~ s/^\s+//;
-        if ($mana_cost =~ m|(.*)\s+\((\d+)\)|)
-        {
-            $info{mana_cost}           = $1;
-            $info{converted_mana_cost} = $2;
-        }
+        $mana_cost =~ s/\s+$//;
+        my ($cost, $converted_cost) = split /\s+/, $mana_cost, 2;
+
+        $info{mana_cost} = $cost;
+
+        $converted_cost =~ s#(\(|\))##g;
+        $info{converted_mana_cost} = $converted_cost || $cost;
 
         # Card Text
         $info{card_text} = '';
@@ -600,31 +603,38 @@ sub _verify_card
         die "Card not found: $name\n" unless $card;
     }
 
-    my $info = $class->_fetch_card_info(card => $card);
-
-    print "---=== $card ===---\n";
-    if ($card->type() ne $info->{type})
+    eval
     {
-        print "* Type mismatch [".$card->type()."] != [$info->{type}]\n";
-        my $update = prompt_for_bool("Update Type to '$info->{type}'");
-        $card->type($info->{type}) if $update;
-    }
-
-    if ($card->sub_type() ne $info->{sub_type})
+        my $info = $class->_fetch_card_info(card => $card);
+    
+        print "---=== $card ===---\n";
+        if ($card->type() ne $info->{type})
+        {
+            print "* Type mismatch [".$card->type()."] != [$info->{type}]\n";
+            my $update = prompt_for_bool("Update Type to '$info->{type}'");
+            $card->type($info->{type}) if $update;
+        }
+    
+        if ($card->sub_type() ne $info->{sub_type})
+        {
+            print "* Subtype mismatch [".$card->sub_type()."] != [$info->{sub_type}]\n";
+            my $update = prompt_for_bool("Update Subtype to '$info->{sub_type}'");
+            $card->sub_type($info->{sub_type}) if $update;
+        }
+    
+        if ($card->cost() ne $info->{mana_cost})
+        {
+            print "* Mana cost mismatch [".$card->cost()."] != [$info->{mana_cost}]\n";
+            my $update = prompt_for_bool("Update Mana Cost to '$info->{mana_cost}'");
+            $card->cost($info->{mana_cost}) if $update;
+        }
+    
+        $card->update();
+    };
+    if ($@)
     {
-        print "* Subtype mismatch [".$card->sub_type()."] != [$info->{sub_type}]\n";
-        my $update = prompt_for_bool("Update Subtype to '$info->{sub_type}'");
-        $card->sub_type($info->{sub_type}) if $update;
+        print "Could not fetch card info for $card: $@\n";
     }
-
-    if ($card->cost() ne $info->{mana_cost})
-    {
-        print "* Mana cost mismatch [".$card->cost()."] != [$info->{mana_cost}]\n";
-        my $update = prompt_for_bool("Update Mana Cost to '$info->{mana_cost}'");
-        $card->cost($info->{mana_cost}) if $update;
-    }
-
-    $card->update();
 }
 ################################################################################
 sub _verify_db
