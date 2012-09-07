@@ -10,7 +10,7 @@ use MTGDb::CardDeckAssoc;
 use MTGDb::Util::Input;
 use MTGDb::Util::Misc;
 
-my $CONTEXT = undef;
+my $DECK = undef;
 ################################################################################
 sub list
 {
@@ -42,7 +42,7 @@ sub add
         }
         default
         {
-            if ($class->context())
+            if ($DECK)
             {
                 $class->_add_card($args);
             }
@@ -193,9 +193,13 @@ sub destroy
     my $deck = MTGDb::Deck->retrieve(name => $name);
     if($deck)
     {
+        if (defined $DECK and $deck->id() == $DECK->id())
+        {
+            $DECK = undef;
+        }
+
         $deck->delete();
         print "Destoryed '$name'.\n";
-        $CONTEXT = undef;
     }
     else
     {
@@ -273,7 +277,7 @@ sub _get_deck
     }
     else
     {
-        $deck = $class->context();
+        $deck = $DECK;
         unless ($deck)
         {
             $name = prompt("Deck");
@@ -287,7 +291,7 @@ sub _get_deck
     return ($deck);
 }
 ################################################################################
-sub deck
+sub open
 {
     my $class = shift;
     my $name  = shift;
@@ -296,8 +300,8 @@ sub deck
     my $deck = MTGDb::Deck->retrieve(name => $name);
     if ($deck)
     {
-        $class->context($deck);
-        print "Deck context changed to '$deck'\n";
+        $DECK = $deck;
+        print "Opened '$deck' deck.\n";
     }
     else
     {
@@ -406,17 +410,14 @@ EOF
     }
 }
 ################################################################################
-sub context
+sub prompt
 {
     my $class = shift;
-    my $new_val = shift;
-    
-    if (defined $new_val)
-    {
-        $CONTEXT = $new_val;
-    }
 
-    return ($CONTEXT);
+    my $p = "Decks";
+    $p .= "($DECK)" if $DECK;
+
+    return ($p);
 }
 ################################################################################
 sub help
@@ -429,7 +430,7 @@ Deck Manager Commands
 * add         --> Contextually add a deck or a card to a deck.
 * add deck    --> Add a new deck.
 * add card    --> Add a card to a deck.
-* deck        --> Set Deck Manager context to a specific deck.
+* open        --> Set Deck Manager to operate on a specific deck.
 * destroy     --> Destroy a deck.
 * list        --> Display a list of all decks.
 * remove card --> Remove a card from a deck.

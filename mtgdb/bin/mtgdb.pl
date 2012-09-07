@@ -18,15 +18,12 @@ use MTGDb::Util::Input;
 ################################################################################
 my $initial_manager = shift || 'cards';
 my $DONE = 0;
-my $context = undef;
 my $manager = 'MTGDb::Manager::'.ucfirst($initial_manager);
 
 my $term = Term::ReadLine->new('MTGDb');
 while (!$DONE)
 {
-    my $prompt = $manager;
-    $prompt =~ s/^MTGDb::Manager:://;
-    $prompt .= "($context)" if $context;
+    my $prompt = $manager->prompt();
     my $input = $term->readline("$prompt:");
 
     my ($cmd, $args) = split /\s+/, $input, 2;
@@ -46,7 +43,6 @@ while (!$DONE)
             else
             {
                 $manager = 'MTGDb::Manager::'.ucfirst($cmd);
-                $context = $manager->context();
             }
         }
         when ('exit')
@@ -55,7 +51,7 @@ while (!$DONE)
         }
         default
         {
-            $context = _exec_cmd($manager,$cmd,$args);
+            _exec_cmd($manager,$cmd,$args);
         }
     }
 }
@@ -64,14 +60,12 @@ sub _exec_cmd
 {
     my ($mgr, $cmd, $args) = @_;
 
-    my $new_ctx;
     if ($mgr->can($cmd))
     {
         print "\n";
         eval
         {
             $mgr->$cmd($args);
-            $new_ctx = $mgr->context();
         };
         if ($@)
         {
@@ -83,7 +77,5 @@ sub _exec_cmd
     {
         print "$mgr does not support command: $cmd\n";
     }
-    
-    return ($new_ctx);
 }
 ################################################################################
