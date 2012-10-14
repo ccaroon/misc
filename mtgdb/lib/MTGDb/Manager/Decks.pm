@@ -354,7 +354,7 @@ sub verify
                 if $count > $format->{max_copies}
                     and $card->card()->type() ne MTGDb::Card->TYPE_BASIC_LAND;
 
-            print "* '".$card->card()."' not legal in this deck."
+            print "* '".$card->card()."' not legal in this deck.\n"
                 unless $card->card()->legal(format => $format);
         }
 
@@ -410,7 +410,7 @@ EOF
     }
 }
 ################################################################################
-sub prompt
+sub prompt_msg
 {
     my $class = shift;
 

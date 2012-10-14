@@ -18,14 +18,11 @@ use constant FORMAT_STANDARD => {
     sideboard_size => 15,
     max_copies     => 4,
     legal_editions => [
-        'Scars of Mirrodin',
-        'Mirrodin Besieged',
-        'New Phyrexia',
-        'M12',
         'Innistrad',
         'Dark Ascension',
         'Avacyn Restored',
-        'M13'
+        'M13',
+        'Return to Ravnica'
     ],
     has_banned_cards     => 0,
     has_restricted_cards => 0

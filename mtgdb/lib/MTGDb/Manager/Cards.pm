@@ -51,7 +51,7 @@ sub add
     if ($card)
     {
         $class->_display(card => $card);
-        
+# TODO: put stars besides editions already have
         my $add_edition = prompt_for_item("Add Edition",
             MTGDb::Card->RECENT_EDITIONS, undef);
         my $is_foil     = prompt_for_bool("Is Foil");
@@ -80,6 +80,7 @@ sub add
         {
             if ($add_edition)
             {
+# TODO: filter out dup editions
                 my $editions = $card->editions();
                 $editions .= "|$add_edition";
                 $card->editions($editions);
@@ -746,7 +747,7 @@ sub _sync_images
 #    close FH;
 #}
 ################################################################################
-sub prompt
+sub prompt_msg
 {
     my $class = shift;
     return ('Cards');

@@ -23,7 +23,7 @@ my $manager = 'MTGDb::Manager::'.ucfirst($initial_manager);
 my $term = Term::ReadLine->new('MTGDb');
 while (!$DONE)
 {
-    my $prompt = $manager->prompt();
+    my $prompt = $manager->prompt_msg();
     my $input = $term->readline("$prompt:");
 
     my ($cmd, $args) = split /\s+/, $input, 2;

@@ -13,11 +13,11 @@ __PACKAGE__->columns(Stringify => qw/name/);
 __PACKAGE__->has_many(decks => 'MTGDb::CardDeckAssoc');
 ################################################################################
 use constant RECENT_EDITIONS => (
-'M12',
 'Innistrad',
 'Dark Ascension',
 'Avacyn Restored',
-'M13'
+'M13',
+'Return to Ravnica'
 );
 
 use constant CARD_RARITIES => (
