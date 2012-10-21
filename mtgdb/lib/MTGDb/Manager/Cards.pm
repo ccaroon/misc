@@ -51,9 +51,17 @@ sub add
     if ($card)
     {
         $class->_display(card => $card);
-# TODO: put stars besides editions already have
+
+        # Remove existing editions from edition choices
+        my @editions = $card->editions();
+        my @edition_choices;
+        foreach my $e (MTGDb::Card->RECENT_EDITIONS)
+        {
+            push @edition_choices, $e unless grep /^$e$/, @editions;
+        }
         my $add_edition = prompt_for_item("Add Edition",
-            MTGDb::Card->RECENT_EDITIONS, undef);
+            undef, @edition_choices);
+
         my $is_foil     = prompt_for_bool("Is Foil");
         my $add_copies  = prompt("Add # Copies");
 
@@ -78,13 +86,7 @@ sub add
         my $ok = prompt_for_bool("Confirm");
         if ($ok)
         {
-            if ($add_edition)
-            {
-# TODO: filter out dup editions
-                my $editions = $card->editions();
-                $editions .= "|$add_edition";
-                $card->editions($editions);
-            }
+            $card->editions($add_edition) if $add_edition;
             $card->foil($is_foil);
             $card->count($card->count() + $add_copies) if $add_copies;
 
@@ -111,7 +113,7 @@ sub add
         $card_data->{cost}       = uc(prompt("Mana Cost"));
         $card_data->{type}       = prompt_for_item("Type", MTGDb::Card->CARD_TYPES);
         $card_data->{sub_type}   = prompt("Subtype");
-        $card_data->{editions}
+        $card_data->{edition_str}
             = prompt_for_item("Edition", MTGDb::Card->RECENT_EDITIONS);
         $card_data->{rarity}
             = prompt_for_item("Rarity", MTGDb::Card->CARD_RARITIES);
@@ -410,7 +412,7 @@ EOF
         my $count = 0;
         while (my $card = $card_it->next())
         {
-            my @values = map {$card->$_()} qw(name type sub_type editions cost legal foil rarity count image_name);
+            my @values = map {$card->$_()} qw(name type sub_type edition_str cost legal foil rarity count image_name);
             $stmt->execute(@values);
 
             $count++;
@@ -457,7 +459,7 @@ EOF
 --=== $card_data->{name} ($card_data->{cost}) ===--
 $card_data->{type} -- $card_data->{sub_type} -- $card_data->{rarity}
 
-Editions: $card_data->{editions}
+Editions: $card_data->{edition_str}
 Foil:     $card_data->{foil}
 Image:    $card_data->{image_name}
 Copies:   $card_data->{count}
@@ -724,27 +726,14 @@ sub _sync_images
 #sub __test__
 #{
 #    my $class = shift;
+#    my $name = shift;
 #
-#    open FH, ">/home/ccaroon/flavor.yml";
-#my $count = 0;
-#    my $card_it = MTGDb::Card->retrieve_all();
-#    while (my $card = $card_it->next())
-#    {
-#        my $info = $class->_fetch_card_info(card => $card);
-#        next unless $info->{flavor_text};
-#        $info->{flavor_text} =~ s/—/--/g;
-#        $info->{flavor_text} =~ s/"/\\"/g;
-#        $info->{flavor_text} =~ s/\n/ /g;
-#
-#        print "$card...\n";
-#        print FH <<EOF;
-#"$card": "$info->{flavor_text}"
-#EOF
-#        #$count++;
-#        #last if $count == 5;
-#    }
-#
-#    close FH;
+#    $name = title_case($name);
+#    my $card = MTGDb::Card->retrieve(name => $name);
+#    
+#    my @e = $card->editions();
+#use Data::Dumper;
+#print STDERR Dumper \@e;
 #}
 ################################################################################
 sub prompt_msg
@@ -773,9 +762,9 @@ Card Manager Commands
                    verify Card Name
                    verify db
 * import_csv   --> Import records from a CSV file into the Card database.
-                   import /path/to/file.csv
+                   import_csv /path/to/file.csv
 * export_csv   --> Export database to a CSV file.
-                   export /path/to/output.csv
+                   export_csv /path/to/output.csv
 * count        --> Count unique cards and total cards.
 * sync         --> Sync DB and images to HanDBase.
                    sync <db|images> <IP>

@@ -5,7 +5,7 @@ use strict;
 use base 'MTGDb::Base';
 
 __PACKAGE__->table('cards');
-__PACKAGE__->columns(All => qw/id name type sub_type editions cost foil
+__PACKAGE__->columns(All => qw/id name type sub_type edition_str cost foil
                                rarity count image_name card_text/);
 __PACKAGE__->columns(Stringify => qw/name/);
 
@@ -38,7 +38,8 @@ TYPE_BASIC_LAND,
 'Artifact',
 'Artifact Creature',
 'Legendary Creature',
-'Enchantment'
+'Enchantment',
+'Planeswalker'
 );
 ################################################################################
 sub legal
@@ -55,7 +56,7 @@ sub legal
     }
     else
     {
-        foreach my $e (split /\|/, $this->editions())
+        foreach my $e ($this->editions())
         {
             $is_legal = grep /^$e$/, @{$format->{legal_editions}};
             last if $is_legal;
@@ -65,11 +66,31 @@ sub legal
     return($is_legal);
 }
 ################################################################################
+sub editions
+{
+    my $this         = shift;
+    my @add_editions = @_;
+
+    if (@add_editions)
+    {
+        my $edition_str = $this->edition_str();
+        foreach my $e (@add_editions)
+        {
+            $edition_str .= "|$e";
+        }
+        $this->edition_str($edition_str);
+    }
+
+    my @editions = split /\|/, $this->edition_str();
+
+    return (wantarray ? @editions : \@editions);
+}
+################################################################################
 sub latest_edition
 {
     my $this = shift;
 
-    my @editions = split /\|/, $this->editions();
+    my @editions = $this->editions();
     return(pop @editions);
 }
 ################################################################################

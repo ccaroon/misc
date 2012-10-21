@@ -22,11 +22,17 @@ sub title_case
     foreach (split /\s+/, $str)
     {
         my $word = lc $_;
-        unless (LOWER_WORDS->{$word})
+
+        if ($word =~ s/-/ /g)
         {
-            $word = ucfirst $word;
+            $word = title_case($word);
+            $word =~ s/ /-/g
         }
-        
+        else
+        {
+            $word = ucfirst $word unless LOWER_WORDS->{$word};
+        }
+
         $new_str .= "$word ";
     }
     chop $new_str;
