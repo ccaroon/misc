@@ -696,7 +696,7 @@ sub _sync_images
 
         my @stats = stat "$img_path/$image_name";
         #9 == mtime
-        if ($stats[9] > time() - 600)
+        if ($stats[9] > time() - (30 * 60))
         {
             print "Syncing '$image_name' to host @ $host...\n";
             my $response = $UA->post(
