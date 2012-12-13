@@ -8,6 +8,7 @@ our @EXPORT = qw(title_case);
 use constant LOWER_WORDS  =>
 {
     the  => 1,
+    in   => 1,
     of   => 1,
     a    => 1,
     to   => 1,
