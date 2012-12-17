@@ -14,6 +14,7 @@ BEGIN
 use lib "$ENV{MTGDB_CODEBASE}/lib";
 use MTGDb::Manager::Cards;
 use MTGDb::Manager::Decks;
+use MTGDb::Manager::Utils;
 use MTGDb::Util::Input;
 ################################################################################
 my $initial_manager = shift || 'cards';
@@ -31,7 +32,7 @@ while (!$DONE)
     given ($cmd)
     {
         when (undef) {}
-        when (/cards|decks/)
+        when (/cards|decks|utils/)
         {
             if ($args)
             {

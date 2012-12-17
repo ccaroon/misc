@@ -3,6 +3,7 @@ package MTGDb::Base;
 use strict;
 
 use base 'Class::DBI';
+use Class::DBI::AbstractSearch;
 
 __PACKAGE__->connection("dbi:SQLite:$ENV{MTGDB_CODEBASE}/db/mtgdb.db");
 __PACKAGE__->autoupdate(0);

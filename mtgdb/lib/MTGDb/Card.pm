@@ -9,17 +9,9 @@ __PACKAGE__->columns(All => qw/id name type sub_type edition_str cost foil
                                rarity count image_name card_text/);
 __PACKAGE__->columns(Stringify => qw/name/);
 
-#__PACKAGE__->has_many(decks => ['MTGDb::CardDeckAssoc' => 'deck']);
-__PACKAGE__->has_many(decks => 'MTGDb::CardDeckAssoc');
+__PACKAGE__->has_many(decks    => 'MTGDb::CardDeckAssoc');
+__PACKAGE__->has_many(editions => 'MTGDb::CardEditionAssoc');
 ################################################################################
-use constant RECENT_EDITIONS => (
-'Innistrad',
-'Dark Ascension',
-'Avacyn Restored',
-'M13',
-'Return to Ravnica'
-);
-
 use constant CARD_RARITIES => (
 'Common',
 'Uncommon',
@@ -66,7 +58,7 @@ sub legal
     return($is_legal);
 }
 ################################################################################
-sub editions
+sub editionsX
 {
     my $this         = shift;
     my @add_editions = @_;

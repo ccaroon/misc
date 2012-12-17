@@ -11,6 +11,7 @@ use LWP::UserAgent;
 use lib "$ENV{MTGDB_CODEBASE}/lib";
 use MTGDb::Card;
 use MTGDb::Deck;
+use MTGDb::Edition;
 use MTGDb::CardDeckAssoc;
 use MTGDb::Util::Input;
 use MTGDb::Util::Misc;
@@ -55,7 +56,7 @@ sub add
         # Remove existing editions from edition choices
         my @editions = $card->editions();
         my @edition_choices;
-        foreach my $e (MTGDb::Card->RECENT_EDITIONS)
+        foreach my $e (MTGDb::Edition->recent_editions())
         {
             push @edition_choices, $e unless grep /^$e$/, @editions;
         }
@@ -114,7 +115,7 @@ sub add
         $card_data->{type}       = prompt_for_item("Type", MTGDb::Card->CARD_TYPES);
         $card_data->{sub_type}   = prompt("Subtype");
         $card_data->{edition_str}
-            = prompt_for_item("Edition", MTGDb::Card->RECENT_EDITIONS);
+            = prompt_for_item("Edition", MTGDb::Edition->recent_editions());
         $card_data->{rarity}
             = prompt_for_item("Rarity", MTGDb::Card->CARD_RARITIES);
         $card_data->{foil}       = prompt_for_bool("Foil");
@@ -712,29 +713,6 @@ sub _sync_images
         }
     }
 }
-################################################################################
-#sub __repair__
-#{
-#    my $class = shift;
-#
-#    my $card_it = MTGDb::Card->retrieve_all();
-#    while (my $card = $card_it->next())
-#    {
-#    }
-#}
-################################################################################
-#sub __test__
-#{
-#    my $class = shift;
-#    my $name = shift;
-#
-#    $name = title_case($name);
-#    my $card = MTGDb::Card->retrieve(name => $name);
-#    
-#    my @e = $card->editions();
-#use Data::Dumper;
-#print STDERR Dumper \@e;
-#}
 ################################################################################
 sub prompt_msg
 {
