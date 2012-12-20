@@ -2,36 +2,38 @@ package MTGDb::Card;
 ################################################################################
 use strict;
 
+use Date::Parse;
+
 use base 'MTGDb::Base';
 
 __PACKAGE__->table('cards');
-__PACKAGE__->columns(All => qw/id name type sub_type edition_str cost foil
+__PACKAGE__->columns(All => qw/id name type sub_type cost foil
                                rarity count image_name card_text/);
 __PACKAGE__->columns(Stringify => qw/name/);
 
 __PACKAGE__->has_many(decks    => 'MTGDb::CardDeckAssoc');
-__PACKAGE__->has_many(editions => 'MTGDb::CardEditionAssoc');
+__PACKAGE__->has_many(editions => ['MTGDb::CardEditionAssoc' => 'edition']);
 ################################################################################
 use constant CARD_RARITIES => (
-'Common',
-'Uncommon',
-'Rare',
-'Mythic Rare'
+    'Common',
+    'Uncommon',
+    'Rare',
+    'Mythic Rare'
 );
 
 use constant TYPE_BASIC_LAND => 'Basic Land';
 
 use constant CARD_TYPES => (
-TYPE_BASIC_LAND,
-'Creature',
-'Instant',
-'Sorcery',
-'Land',
-'Artifact',
-'Artifact Creature',
-'Legendary Creature',
-'Enchantment',
-'Planeswalker'
+    TYPE_BASIC_LAND,
+    'Creature',
+    'Instant',
+    'Sorcery',
+    'Land',
+    'Artifact',
+    'Artifact Creature',
+    'Legendary Creature',
+    'Enchantment',
+    'Planeswalker'
 );
 ################################################################################
 sub legal
@@ -58,31 +60,29 @@ sub legal
     return($is_legal);
 }
 ################################################################################
-sub editionsX
+sub edition_str
 {
-    my $this         = shift;
-    my @add_editions = @_;
+    my $this = shift;
 
-    if (@add_editions)
-    {
-        my $edition_str = $this->edition_str();
-        foreach my $e (@add_editions)
-        {
-            $edition_str .= "|$e";
-        }
-        $this->edition_str($edition_str);
-    }
+    my @editions
+        = sort {str2time($a->release_date()) <=> str2time($b->release_date())}
+        $this->editions();
 
-    my @editions = split /\|/, $this->edition_str();
+    my $edition_str = '';
+    map { $edition_str .= $_->name()."," } @editions;
+    chop($edition_str);
 
-    return (wantarray ? @editions : \@editions);
+    return ($edition_str);
 }
 ################################################################################
 sub latest_edition
 {
     my $this = shift;
 
-    my @editions = $this->editions();
+    my @editions
+        = sort {str2time($a->release_date()) <=> str2time($b->release_date())}
+        $this->editions();
+
     return(pop @editions);
 }
 ################################################################################
@@ -90,6 +90,16 @@ sub available_copies
 {
     my $this = shift;
     return($this->count() - MTGDb::CardDeckAssoc->copies_in_decks($this));
+}
+################################################################################
+sub as_hash
+{
+    my $this = shift;
+    
+    my %as_hash = $this->SUPER::as_hash();
+    $as_hash{editions} = $this->edition_str();    
+
+    return (wantarray ? %as_hash : \%as_hash);
 }
 ################################################################################
 1;

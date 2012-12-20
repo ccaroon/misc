@@ -21,23 +21,6 @@ use constant BASE_SYNC_IP =>'192.168';
 use constant SYNC_PORT    => 8080;
 
 my $UA  = LWP::UserAgent->new();
-my %EDITION_MAP = (
-    'Avacyn Restored'     => 'avr',
-    'Dark Ascension'      => 'dka',
-    'Rise of the Eldrazi' => 'eldrazi',
-    'Mirrodin Besieged'   => 'besieged',
-    'Scars of Mirrodin'   => 'scars',
-    'Alara Reborn'        => 'reborn',
-    'Shards of Alara'     => 'shards',
-    'Seventh Edition'     => 'seventh',
-    'New Phyrexia'        => 'new',
-    'DOP'                 => 'duels',
-    'Knights vs. Dragons' => 'knights',
-    'Ravnica: City of Guilds' => 'ravnica',
-    'PD - Fire and Lightning' => 'pd2',
-    'Planechase 2012'         => 'pc2',
-    'Unglued'                 => 'ug',
-);
 ################################################################################
 sub add
 {
@@ -87,7 +70,15 @@ sub add
         my $ok = prompt_for_bool("Confirm");
         if ($ok)
         {
-            $card->editions($add_edition) if $add_edition;
+            if ($add_edition)
+            {
+                my $edition = MTGDb::Edition->retrieve(name => $add_edition);
+                $edition->add_to_cards({
+                    card_id     => $card->id(),
+                    card_number => 0
+                });
+            }
+
             $card->foil($is_foil);
             $card->count($card->count() + $add_copies) if $add_copies;
 
@@ -114,7 +105,7 @@ sub add
         $card_data->{cost}       = uc(prompt("Mana Cost"));
         $card_data->{type}       = prompt_for_item("Type", MTGDb::Card->CARD_TYPES);
         $card_data->{sub_type}   = prompt("Subtype");
-        $card_data->{edition_str}
+        $card_data->{editions}
             = prompt_for_item("Edition", MTGDb::Edition->recent_editions());
         $card_data->{rarity}
             = prompt_for_item("Rarity", MTGDb::Card->CARD_RARITIES);
@@ -127,9 +118,17 @@ sub add
         my $ok = prompt_for_bool("Confirm");
         if ($ok)
         {
+            my $edition_name = delete $card_data->{editions};
+
             my $card = MTGDb::Card->insert($card_data);
             if ($card)
             {
+                my $edition = MTGDb::Edition->retrieve(name => $edition_name);
+                $edition->add_to_cards({
+                    card_id => $card->id(),
+                    card_number => 0
+                });
+
                 $class->_verify_card(card => $card);
                 print "Successfully added new card '$card'.\n";
             }
@@ -195,13 +194,10 @@ sub _fetch_card_info
 
     my $card = $args{card};
     my $name = $card->name();
-    my $edition = $card->latest_edition();
-    $edition = $EDITION_MAP{$edition} || $edition;
 
     # NOTE: !$name means match full name
     my $url = "http://magiccards.info/query?q=!$name";
-    # NOTE: !$name and edition (e:ED) do not work together.
-    #$url .= "+e%3A$edition" if $edition;
+
     my $response = $UA->get($url);
     die "[".$response->status_line()."] Request failed for '$name'\n"
         if $response->is_error();
@@ -337,38 +333,38 @@ sub check_dups
     } keys %dups;
 }
 ################################################################################
-sub import_csv
-{
-    my $class = shift;
-    my $file  = shift;
-
-    if (defined $file)
-    {
-        my $path = dirname($file);
-        my $name = basename($file);
-        my $dbh = DBI->connect("dbi:CSV:", undef, undef, {
-            f_dir => $path,
-            f_ext => '.csv',
-        });
-
-        print "Importing. Please wait...\n";
-
-        my $stmt = $dbh->prepare("select * from $name");
-        $stmt->execute();
-
-        while (my $row = $stmt->fetchrow_hashref())
-        {
-            delete $row->{legal};
-            delete $row->{image};
-            MTGDb::Card->insert($row);
-        }
-        $stmt->finish();
-    }
-    else
-    {
-        print "Missing filename argument. Usage: import /path/to/file.csv\n";
-    }
-}
+#sub import_csv
+#{
+#    my $class = shift;
+#    my $file  = shift;
+#
+#    if (defined $file)
+#    {
+#        my $path = dirname($file);
+#        my $name = basename($file);
+#        my $dbh = DBI->connect("dbi:CSV:", undef, undef, {
+#            f_dir => $path,
+#            f_ext => '.csv',
+#        });
+#
+#        print "Importing. Please wait...\n";
+#
+#        my $stmt = $dbh->prepare("select * from $name");
+#        $stmt->execute();
+#
+#        while (my $row = $stmt->fetchrow_hashref())
+#        {
+#            delete $row->{legal};
+#            delete $row->{image};
+#            MTGDb::Card->insert($row);
+#        }
+#        $stmt->finish();
+#    }
+#    else
+#    {
+#        print "Missing filename argument. Usage: import /path/to/file.csv\n";
+#    }
+#}
 ################################################################################
 sub export_csv
 {
@@ -460,7 +456,7 @@ EOF
 --=== $card_data->{name} ($card_data->{cost}) ===--
 $card_data->{type} -- $card_data->{sub_type} -- $card_data->{rarity}
 
-Editions: $card_data->{edition_str}
+Editions: $card_data->{editions}
 Foil:     $card_data->{foil}
 Image:    $card_data->{image_name}
 Copies:   $card_data->{count}
@@ -741,6 +737,7 @@ Card Manager Commands
                    verify db
 * import_csv   --> Import records from a CSV file into the Card database.
                    import_csv /path/to/file.csv
+                   ** Currently Unavailable **
 * export_csv   --> Export database to a CSV file.
                    export_csv /path/to/output.csv
 * count        --> Count unique cards and total cards.

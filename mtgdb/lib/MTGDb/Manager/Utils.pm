@@ -1,7 +1,8 @@
 package MTGDb::Manager::Utils;
 ################################################################################
 use strict;
-use feature 'switch';
+
+use Data::Dumper;
 
 use lib "$ENV{MTGDB_CODEBASE}/lib";
 use MTGDb::Card;
@@ -29,7 +30,7 @@ sub migrate_editions
     my @cards = MTGDb::Card->retrieve_all();
     foreach my $c (@cards)
     {
-        my @editions = $c->editionsX();
+        my @editions = $c->editions__DELETE();
         foreach my $e (@editions)
         {
             my $e_name = $ed_map{$e} || $e;
@@ -42,6 +43,24 @@ sub migrate_editions
             });
         }
     }
+}
+################################################################################
+sub test
+{
+    my $class = shift;
+    
+    my $card = MTGDb::Card->retrieve(name => "Doom Blade");
+    print STDERR "=====> Utils.pm #51 --> [$card] \n";
+    
+    my @e = $card->editions();
+map {$_->name()} @e;
+print STDERR Dumper \@e;
+
+my $l = $card->latest_edition();
+print STDERR Dumper $l;
+
+my $h = $card->as_hash();
+print STDERR Dumper $h;
 }
 ################################################################################
 sub prompt_msg

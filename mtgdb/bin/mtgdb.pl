@@ -20,7 +20,14 @@ use MTGDb::Util::Input;
 my $initial_manager = shift || 'cards';
 my $DONE = 0;
 my $manager = 'MTGDb::Manager::'.ucfirst($initial_manager);
-
+################################################################################
+my $single_cmd = shift;
+if ($single_cmd)
+{
+    _exec_cmd($manager,$single_cmd,@ARGV);
+    exit 0;
+}
+################################################################################
 my $term = Term::ReadLine->new('MTGDb');
 while (!$DONE)
 {

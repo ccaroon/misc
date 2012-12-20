@@ -1,0 +1,6 @@
+Todo
+===
+
+1. Add support for card_number in CardEditionAssoc.
+2. Add support for a development database.
+
