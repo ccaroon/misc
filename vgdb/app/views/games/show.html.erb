@@ -1,0 +1,23 @@
+<p>
+  <b>Title:</b>
+  <%=h @game.title %>
+</p>
+
+<p>
+  <b>Developer:</b>
+  <%=h @game.developer %>
+</p>
+
+<p>
+  <b>Release date:</b>
+  <%=h @game.release_date %>
+</p>
+
+<p>
+  <b>Genre:</b>
+  <%=h @game.genre %>
+</p>
+
+
+<%= link_to 'Edit', edit_game_path(@game) %> |
+<%= link_to 'Back', games_path %>

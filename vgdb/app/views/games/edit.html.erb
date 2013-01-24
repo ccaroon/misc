@@ -1,0 +1,28 @@
+<h1>Editing game</h1>
+
+<% form_for(@game) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :title %><br />
+    <%= f.text_field :title %>
+  </p>
+  <p>
+    <%= f.label :developer %><br />
+    <%= f.text_field :developer %>
+  </p>
+  <p>
+    <%= f.label :release_date %><br />
+    <%= f.datetime_select :release_date %>
+  </p>
+  <p>
+    <%= f.label :genre %><br />
+    <%= f.select :genre_id, @genres.collect {|g| [g.name, g.id]} %>
+  </p>
+  <p>
+    <%= f.submit "Update" %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @game %> |
+<%= link_to 'Back', games_path %>
