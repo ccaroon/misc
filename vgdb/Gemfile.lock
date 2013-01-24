@@ -1,0 +1,26 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    actionmailer (2.2.3)
+      actionpack (= 2.2.3)
+    actionpack (2.2.3)
+      activesupport (= 2.2.3)
+    activerecord (2.2.3)
+      activesupport (= 2.2.3)
+    activeresource (2.2.3)
+      activesupport (= 2.2.3)
+    activesupport (2.2.3)
+    rails (2.2.3)
+      actionmailer (= 2.2.3)
+      actionpack (= 2.2.3)
+      activerecord (= 2.2.3)
+      activeresource (= 2.2.3)
+      activesupport (= 2.2.3)
+      rake (>= 0.8.3)
+    rake (10.0.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  rails (~> 2.2.3)
