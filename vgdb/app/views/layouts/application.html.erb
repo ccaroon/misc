@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+  <title>Video Game DB <%= controller.action_name %></title>
+  <%= stylesheet_link_tag 'scaffold' %>
+  <%= stylesheet_link_tag 'bootstrap/bootstrap.min' %>
+  <%= javascript_include_tag 'jquery.min'%>
+  <%= javascript_include_tag 'bootstrap/bootstrap.min'%>
+</head>
+<body>
+
+<div class="navbar navbar-inverse ">
+  <div class="navbar-inner">
+    <div class="container">
+      <span class="brand">Video Game Db</span>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li><a href="/games">Games</a></li>
+          <li><a href="/genres">Genres</a></li>
+          <li><a href="/platforms">Platforms</a></li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <%= yield %>  
+</div>
+
+</body>
+</html>
