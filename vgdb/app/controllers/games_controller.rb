@@ -26,9 +26,10 @@ class GamesController < ApplicationController
   # GET /games/new
   # GET /games/new.xml
   def new
-    @game = Game.new
-    @genres = Genre.find(:all)
-
+    @game      = Game.new
+    @genres    = Genre.find(:all)
+    @platforms = Platform.find(:all)
+    
     respond_to do |format|
       format.html # new.html.erb
       format.xml  { render :xml => @game }
@@ -37,8 +38,9 @@ class GamesController < ApplicationController
 
   # GET /games/1/edit
   def edit
-    @game = Game.find(params[:id])
-    @genres = Genre.find(:all)
+    @game      = Game.find(params[:id])
+    @genres    = Genre.find(:all)
+    @platforms = Platform.find(:all)
   end
 
   # POST /games

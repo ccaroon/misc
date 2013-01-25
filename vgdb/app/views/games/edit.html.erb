@@ -20,6 +20,10 @@
     <%= f.select :genre_id, @genres.collect {|g| [g.name, g.id]} %>
   </p>
   <p>
+    <%= f.label :platform %><br />
+    <%= f.select :platform_id, @platforms.collect {|p| [p.name, p.id]} %>
+  </p>
+  <p>
     <%= f.submit "Update" %>
   </p>
 <% end %>
