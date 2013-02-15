@@ -21,7 +21,8 @@ use constant FORMAT_STANDARD => {
         'Dark Ascension',
         'Avacyn Restored',
         'M13',
-        'Return to Ravnica'
+        'Return to Ravnica',
+        'Gatecrash'
     ],
     has_banned_cards     => 0,
     has_restricted_cards => 0
