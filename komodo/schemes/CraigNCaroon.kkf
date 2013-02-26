@@ -1,4 +1,4 @@
-version 26
+version 33
 binding cmd_left Left
 binding cmd_selectCharPrevious Shift+Left
 binding cmd_wordLeft Ctrl+Left
@@ -45,6 +45,7 @@ binding cmd_deleteWordLeft Ctrl+Backspace
 binding cmd_deleteWordRight Ctrl+Delete
 binding cmd_redo Ctrl+Y
 binding cmd_undo Ctrl+Z
+binding cmd_undo Alt+Backspace
 binding cmd_cancel Escape
 binding cmd_editReflow Ctrl+Q
 binding cmd_toggleOvertype Insert
@@ -110,15 +111,13 @@ binding cmd_lineScrollUp Ctrl+Up
 binding cmd_historyBack Alt+Left
 binding cmd_historyForward Alt+Right
 binding cmd_reopenLastClosedTab Ctrl+Shift+T
-binding cmd_goToFile Ctrl+Shift+O
+binding cmd_goToFile Ctrl+T
 binding cmd_print Ctrl+P
 binding cmd_newProject Ctrl+Shift+N
 binding cmd_invokeHyperlink Ctrl+Shift+G
-binding cmd_tabswitcher_show Ctrl+T
 binding cmd_bookmarkRemoveAll Ctrl+Shift+B
 binding cmd_invokeTool Ctrl+Shift+K
 binding cmd_fontZoomReset Ctrl+0
-binding cmd_tabAwarePaste Ctrl+Alt+V
 binding cmd_open_remote Ctrl+Alt+O
 binding cmd_showUnsavedChanges Ctrl+?
 binding cmd_buffer1 Ctrl+1
@@ -130,3 +129,6 @@ binding cmd_buffer6 Ctrl+6
 binding cmd_buffer7 Ctrl+7
 binding cmd_buffer8 Ctrl+8
 binding cmd_buffer9 Ctrl+9
+binding cmd_jumpToMatchingBrace Ctrl+%
+binding cmd_triggerPrecedingCompletion Ctrl+J
+binding cmd_findHighlightVariableManual Ctrl+Alt+V

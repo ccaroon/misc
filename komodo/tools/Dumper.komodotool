@@ -1,0 +1,17 @@
+{
+  "keyboard_shortcut": "Ctrl+?", 
+  "name": "Dumper", 
+  "value": [
+    "use Data::Dumper;", 
+    "local $Data::Dumper::Maxdepth=2;", 
+    "print STDERR '=====> Begin Dump [[%ask1:Dump What:$_]] -- [[%f]] #[[%L]] <====='.\"\\n\";", 
+    "print STDERR Dumper [[%ask1]];", 
+    "print STDERR '=====> End Dump [[%ask1]] -- [[%f]] #[[%L]] <====='.\"\\n\";", 
+    "!@#_currentPos!@#_anchor"
+  ], 
+  "set_selection": "false", 
+  "version": "1.0.7", 
+  "type": "snippet", 
+  "indent_relative": "false", 
+  "icon": "chrome://famfamfamsilk/skin/icons/bug.png"
+}

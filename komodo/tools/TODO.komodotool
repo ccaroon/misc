@@ -1,5 +1,5 @@
 {
-  "keyboard_shortcut": "Ctrl+3", 
+  "keyboard_shortcut": "Ctrl+#", 
   "name": "TODO", 
   "value": [
     "# TODO: !@#_currentPos!@#_anchor"

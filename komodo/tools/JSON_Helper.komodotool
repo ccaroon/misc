@@ -1,0 +1,11 @@
+{
+  "keyboard_shortcut": "Alt+J", 
+  "name": "JSON Helper", 
+  "value": [
+    "\"[[%ask:Key:KEY]]\": \"[[%ask:Value:VALUE]]\",", 
+    "!@#_currentPos!@#_anchor"
+  ], 
+  "set_selection": "true", 
+  "type": "snippet", 
+  "indent_relative": "true"
+}
