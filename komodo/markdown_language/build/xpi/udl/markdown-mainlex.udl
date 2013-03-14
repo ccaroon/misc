@@ -1,0 +1,36 @@
+# UDL for Markdown
+
+language Markdown
+
+initial IN_CSL_DEFAULT
+
+state IN_CSL_DEFAULT:
+'\''      : paint(upto, CSL_DEFAULT), => IN_CSL_SQSTRING
+'"'       : paint(upto, CSL_DEFAULT), => IN_CSL_DQSTRING
+'`'       : paint(upto, CSL_DEFAULT), => IN_CSL_BACKTICK
+/^#+/     : paint(upto, CSL_DEFAULT), => IN_CSL_HEADING
+/^---/    : paint(upto, CSL_DEFAULT), => IN_CSL_HEADING
+/^===/    : paint(upto, CSL_DEFAULT), => IN_CSL_HEADING
+/^\s{4,}/ : paint(upto, CSL_DEFAULT), => IN_CSL_BLOCKQUOTE
+/[*_]{1,3}\S/ : paint(upto, CSL_DEFAULT), => IN_CSL_HILITE
+
+## Strings
+state IN_CSL_SQSTRING:
+'\'' : paint(include, CSL_STRING), => IN_CSL_DEFAULT
+
+state IN_CSL_DQSTRING:
+'"' : paint(include, CSL_STRING), => IN_CSL_DEFAULT
+
+## Headings
+state IN_CSL_HEADING:
+/$/ : paint(include, CSL_IDENTIFIER), => IN_CSL_DEFAULT
+
+## Quotes
+state IN_CSL_BACKTICK:
+'`' : paint(include, CSL_COMMENT), => IN_CSL_DEFAULT
+
+state IN_CSL_BLOCKQUOTE:
+/$/ : paint(include, CSL_COMMENTBLOCK), => IN_CSL_DEFAULT
+
+state IN_CSL_HILITE:
+/\S[*_]{1,3}/ : paint(include, CSL_REGEX), => IN_CSL_DEFAULT

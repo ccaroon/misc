@@ -1,0 +1,117 @@
+suite_default:
+    - admin_create
+    - admin_list
+    - admin_show
+    - admin_update
+    - admin_delete
+
+suite_public:
+    - public_list
+    - public_show
+
+base: &base
+    verb: GET
+    host: localhost
+    port: 3000
+    site_id: 16
+    admin_user: USER
+    admin_pass: PASS
+    expected_code: 200
+
+admin_create:
+    verb: post
+    url: http://HOST:PORT/admin/ads
+    expected_code: 201
+    body: <ad>
+            <body>Lovely and beautiful Tiny Yorkies are ready for their new home! AKC registered,up to date with shots. All of our babies are fully paper trained &amp; crate trained ready for their new homes. We have Tcup &amp; Toy size available. The babies go home with a 2 week money back,and 1 yr health guarantee.  . 9167390786 sfpets12@ymail.com</body>
+            <category_name>Pets, Farm &amp; Garden</category_name>
+            <classification_name>Pets For Sale, Supplies &amp; Kennels</classification_name>
+            <expires_at>DATETIME_TOMORROW</expires_at>
+            <external_id>RAND</external_id>
+            <is_featured>1</is_featured>
+            <on_hold>false</on_hold>
+            <published_at>DATETIME</published_at>
+            <revision>0</revision>
+            <source>adperfect</source>
+            <title>Yorkshire Terrier - RAND</title>
+            <fields>
+                <field>
+                    <name>Price</name>
+                    <value>RAND</value>
+                </field>
+                <field>
+                    <name>Pet Type</name>
+                    <value>dog</value>
+                </field>
+            </fields>
+            <upsells>
+                <upsell>
+                    <name>Bold Title</name>
+                    <value>1</value>
+                </upsell>
+                <upsell>
+                    <name>Featured Icon</name>
+                    <value>/images/featured/sparkley.jpg</value>
+                </upsell>
+            </upsells>
+          </ad>
+    <<: *base
+
+admin_list:
+    url: http://HOST:PORT/admin/ads
+    <<: *base
+    
+admin_show:
+    url: http://HOST:PORT/admin/ads/ID
+    <<: *base
+
+admin_update:
+    verb: put
+    url: http://HOST:PORT/admin/ads/ID
+    body: <ad>
+            <body>*UPDATE* Lovely and beautiful Tiny Yorkies are ready for their new home! AKC registered,up to date with shots. All of our babies are fully paper trained &amp; crate trained ready for their new homes. We have Tcup &amp; Toy size available. The babies go home with a 2 week money back,and 1 yr health guarantee.  . 9167390786 sfpets12@ymail.com</body>
+            <category_name>Pets, Farm &amp; Garden</category_name>
+            <classification_name>Pets For Sale, Supplies &amp; Kennels</classification_name>
+            <expires_at>DATETIME_TOMORROW</expires_at>
+            <external_id>RAND</external_id>
+            <is_featured>1</is_featured>
+            <on_hold>false</on_hold>
+            <published_at>DATETIME</published_at>
+            <revision>0</revision>
+            <source>adperfect</source>
+            <title>*UPDATE* - Yorkshire Terrier - RAND</title>
+            <fields>
+                <field>
+                    <name>Price</name>
+                    <value>RAND</value>
+                </field>
+                <field>
+                    <name>Pet Type</name>
+                    <value>dog</value>
+                </field>
+            </fields>
+            <upsells>
+                <upsell>
+                    <name>Bold Title</name>
+                    <value>1</value>
+                </upsell>
+                <upsell>
+                    <name>Featured Icon</name>
+                    <value>/images/featured/sparkley.jpg</value>
+                </upsell>
+            </upsells>
+          </ad>
+    <<: *base
+
+admin_delete:
+    verb: delete
+    url: http://HOST:PORT/admin/ads/ID
+    <<: *base
+
+public_list:
+    url: http://HOST:PORT/ads
+    <<: *base
+    
+public_show:
+    url: http://HOST:PORT/ads/ID
+    <<: *base

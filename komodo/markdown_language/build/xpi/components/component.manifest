@@ -1,0 +1,3 @@
+contract @activestate.com/koLanguage?language=Markdown;1 {c128d16e-5e25-4938-9917-8dc471b96695}
+component {c128d16e-5e25-4938-9917-8dc471b96695} koMarkdown_UDL_Language.py
+category komodo-language Markdown @activestate.com/koLanguage?language=Markdown;1

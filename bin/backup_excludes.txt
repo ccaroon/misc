@@ -1,0 +1,12 @@
+ccaroon/codebase
+ccaroon/download
+ccaroon/scratch
+ccaroon/src/sandman
+ccaroon/.cpan
+ccaroon/.mozilla/firefox/d4mxbpuo.default/Cache
+ccaroon/.mozilla/seamonkey/q6h64sgi.default/Cache
+ccaroon/.cache/google-chrome
+ccaroon/.gnupg
+ccaroon/src/github/metiisto/logs
+ccaroon/.adobe
+ccaroon/Dropbox
