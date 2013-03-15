@@ -1,0 +1,13 @@
+#!/bin/sh
+#########
+for dir in `ls -1` 
+do
+    if [ -d $dir -a -d "$dir/.git" ]; then
+
+        echo "---> $dir <---";
+        cd $dir;
+        git $*
+        echo
+        cd ..;
+    fi
+done
