@@ -20,7 +20,7 @@ use constant FORMAT_STANDARD => {
         'Innistrad',
         'Dark Ascension',
         'Avacyn Restored',
-        'M13',
+        'Magic 2013',
         'Return to Ravnica',
         'Gatecrash'
     ],
