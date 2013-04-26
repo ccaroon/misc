@@ -1,0 +1,14 @@
+set nocompatible
+syntax on
+set shiftwidth=4
+set softtabstop=4
+set expandtab
+set autoindent
+set hlsearch
+set ignorecase
+set smartcase
+set backspace=indent
+set ruler
+"set laststatus=1
+set confirm
+set visualbell
