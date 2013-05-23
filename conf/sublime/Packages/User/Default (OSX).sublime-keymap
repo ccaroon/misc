@@ -1,0 +1,6 @@
+[
+    { "keys": ["super+up"], "command": "scroll_lines", "args": {"amount": 1.0} },
+    { "keys": ["super+down"], "command": "scroll_lines", "args": {"amount": -1.0} },
+    { "keys": ["f3"], "command": "find_next" },
+    { "keys": ["shift+f3"], "command": "find_prev" }
+]
