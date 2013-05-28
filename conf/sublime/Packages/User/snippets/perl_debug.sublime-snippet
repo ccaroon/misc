@@ -1,0 +1,7 @@
+<snippet>
+  <content><![CDATA[
+print STDERR "=====> $TM_FILENAME #$TM_LINE_NUMBER --> $1 \n";
+]]></content>
+  <tabTrigger>pdb</tabTrigger>
+  <scope>source.perl</scope>
+</snippet>
