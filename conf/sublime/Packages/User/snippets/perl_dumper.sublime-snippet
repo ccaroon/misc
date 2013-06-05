@@ -1,7 +1,7 @@
 <snippet>
   <content><![CDATA[
 use Data::Dumper;
-local $Data::Dumper::Maxdepth=2;
+local \$Data::Dumper::Maxdepth=2;
 print STDERR '=====> Begin Dump \\$1 -- $TM_FILENAME #$TM_LINE_NUMBER <====='."\n";
 print STDERR Dumper $1;
 print STDERR '=====> End Dump \\$1 -- $TM_FILENAME #$TM_LINE_NUMBER <====='."\n";
