@@ -1,6 +1,7 @@
 {
 	"installed_packages":
 	[
+		"CoffeeScript",
 		"Package Control",
 		"SFTP"
 	]
