@@ -646,5 +646,9 @@
 	},
 	{ "keys": ["alt+enter"], "command": "find_all", "args": {"close_panel": true},
 		"context": [{"key": "panel", "operand": "incremental_find"}, {"key": "panel_has_focus"}]
+	},
+
+	{ 
+		"keys": ["ctrl+shift+m"], "command": "markdown_preview" 
 	}
 ]
