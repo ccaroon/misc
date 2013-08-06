@@ -1,6 +1,7 @@
 {
-	"extensions":
-	[
-		"coffee"
-	]
+  "tab_size": 4,
+  "extensions":
+  [
+    "coffee"
+  ]
 }
