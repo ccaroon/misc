@@ -1,0 +1,12 @@
+{
+    "name":    "mtg",
+    "description": "Magic: The Gathering",
+    "version": "0.0.1",
+    "dependencies": {
+        "mongoose": "3.6.19",
+        "express":  "3.3.8",
+        "mocha":    "1.12.1",
+        "should":   "1.2.2"
+    },
+    "author": "ccaroon"
+}
