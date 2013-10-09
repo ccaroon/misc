@@ -1,0 +1,11 @@
+SRC=$1
+BRANCH=$2
+
+if [ "X$SRC" = "X" ]; then
+    echo "Usage: $0 src branch\nMissing src."
+elif [ "X$BRANCH" = "X" ]; then
+    echo "Usage: $0 src branch\nMissing branch."
+else
+    git fetch $SRC
+    git rebase $SRC/$BRANCH
+fi
