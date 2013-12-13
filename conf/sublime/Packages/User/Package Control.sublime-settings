@@ -3,7 +3,10 @@
 	"installed_packages":
 	[
 		"CoffeeScript",
+		"Cucumber",
+		"Git",
 		"Package Control",
+		"Print to HTML",
 		"SFTP"
 	]
 }
