@@ -1,0 +1,7 @@
+<snippet>
+  <content><![CDATA[
+console.log("=====> $TM_FILENAME #$TM_LINE_NUMBER --> $1 ["+util.inspect($1)+"]");
+]]></content>
+  <tabTrigger>jsdmp</tabTrigger>
+  <!-- <scope>source.javascript</scope> -->
+</snippet>
