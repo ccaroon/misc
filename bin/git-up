@@ -3,9 +3,14 @@ BRANCH=$2
 
 if [ "X$SRC" = "X" ]; then
     echo "Usage: $0 src branch\nMissing src."
-elif [ "X$BRANCH" = "X" ]; then
-    echo "Usage: $0 src branch\nMissing branch."
-else
-    git fetch $SRC
-    git rebase $SRC/$BRANCH
+    exit;
 fi
+
+if [ "X$BRANCH" = "X" ]; then
+    # BRANCH=`git symbolic-ref HEAD --short`; # Only git 1.8+
+    BRANCH=`git rev-parse --abbrev-ref HEAD`;
+    echo "* ${BRANCH}"
+fi
+
+git fetch $SRC
+git rebase $SRC/$BRANCH
