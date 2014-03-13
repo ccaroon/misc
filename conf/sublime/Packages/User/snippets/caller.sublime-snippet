@@ -1,0 +1,11 @@
+<snippet>
+  <content><![CDATA[
+use Data::Dumper;
+my @caller_info = caller $0;
+print STDERR '=====> Caller -- $TM_FILENAME #$TM_LINE_NUMBER <====='."\n";
+print STDERR Dumper \@caller_info;
+print STDERR "========================================================\n";
+]]></content>
+  <tabTrigger>caller</tabTrigger>
+  <scope>source.perl</scope>
+</snippet>
