@@ -2,4 +2,6 @@
 colorscheme monokai
 set guifont=Menlo\ Regular:h13
 set lines=62 columns=158
+nnoremap <C-S-tab> :tabprevious<CR>
+nnoremap <C-tab>   :tabnext<CR>
 

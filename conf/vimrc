@@ -12,3 +12,6 @@ set ruler
 "set laststatus=1
 set confirm
 set visualbell
+set noic
+colors monokai
+colors molokai
