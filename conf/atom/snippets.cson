@@ -1,0 +1,81 @@
+# Your snippets
+#
+# Atom snippets allow you to enter a simple prefix in the editor and hit tab to
+# expand the prefix into a larger code block with templated values.
+#
+# You can create a new snippet in this file by typing "snip" and then hitting
+# tab.
+#
+# An example CoffeeScript snippet to expand log to console.log:
+#
+# '.source.coffee':
+#   'Console log':
+#     'prefix': 'log'
+#     'body': 'console.log $1'
+#
+# This file uses CoffeeScript Object Notation (CSON).
+# If you are unfamiliar with CSON, you can read more about it here:
+# https://github.com/bevry/cson#what-is-cson
+'.source.js':
+  'JS Console Debug':
+    'prefix': 'cdb'
+    'body': 'console.debug($1);'
+  'JS Console Log':
+    'prefix': 'clog'
+    'body': 'console.log($1);'
+  'JS Debug':
+    'prefix': 'jsdb'
+    'body': 'console.log("=====> $1");'
+  'JS Dump':
+    'prefix': 'jsdmp'
+    'body': """
+    var util = require('util');
+    console.log("=====> $1 ["+util.inspect($1)+"]");
+    """
+  'JS Todo':
+    'prefix': 'todo'
+    'body': '// TODO: $1'
+  'JS Header':
+    'prefix': 'hed'
+    'body': '// -----------------------------------------------------------------------------\n'
+
+'.source.perl':
+  'Perl Header':
+    'prefix': 'hed'
+    'body': '################################################################################\n'
+  'Perl Debug':
+    'prefix': 'pdb'
+    'body': 'print STDERR "=====> $1 \\n";'
+  'Perl Dumper':
+    'prefix': 'pdmp'
+    'body': """
+    use Data::Dumper;
+    local $Data::Dumper::Maxdepth=2;
+    print STDERR '=====> Begin Dump \\$1 <====='."\\n";
+    print STDERR Dumper $1;
+    print STDERR '=====> End Dump \\$1 <====='."\\n";
+    $0
+    """
+  'Perl Caller':
+    'prefix': 'caller'
+    'body': """
+    use Data::Dumper;
+    my @caller_info = caller $0;
+    print STDERR "=====> Caller <====="."\\n";
+    print STDERR Dumper \\@caller_info;
+    print STDERR "========================================================\\n";
+    """
+  'Perl Todo':
+    'prefix': 'todo'
+    'body': '# TODO: $1'
+
+'.source.ruby':
+  'Ruby Header':
+    'prefix': 'hed'
+    'body': '################################################################################\n'
+  'Ruby Todo':
+    'prefix': 'todo'
+    'body': '# TODO: '
+  'Ruby Debug':
+    'prefix': 'rdb'
+    'body': 'puts "=====> $1"\n$0'

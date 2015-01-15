@@ -1,0 +1,7 @@
+<snippet>
+  <content><![CDATA[
+console.debug($1);
+]]></content>
+  <tabTrigger>cdb</tabTrigger>
+  <scope>source.js</scope>
+</snippet>
