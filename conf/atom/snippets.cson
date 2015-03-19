@@ -79,3 +79,11 @@
   'Ruby Debug':
     'prefix': 'rdb'
     'body': 'puts "=====> $1"\n$0'
+
+'.source.sql':
+  'SQL Header':
+    'prefix': 'hed'
+    'body': '--##############################################################################\n'
+  'SQL Todo':
+    'prefix': 'todo'
+    'body': '-- TODO: '

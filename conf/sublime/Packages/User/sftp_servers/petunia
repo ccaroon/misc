@@ -7,7 +7,7 @@
 
     "sync_down_on_open": true,
     
-    "host": "petunia.webassign.net",
+    "host": "petunia.mcnc.webassign.net",
     "user": "ccaroon",
     "password": "NalYew33",
     //"port": "22",

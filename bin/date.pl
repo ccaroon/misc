@@ -9,7 +9,7 @@ my $date = shift || time();
 
 if ($cmd =~ /^format/)
 {
-    my $format = shift ||"%m/%d/%Y %R"; 
+    my $format = shift ||"%m/%d/%Y %r"; 
     my $val = time2str($format, $date);
     print STDERR "Formatted: [$val]\n";
 }
@@ -21,7 +21,7 @@ elsif ($cmd =~ /^parse/)
 elsif ($cmd =~ /^reformat/)
 {
     my $time = str2time($date);
-    my $val = time2str("%m/%d/%Y %R", $time);
+    my $val = time2str("%m/%d/%Y %r", $time);
     print STDERR "Re-Formatted: [$val]\n";
 }
 else
