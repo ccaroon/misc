@@ -1,0 +1,5 @@
+{
+    "cmd": ["grunt", "karma"],
+    "working_dir": "${project_path:${folder}}",
+    "path": "/usr/local/bin:/usr/local/share/npm/bin"
+}
