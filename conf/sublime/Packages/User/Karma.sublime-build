@@ -1,5 +1,5 @@
 {
-    "cmd": ["grunt", "karma"],
+    "cmd": ["karma", "start", "--single-run", "--log-level", "error", "--reporters", "dots", "--no-colors"],
     "working_dir": "${project_path:${folder}}",
     "path": "/usr/local/bin:/usr/local/share/npm/bin"
 }
