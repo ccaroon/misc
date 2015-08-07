@@ -45,15 +45,15 @@
     'body': '################################################################################\n'
   'Perl Debug':
     'prefix': 'pdb'
-    'body': 'print STDERR "=====> $1 \\n";'
+    'body': 'print STDERR "=====> $1 \\\\n";'
   'Perl Dumper':
     'prefix': 'pdmp'
     'body': """
     use Data::Dumper;
     local $Data::Dumper::Maxdepth=2;
-    print STDERR '=====> Begin Dump \\$1 <====='."\\n";
+    print STDERR '=====> Begin Dump \\\\$1 <====='."\\\\n";
     print STDERR Dumper $1;
-    print STDERR '=====> End Dump \\$1 <====='."\\n";
+    print STDERR '=====> End Dump \\\\$1 <====='."\\\\n";
     $0
     """
   'Perl Caller':
