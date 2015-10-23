@@ -3,5 +3,5 @@
 console.log($1);
 ]]></content>
   <tabTrigger>clog</tabTrigger>
-  <scope>source.js</scope>
+  <scope>source.(js|coffee)</scope>
 </snippet>
