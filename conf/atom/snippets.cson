@@ -78,7 +78,7 @@
     'body': '# TODO: '
   'Ruby Debug':
     'prefix': 'rdb'
-    'body': 'puts "=====> $1"\n$0'
+    'body': 'STDERR.puts "=====> $1"\n$0'
 
 '.source.sql':
   'SQL Header':
@@ -87,3 +87,238 @@
   'SQL Todo':
     'prefix': 'todo'
     'body': '-- TODO: '
+
+'.source.go':
+  'Go Debug':
+    'prefix': 'gdb'
+    'body': 'fmt.Println("=====> $1")$0'
+
+    # ASYNCHRONOUS #############################################################
+    'Consistently':
+        'prefix': 'csy'
+        'body': """
+        Consistently(func() ${1:type} {
+            $2
+        })
+        """
+
+    'Eventually':
+        'prefix': 'evy'
+        'body': """
+        Eventually(func() ${1:type} {
+            $2
+        })
+        """
+
+    # EXPECTATION ##############################################################
+    'Expect NotTo':
+        'prefix': 'eno'
+        'body': 'Expect(${1:actual}).NotTo(${2:expected})'
+
+    'Expect To':
+        'prefix': 'eto'
+        'body': 'Expect(${1:actual}).To(${2:expected})'
+
+    'Expect ToNot':
+        'prefix': 'ett'
+        'body': 'Expect($1:actual).ToNo({2:expected})'
+
+    # MATCHERS #################################################################
+    'BeAssignableTypeOf':
+        'prefix': 'baf'
+        'body': 'BeAssignableTypeOf(${1:expected_interface})'
+
+    'BeClosed':
+        'prefix': 'bcd'
+        'body': 'BeClosed()'
+
+    'BeEquivalentTo':
+        'prefix': 'beo'
+        'body': 'BeEquivalentTo(${1:expected_interface})'
+
+    'BeEmpty':
+        'prefix': 'bey'
+        'body': 'BeEmpty()'
+
+    'BeFalse':
+        'prefix': 'bfe'
+        'body': 'BeFalse()'
+
+    'BeNil':
+        'prefix': 'bnl'
+        'body': 'BeNil()'
+
+    'BeNumerically':
+        'prefix': 'bny'
+        'body': 'BeNumerically(${1:comparator_string}, ${2:expected})'
+
+    'BeSent':
+        'prefix': 'bst'
+        'body': 'BeSent(${1:value_interface})'
+
+    'BeTemporally':
+        'prefix': 'bty'
+        'body': 'BeTemporally(${1:comparator_string}, ${2:expected})'
+
+    'BeTrue':
+        'prefix': 'bte'
+        'body': 'BeTrue()'
+
+    'BeZero':
+        'prefix': 'bzo'
+        'body': 'BeZero()'
+
+    'ConsistOf':
+        'prefix': 'cof'
+        'body': 'ConsistOf(${1:element})'
+
+    'ContainElement':
+        'prefix': 'cet'
+        'body': 'ContainElement(${1:element})'
+
+    'ContainSubstring':
+        'prefix': 'csg'
+        'body': 'ContainSubstring(${1:string}, ${2:args})'
+
+    'Equal':
+        'prefix': 'eql'
+        'body': 'Equal(${1:expected})'
+
+    'HaveKey':
+        'prefix': 'hky'
+        'body': 'HaveKey(${1:key})'
+
+    'HaveKeyWithValue':
+        'prefix': 'hke'
+        'body': 'HaveKeyWithValue(${1:key}, ${2:value})'
+
+    'HaveLen':
+        'prefix': 'hln'
+        'body': 'HaveLen(${1:count})'
+
+    'HaveOccurred':
+        'prefix': 'hod'
+        'body': 'HaveOccurred()'
+
+    'HavePrefix':
+        'prefix': 'hpx'
+        'body': 'HavePrefix(${1:string}, ${2:args})'
+
+    'HaveSuffix':
+        'prefix': 'hsx'
+        'body': 'HaveSuffix(${1:string}, ${2:args})'
+
+    'MatchError':
+        'prefix': 'mer'
+        'body': 'MatchError(${1:expected})'
+
+    'MatchJSON':
+        'prefix': 'mjn'
+        'body': 'MatchJSON(${1:json})'
+
+    'MatchRegexp':
+        'prefix': 'mrx'
+        'body': 'MatchRegexp(${1:string}, ${2:args})'
+
+    'Panic':
+        'prefix': 'pnc'
+        'body': 'Panic()'
+
+    'Receive':
+        'prefix': 'rce'
+        'body': 'Receive(${1:optional_pointer})'
+
+    # OFFSET ###################################################################
+    'ConsistentlyWithOffset':
+        'prefix': 'cst'
+        'body': """
+        ConsistentlyWithOffset(${1:offset}, func() ${2:type} {
+            $3
+        })
+        """
+
+    'EventuallyWithOffset':
+        'prefix': 'evt'
+        'body': """
+        EventuallyWithOffset(${1:offset}, func() ${2:type} {
+            $3
+        })
+        """
+
+    'ExpectWithOffset':
+        'prefix': 'ext'
+        'body': 'ExpectWithOffset(${1:offset}, ${2:actual})'
+
+    # OMEGA ####################################################################
+    'Should':
+        'prefix': 'oms'
+        'body': 'Ω(${1:actual}).Should(${2:expected})'
+
+    'ShouldNot':
+        'prefix': 'omn'
+        'body': 'Ω(${1:actual}).ShouldNot(${2:expected})'
+
+    # SUITE/BLOCK ##############################################################
+    'AfterEach':
+        'prefix': 'afe'
+        'body': """
+        AfterEach(func() {
+            $1
+        })
+        """
+
+    'AfterSuite':
+        'prefix': 'ase'
+        'body': """
+        AfterSuite(func() {
+            $1
+        })
+        """
+
+    'BeforeEach':
+        'prefix': 'bfe'
+        'body': """
+        BeforeEach(func() {
+            $1
+        })
+        """
+
+    'BeforeSuite':
+        'prefix': 'bse'
+        'body': """
+        BeforeSuite(func() {
+            $1
+        })
+        """
+
+    'Context':
+        'prefix': 'ctt'
+        'body': """
+        Context(\"${1:suite_context}\", func(){
+            $2
+        })
+        """
+
+    'Describe':
+        'prefix': 'dce'
+        'body': """
+        Describe(\"${1:func_name}\", func() {
+            $2
+        })
+        """
+
+    'JustBeforeEach':
+        'prefix': 'jbh'
+        'body': """
+        JustBeforeEach(func() {
+            $1
+        })
+        """
+
+    'It':
+        'prefix': 'itb'
+        'body': """
+        It(\"${1:test_description}\", func() {
+            $2
+        })
+        """
