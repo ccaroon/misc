@@ -1,21 +1,20 @@
 {
 	"auto_upgrade_last_run": null,
+	"bootstrapped": true,
 	"in_process_packages":
 	[
 	],
-	"installed_dependencies":
-	[
-		"0_package_control_loader",
-		"bz2"
-	],
 	"installed_packages":
 	[
+		"CoffeeScript",
 		"Cucumber",
+		"Ginkgo Completions",
 		"Git",
 		"GitGutter",
-		"JsFormat",
+		"JSCS-Formatter",
 		"LESS",
 		"Package Control",
+		"Pretty JSON",
 		"Print to HTML",
 		"SFTP"
 	]

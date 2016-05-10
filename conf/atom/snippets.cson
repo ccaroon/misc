@@ -38,6 +38,20 @@
   'JS Header':
     'prefix': 'hed'
     'body': '// -----------------------------------------------------------------------------\n'
+    
+'.source.coffee':
+  'JS Console Log':
+    'prefix': 'jslog'
+    'body': 'console.log($1);'
+  'JS Debug':
+    'prefix': 'jsdb'
+    'body': 'console.debug("=====> $1");'
+  'JS Todo':
+    'prefix': 'todo'
+    'body': '// TODO: $1'
+  'JS Header':
+    'prefix': 'hed'
+    'body': '// -----------------------------------------------------------------------------\n'
 
 '.source.perl':
   'Perl Header':
