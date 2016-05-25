@@ -1,3 +1,4 @@
+echo "--> Creating Feature Branch '$1' from 'develop' <--"
 git checkout develop
 git up origin
 git checkout -b feature/$1
