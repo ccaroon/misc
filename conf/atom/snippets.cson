@@ -94,6 +94,20 @@
     'prefix': 'rdb'
     'body': 'STDERR.puts "=====> $1"\n$0'
 
+'.source.python':
+  'Python Header':
+    'prefix': 'hed'
+    'body': '################################################################################\n'
+  'Python Todo':
+    'prefix': 'todo'
+    'body': '# TODO: '
+  # 'Python Debug':
+  #   'prefix': 'pydb'
+  #   'body': 'print("=====> $1")$0'
+  'Python Debug':
+    'prefix': 'pydb'
+    'body': 'print("=====> $1 {0}".format($2))$0'
+
 '.source.sql':
   'SQL Header':
     'prefix': 'hed'
@@ -336,3 +350,11 @@
             $2
         })
         """
+        
+'.source.groovy':
+  'Groovy Todo':
+    'prefix': 'todo'
+    'body': '// TODO: $1'
+  'Groovy Header':
+    'prefix': 'hed'
+    'body': '// -----------------------------------------------------------------------------\n'
