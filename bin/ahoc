@@ -1,0 +1,2 @@
+echo ansible -i playbooks/wa2_service/$1 $2 -a \"$3\"
+ansible -i playbooks/wa2_service/$1 $2 -a "$3"
