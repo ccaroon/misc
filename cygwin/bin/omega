@@ -1,0 +1,28 @@
+#!/bin/bash
+HOST=$1
+ADDR=""
+case $HOST in
+leek)
+    ADDR=1.48
+    ;;
+pearl)
+    ADDR=1.49
+    ;;
+add3)
+    ADDR=1.51
+    ;;
+742b)
+    ADDR=1.53
+    ;;
+scallion)
+    ADDR=1.54
+    ;;
+default)
+    ADDR=3.1
+    ;;
+*)
+    echo "Unknow host: $HOST"
+    exit 1
+    ;;
+esac
+ssh root@192.168.$ADDR

@@ -1,0 +1,23 @@
+#!/bin/bash
+HOST=$1
+ACTION=$2
+FILE=$3
+
+case $HOST in
+byte)
+    ADDR=177
+    ;;
+munchkin)
+    ADDR=187
+    ;;
+*)
+    echo "Unknown host: $HOST"
+    exit 1
+    ;;
+esac
+
+if [ "X$ACTION" == "Xget" ]; then
+   scp pi@192.168.1.$ADDR:$FILE .
+else
+   ssh pi@192.168.1.$ADDR
+fi
