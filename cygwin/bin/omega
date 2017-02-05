@@ -2,14 +2,23 @@
 HOST=$1
 ADDR=""
 case $HOST in
+vidalia)
+    ADDR=1.47
+    ;;
 leek)
     ADDR=1.48
     ;;
 pearl)
     ADDR=1.49
     ;;
+91dd)
+    ADDR=1.50
+    ;;
 add3)
     ADDR=1.51
+    ;;
+b705)
+    ADDR=1.52
     ;;
 742b)
     ADDR=1.53
