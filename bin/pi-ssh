@@ -1,0 +1,42 @@
+#!/bin/sh
+##################################################
+# Script to remember all my Raspberry PI logins
+##################################################
+NAME=$1
+
+if [ "X$NAME" = "Xbyte" ]; then
+  #############################
+  # byte - PI2B+ - BlackLotus
+  #############################
+  USER='pi'
+  ADDR='192.168.1.177'
+elif [ "X$NAME" = "Xlakka" ]; then
+  #############################
+  # lakka - PI3B - Lakka System
+  #############################
+  USER='root'
+  ADDR='192.168.1.187'
+elif [ "X$NAME" = "Xmindstorm" ]; then
+  #############################
+  # mindstorm - PI3B - STEM System
+  #############################
+  USER='pi'
+  ADDR='192.168.1.187'
+elif [ "X$NAME" = "Xsophon" ]; then
+  #############################
+  # sophon - PI3B - Main System
+  #############################
+  USER='ccaroon'
+  ADDR='192.168.1.187'
+elif [ "X$NAME" = "Xzero" ]; then
+  #############################
+  # zero - PIZero W - Camera & Mic
+  #############################
+  USER='ccaroon'
+  ADDR='192.168.1.188'
+fi
+
+##################################################
+ssh $USER@$ADDR
+##################################################
+
