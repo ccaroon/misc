@@ -34,6 +34,12 @@ elif [ "X$NAME" = "Xzero" ]; then
   #############################
   USER='ccaroon'
   ADDR='192.168.1.188'
+elif [ "X$NAME" = "Xsoylent" ]; then
+  #############################
+  # soylent - PIZero W - Green Case
+  #############################
+  USER='ccaroon'
+  ADDR='192.168.1.189'
 fi
 
 ##################################################
