@@ -3,6 +3,7 @@
 # Script to remember all my Raspberry PI logins
 ##################################################
 NAME=$1
+ACTION=$2
 
 if [ "X$NAME" = "Xbyte" ]; then
   #############################
@@ -48,7 +49,9 @@ elif [ "X$NAME" = "Xneutron" ]; then
   ADDR='192.168.1.190'
 fi
 
-##################################################
-ssh $USER@$ADDR
-##################################################
-
+if [ "X$ACTION" = "X" -o "X$ACTION" = "Xshell" ]; then
+    ssh $USER@$ADDR
+elif [ "X$ACTION" = "Xget" ]; then
+    FILENAME=$3
+    scp $USER@$ADDR:$FILENAME .
+fi
