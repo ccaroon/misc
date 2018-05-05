@@ -54,4 +54,7 @@ if [ "X$ACTION" = "X" -o "X$ACTION" = "Xshell" ]; then
 elif [ "X$ACTION" = "Xget" ]; then
     FILENAME=$3
     scp $USER@$ADDR:$FILENAME .
+elif [ "X$ACTION" = "Xput" ]; then
+    FILENAME=$3
+    scp $FILENAME $USER@$ADDR:
 fi
