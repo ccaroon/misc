@@ -47,6 +47,12 @@ elif [ "X$NAME" = "Xneutron" ]; then
   #############################
   USER='ccaroon'
   ADDR='192.168.1.190'
+elif [ "X$NAME" = "Xwimpy" ]; then
+  #############################
+  # wimpy - PI3B - TurtleBox3 Burger
+  #############################
+  USER='ccaroon'
+  ADDR='192.168.1.37'
 fi
 
 if [ "X$ACTION" = "X" -o "X$ACTION" = "Xshell" ]; then
