@@ -1,66 +1,98 @@
-#!/bin/sh
+#!/bin/bash
 ##################################################
 # Script to remember all my Raspberry PI logins
 ##################################################
 NAME=$1
 ACTION=$2
 
-if [ "X$NAME" = "Xbyte" ]; then
-  #############################
-  # byte - PI2B+ - BlackLotus
-  #############################
-  USER='pi'
-  ADDR='192.168.1.177'
-elif [ "X$NAME" = "Xlakka" ]; then
-  #############################
-  # lakka - PI3B - Lakka System
-  #############################
-  USER='root'
-  ADDR='192.168.1.187'
-elif [ "X$NAME" = "Xmindstorm" ]; then
-  #############################
-  # mindstorm - PI3B - STEM System
-  #############################
-  USER='pi'
-  ADDR='192.168.1.187'
-elif [ "X$NAME" = "Xsophon" ]; then
-  #############################
-  # sophon - PI3B - Main System
-  #############################
-  USER='ccaroon'
-  ADDR='192.168.1.187'
-elif [ "X$NAME" = "Xzero" ]; then
-  #############################
-  # zero - PIZero W - Camera & Mic
-  #############################
-  USER='ccaroon'
-  ADDR='192.168.1.188'
-elif [ "X$NAME" = "Xsoylent" ]; then
-  #############################
-  # soylent - PIZero W - Green Case
-  #############################
-  USER='ccaroon'
-  ADDR='192.168.1.189'
-elif [ "X$NAME" = "Xneutron" ]; then
-  #############################
-  # neutron - PIZero W - Breadboard case
-  #############################
-  USER='ccaroon'
-  ADDR='192.168.1.190'
-elif [ "X$NAME" = "Xwimpy" ]; then
-  #############################
-  # wimpy - PI3B - TurtleBox3 Burger
-  #############################
-  USER='ccaroon'
-  ADDR='192.168.1.37'
+# USERNAME|IP ADDR|DESCRIPTION; <--- Don't forget the semicolon!
+declare -A pies=(
+    [byte]="pi|192.168.1.177|PI2B+ - Runs BlackLotus;"
+    [lakka]="root|192.168.1.187|PI3B - Lakka System;"
+    [mindstorm]="pi|192.168.1.187|PI3B - STEM System;"
+    [sophon]="ccaroon|192.168.1.187|PI3B- Main System;"
+    [zero]="ccaroon|192.168.1.188|PIZero W - Camera & Mic;"
+    [soylent]="ccaroon|192.168.1.189|PIZero W - Green Case;"
+    [neutron]="ccaroon|192.168.1.190|PIZero W - Breadboard Case;"
+    [wimpy]="ccaroon|192.168.1.37|PI3B - TurtleBox3 Burger;"
+)
+
+if [ "X$NAME" = "X" ]; then
+    echo "Usage: $0 <name> [shell|get|put]"
+    echo "Valid names: "
+    for i in "${!pies[@]}"
+    do
+        value=${pies[$i]}
+        IFS='|' read -r -d";" -a DATA <<< "$value"
+        echo "  -> $i: ${DATA[2]}"
+    done
+
+    exit 0;
 fi
 
+IFS='|' read -r -d";" -a DATA <<< "${pies[$NAME]}"
+
 if [ "X$ACTION" = "X" -o "X$ACTION" = "Xshell" ]; then
-    ssh $USER@$ADDR
+    ssh ${DATA[0]}@${DATA[1]}
 elif [ "X$ACTION" = "Xget" ]; then
     FILENAME=$3
-    scp $USER@$ADDR:$FILENAME .
+    scp ${DATA[0]}@${DATA[1]}:$FILENAME .
 elif [ "X$ACTION" = "Xput" ]; then
     FILENAME=$3
-    scp $FILENAME $USER@$ADDR:
+    scp $FILENAME ${DATA[0]}@${DATA[1]}:
+else
+    echo "Usage: $0 $NAME [shell|get|put]"
+    echo "Unknown action: $ACTION"
 fi
+
+# if [ "X$NAME" = "Xbyte" ]; then
+#   #############################
+#   # byte - PI2B+ - BlackLotus
+#   #############################
+#   USER='pi'
+#   ADDR='192.168.1.177'
+# elif [ "X$NAME" = "Xlakka" ]; then
+#   #############################
+#   # lakka - PI3B - Lakka System
+#   #############################
+#   USER='root'
+#   ADDR='192.168.1.187'
+# elif [ "X$NAME" = "Xmindstorm" ]; then
+#   #############################
+#   # mindstorm - PI3B - STEM System
+#   #############################
+#   USER='pi'
+#   ADDR='192.168.1.187'
+# elif [ "X$NAME" = "Xsophon" ]; then
+#   #############################
+#   # sophon - PI3B - Main System
+#   #############################
+#   USER='ccaroon'
+#   ADDR='192.168.1.187'
+# elif [ "X$NAME" = "Xzero" ]; then
+#   #############################
+#   # zero - PIZero W - Camera & Mic
+#   #############################
+#   USER='ccaroon'
+#   ADDR='192.168.1.188'
+# elif [ "X$NAME" = "Xsoylent" ]; then
+#   #############################
+#   # soylent - PIZero W - Green Case
+#   #############################
+#   USER='ccaroon'
+#   ADDR='192.168.1.189'
+# elif [ "X$NAME" = "Xneutron" ]; then
+#   #############################
+#   # neutron - PIZero W - Breadboard case
+#   #############################
+#   USER='ccaroon'
+#   ADDR='192.168.1.190'
+# elif [ "X$NAME" = "Xwimpy" ]; then
+#   #############################
+#   # wimpy - PI3B - TurtleBox3 Burger
+#   #############################
+#   USER='ccaroon'
+#   ADDR='192.168.1.37'
+# else
+#     echo "Usage: ..."
+# fi
