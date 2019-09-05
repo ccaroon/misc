@@ -1,0 +1,6 @@
+NAME=`basename $(git rev-parse --show-toplevel)`
+DEST=~/Dropbox/Diffs/$NAME.diff
+
+
+echo "Backing up $NAME to $DEST"
+git diff > $DEST

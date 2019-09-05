@@ -1,13 +1,21 @@
-#!/bin/sh
-#########
+#!/bin/bash
+################################################################################
+IGNORE="$HOME/.bgit-ignore"
+
 for dir in `ls -1` 
 do
     if [ -d $dir -a -d "$dir/.git" ]; then
 
-        echo "---> $dir <---";
-        cd $dir;
-        git $*
-        echo
-        cd ..;
+        if [ -f $IGNORE ]; then
+            FOUND=`grep $dir $IGNORE`
+        fi
+
+        if [ ! -n "$FOUND" ]; then
+            echo "---> $dir <---";
+            cd $dir;
+            git $*
+            echo
+            cd ..;
+        fi
     fi
 done
