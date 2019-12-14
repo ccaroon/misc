@@ -7,7 +7,7 @@ ACTION=$2
 
 # USERNAME|IP ADDR|DESCRIPTION; <--- Don't forget the semicolon!
 declare -A pies=(
-    [byte]="pi|192.168.1.177|PI2B+ - Runs BlackLotus;"
+    [byte]="ccaroon|172.16.1.33|PI2B+ - Weather Station;"
     [lakka]="root|192.168.1.187|PI3B - Lakka System;"
     [mindstorm]="pi|192.168.1.187|PI3B - STEM System;"
     [sophon]="ccaroon|192.168.1.187|PI3B- Main System;"
