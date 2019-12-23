@@ -19,9 +19,14 @@ class Diagram:
         self.__max_row = len(self.__diagram)
         self.__max_col = len(self.__diagram[0])
 
-        print(F"Rows: {self.__max_row} | Cols: {self.__max_col}")
+    # --------------------------------------------------------------------------
+    def size(self):
+        return (self.__max_row, self.__max_col)
 
     # --------------------------------------------------------------------------
+    # Return: A tuple with (row, col, direction) indicating where the word was found
+    #         or None if not found.
+    # Note: row & col will be return as 1-based indexes instead of 0-based
     def find_word(self, word):
 
         letters = list(re.sub("\s", "", word))
@@ -34,10 +39,9 @@ class Diagram:
                         for direction in word_directions:
                             found = self.__follow_the_trail(letters, direction, row, col)
                             if found:
-                                print(F"Found '{word}' at ({row},{col}) heading {direction}")
-                                return True
+                                return (row+1, col+1, direction)
 
-        return False
+        return None
 
     def __find_the_trail(self, letters, row, col):
         letter2 = letters[1].lower()
@@ -128,10 +132,6 @@ class Diagram:
     def __str__(self):
         output = ""
         for row, line in enumerate(self.__diagram):
-            output += F"{row:2}: " + " ".join(line) + "\n"
+            output += F"{row+1:2}: " + " ".join(line) + "\n"
 
         return(output)
-
-    # --------------------------------------------------------------------------
-    # def __repr__(self):
-    #     pass

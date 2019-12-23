@@ -1,28 +1,7 @@
 #!/bin/env python
 import sys
-import yaml
 
-from lib.diagram import Diagram
-
-# ------------------------------------------------------------------------------
-def search(puzzle):
-    found_count = 0
-
-    words = puzzle.get('words', [])
-    diagram = Diagram(puzzle['diagram'])
-
-    print(diagram)
-
-    for word in words:
-        if diagram.find_word(word):
-            found_count +=1
-        else:
-            print(F"Unable to find '{word}'")
-
-    word_count = len(words)
-
-    print(F"---------------------------------------")
-    print(F"Found {found_count}/{word_count} words.")
+from lib.puzzle import Puzzle
 
 # ------------------------------------------------------------------------------
 if __name__ == "__main__":
@@ -33,8 +12,14 @@ if __name__ == "__main__":
     else:
         puzzle_name = sys.argv[1]
 
-    puzzle = {}
-    with open(F"./puzzles/{puzzle_name}.yml") as file:
-        puzzle = yaml.full_load(file)
+    puzzle = Puzzle(puzzle_name)
 
-    search(puzzle)
+    print(puzzle)
+
+    found = puzzle.auto_search()
+
+    for word, location in found.items():
+        if location:
+            print(F"Found '{word}' at {location[0]},{location[1]} heading {location[2]}")
+        else:
+            print(F"Not Found: '{word}")
