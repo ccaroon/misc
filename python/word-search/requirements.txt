@@ -1,1 +1,5 @@
 pyaml
+# For word-crawler
+adventurelib
+colorama
+pyfiglet
