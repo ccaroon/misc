@@ -21,7 +21,7 @@ def view():
     if INVENTORY:
         print(F"You're carrying {len(INVENTORY)} items:")
         for item in INVENTORY:
-            print(F"{item} - {item.isa}")
+            print(F"{item}")
     else:
         print("You have nothing!")
 
@@ -53,14 +53,19 @@ def take_item2(thing):
         if obj:
             say(F"You can't pick that up.")
         else:
-            say(F"You don't see any {thing} here.")
+            say(F"You don't see any '{thing}' here.")
 
 @when("drop THING")
 def remove_item(thing):
-    item = INVENTORY.take(thing)
+    item = INVENTORY.find(thing)
+
     if item:
-        CURRENT_ROOM.items.add(item)
-        say(F"Dropped {thing}.")
+        if not item.undroppable:
+            item = INVENTORY.take(thing)
+            CURRENT_ROOM.items.add(item)
+            say(F"Dropped {thing}.")
+        else:
+            say(F"You should probably hold onto your {thing}.")
     else:
         say(F"You're not even carrying a {thing}.")
 
@@ -83,7 +88,7 @@ def examine(thing):
 @when("look")
 def look():
     say(F"--- {CURRENT_ROOM.name} ---")
-    say(CURRENT_ROOM.description)
+    print(CURRENT_ROOM.description)
 
     # TODO: better incorporate items in to the narrative
     if CURRENT_ROOM.items:
@@ -115,7 +120,14 @@ def leave():
     elif len(exits) == 0:
         print("There doesn't appear to be any way out of here! You're trapped! Forever!")
     else:
+        if CURRENT_ROOM.exit_scene:
+            CURRENT_ROOM.exit_scene.play()
+
         CURRENT_ROOM = CURRENT_ROOM.exit(exits[0])
+
+        if CURRENT_ROOM.enter_scene:
+            CURRENT_ROOM.enter_scene.play()
+
         print(CURRENT_ROOM)
 
 @when('n', direction='north')
@@ -129,8 +141,15 @@ def leave():
 def move(direction):
     global CURRENT_ROOM
 
+    if CURRENT_ROOM.exit_scene:
+        CURRENT_ROOM.exit_scene.play()
+
     room = CURRENT_ROOM.exit(direction)
+
     if room:
+        if room.enter_scene:
+            room.enter_scene.play()
+
         CURRENT_ROOM = room
         print(CURRENT_ROOM)
     else:

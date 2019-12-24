@@ -2,13 +2,15 @@ from adventurelib import Bag, Item
 from colorama import Fore, Style
 
 class Object(Item):
-    def __init__(self, name, desc, aliases=[], isa=[], state=None, color=Fore.LIGHTBLACK_EX):
+    def __init__(self, name, desc, aliases=[], isa=[], state=None, color=Fore.LIGHTBLACK_EX, undroppable=False, real_obj=None):
         super().__init__(name, *aliases)
         self.isa = isa
         self.desc = desc
         self.state = state
         self.color = color
         self.scene = None
+        self.real_obj = real_obj
+        self.undroppable = undroppable
         self.items = Bag()
 
     def state_desc(self):
@@ -24,7 +26,7 @@ class Object(Item):
         desc = ""
         if self.desc:
             desc += F"{self.desc} "
-    
+
         if self.state:
             desc += F"It's {self.state}. "
 

@@ -18,8 +18,7 @@ lantern = Object(
 # ------------------------------------------------------------------------------
 door = Object("stone door",
     "A stone door. Looks ancient. You **might** just be able to open it.",
-    aliases=('door'),
-    isa=('door'),
-    color=Fore.LIGHTMAGENTA_EX,
+    aliases=('door',),
+    color=Fore.WHITE,
     state="crumbling"
 )

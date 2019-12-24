@@ -1,14 +1,14 @@
 import re
 
+from lib.grid import Grid
+
 class Diagram:
-
-    DIRECTIONS = ("N", "NE", "E", "SE", "S", "SW", "W", "NW")
-
     # Assumes `data` is a list of strings
     # [
     #   'SOMELETTERSAREHERE',
     #   'MORELETTERSAREHERE'
     # ]
+    # --------------------------------------------------------------------------
     def __init__(self, data):
         self.__diagram = []
 
@@ -18,6 +18,12 @@ class Diagram:
 
         self.__max_row = len(self.__diagram)
         self.__max_col = len(self.__diagram[0])
+
+        self.__grid = Grid(self.__max_row, self.__max_col)
+
+    # --------------------------------------------------------------------------
+    def get(self, row, col):
+        return self.__diagram[row][col]
 
     # --------------------------------------------------------------------------
     def size(self):
@@ -47,10 +53,10 @@ class Diagram:
         letter2 = letters[1].lower()
 
         word_directions = []
-        for direction in self.DIRECTIONS:
-            (new_row, new_col) = self.__direction_to_col_row(direction, row, col)
+        for direction in Grid.DIRECTIONS:
+            (new_row, new_col) = self.__grid.direction_to_col_row(direction, row, col)
 
-            if not self.__in_bounds(new_row, new_col):
+            if not self.__grid.in_bounds(new_row, new_col):
                 continue
 
             if self.__diagram[new_row][new_col].lower() == letter2:
@@ -58,75 +64,21 @@ class Diagram:
 
         return (word_directions)
 
-    def __in_bounds(self, row, col):
-        in_bounds = True
-        if row < 0 or row >= self.__max_row:
-            in_bounds = False
-
-        if col < 0 or col >= self.__max_col:
-            in_bounds = False
-
-        return in_bounds
-
     def __follow_the_trail(self, letters, direction, row, col):
         current_row = row
         current_col = col
 
         found = True
         for letter in letters:
-            if self.__in_bounds(current_row, current_col) and letter.lower() == self.__diagram[current_row][current_col].lower():
-                (current_row, current_col) = self.__direction_to_col_row(direction, current_row, current_col)
+            if self.__grid.in_bounds(current_row, current_col) and letter.lower() == self.__diagram[current_row][current_col].lower():
+                (current_row, current_col) = self.__grid.direction_to_col_row(direction, current_row, current_col)
             else:
                 found = False
                 break
 
         return found
 
-    def __direction_to_col_row(self, direction, row, col):
-        new_row = row
-        new_col = col
 
-        # N:  col   , row-1
-        if direction == "N":
-            new_row = row - 1
-            new_col = col
-
-        # NE: col+1 , row-1
-        elif direction == "NE":
-            new_row = row - 1
-            new_col = col + 1
-
-        # E:  col+1 , row
-        elif direction == "E":
-            new_row = row
-            new_col = col + 1
-
-        # SE: col+1 , row+1
-        elif direction == "SE":
-            new_row = row + 1
-            new_col = col + 1
-
-        # S:  col   , row+1
-        elif direction == "S":
-            new_row = row + 1
-            new_col = col
-
-        # SW: col-1 , row+1
-        elif direction == "SW":
-            new_row = row + 1
-            new_col = col - 1
-
-        # W:  col-1 , row
-        elif direction == "W":
-            new_row = row
-            new_col = col - 1
-
-        # NW: col-1 , row-1
-        elif direction == "NW":
-            new_row = row - 1
-            new_col = col - 1
-
-        return (new_row, new_col)
 
     # --------------------------------------------------------------------------
     def __str__(self):

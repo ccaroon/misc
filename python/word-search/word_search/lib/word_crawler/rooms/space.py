@@ -12,7 +12,8 @@ class Space(Room):
         north=None, northeast=None,
         east=None, southeast=None,
         south=None, southwest=None,
-        west=None, northwest=None):
+        west=None, northwest=None
+    ):
         super().__init__(desc)
         self.name = name
 
@@ -32,6 +33,9 @@ class Space(Room):
         self.southwest = southwest
         self.west = west
         self.northwest = northwest
+
+        self.enter_scene = None
+        self.exit_scene = None
 
     def __str__(self):
         return F"--- {self.name} ---\n{self.description}"

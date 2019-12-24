@@ -16,6 +16,12 @@ class Puzzle:
         self.__word_list = data.get('words', [])
         self.__diagram = Diagram(data['diagram'])
 
+    def letter_at(self, row, col):
+        return self.__diagram.get(row,col)
+
+    def size(self):
+        return self.__diagram.size()
+
     def word_count(self):
         return len(self.__word_list)
 

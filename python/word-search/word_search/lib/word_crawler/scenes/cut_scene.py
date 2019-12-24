@@ -1,4 +1,6 @@
+
 import pyfiglet
+from adventurelib import say
 from abc import ABC, abstractmethod
 
 import lib.word_crawler.helpers.screen as screen
@@ -19,13 +21,15 @@ class CutScene:
 
     def add_dialogue(self, statement, enlarge=False, color=None, pause=True):
         text = statement
+        styled = False
         if enlarge:
             text = pyfiglet.figlet_format(statement)
+            styled = True
 
         if color:
             text = screen.foreground(text, color)
 
-        self.__events.append(CutScene.Dialogue(text, pause))
+        self.__events.append(CutScene.Dialogue(text, pause, styled=styled))
 
     def play(self):
         if self.__run_count > 0:
@@ -55,9 +59,13 @@ class CutScene:
             self.__action()
 
     class Dialogue(Event):
-        def __init__(self, statement, pause=True):
+        def __init__(self, statement, pause=True, styled=False):
             self.__stmt = statement
+            self.__styled = styled
             super().__init__(pause)
 
         def run(self):
-            print(self.__stmt)
+            if self.__styled:
+                print(self.__stmt)
+            else:
+                say(self.__stmt)
