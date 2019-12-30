@@ -23,12 +23,13 @@ class PuzzleDungeon:
                 lg_letter = pyfiglet.figlet_format(letter)
                 room = Space(
                     F"Puzzle Room - Location[{row},{col}]",
-                    F"""{lg_letter}""",
+                    lg_letter,
                     # items=[items.lantern],
                     # objects=[
                     #     items.door
                     # ],
                 )
+                room.location = (row, col)
                 self.__rooms[row].append(room)
 
         # Assign Exits

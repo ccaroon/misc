@@ -19,6 +19,8 @@ from lib.word_crawler.rooms.entrance import room as entrance
 from lib.word_crawler.inventory.object import Object
 from lib.word_crawler.inventory import INVENTORY
 
+from lib.word_crawler.game import GAME_MAP
+
 from lib.puzzle import Puzzle
 # ------------------------------------------------------------------------------
 def prompt():
@@ -45,6 +47,11 @@ if __name__ == "__main__":
 
     puzzle = Puzzle(puzzle_name)
     dungeon = PuzzleDungeon(puzzle)
+
+    size = puzzle.size()
+    GAME_MAP.set_size(size[0], size[1])
+    GAME_MAP.fill()
+
     word_search = Object(
         "word search puzzle",
         F"A Word Search Puzzle titled '{puzzle.title}'. Too bad you don't have a pencil.",

@@ -19,6 +19,15 @@ class Object(Item):
             desc += F" which is {self.state}"
         return desc
 
+    # Example: object.is_a("door")
+    def is_a(self, type_of_thing):
+        found = False
+
+        if type_of_thing in self.isa:
+            found = True
+
+        return found
+
     def describe(self):
         if self.scene:
             self.scene.play()

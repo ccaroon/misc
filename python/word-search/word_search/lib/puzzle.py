@@ -36,6 +36,9 @@ class Puzzle:
 
         return (found_words)
 
+    def diagram(self):
+        return self.__diagram
+
     def __str__(self):
         size = self.__diagram.size()
 

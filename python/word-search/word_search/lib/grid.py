@@ -3,9 +3,32 @@ class Grid:
 
     DIRECTIONS = ("N", "NE", "E", "SE", "S", "SW", "W", "NW")
 
-    def __init__(self, rows, cols):
+    def __init__(self, rows=2, cols=2):
+        self.set_size(rows, cols)
+
+    def get(self, row, col):
+        return self._grid[row][col]
+
+    def set(self, row, col, cell):
+        self._grid[row][col] = cell
+
+    def set_row(self, row, cells):
+        self._grid[row] = cells
+
+    def fill(self, cell=' '):
+        for row in range(self.__max_row):
+            cols = []
+            self._grid.append(cols)
+            for col in range(self.__max_col):
+                cols.append(cell)
+
+    def size(self):
+        return (self.__max_row, self.__max_col)
+
+    def set_size(self, rows, cols):
         self.__max_row = rows
         self.__max_col = cols
+        self._grid = []
 
     def valid_directions(self, row, col):
         valid = {}
@@ -73,3 +96,18 @@ class Grid:
             new_col = col - 1
 
         return (new_row, new_col)
+
+    def __str__(self):
+        output = ""
+        for row, line in enumerate(self._grid):
+            output += F"{row+1:2}: " + " ".join(line) + "\n"
+
+        return(output)
+
+
+
+
+
+
+
+#

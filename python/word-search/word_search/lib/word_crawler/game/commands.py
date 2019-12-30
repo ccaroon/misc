@@ -5,7 +5,9 @@ from lib.word_crawler.context.context import Context
 
 from lib.word_crawler.inventory import INVENTORY
 from lib.word_crawler.rooms import CURRENT_ROOM
+from lib.word_crawler.game import GAME_MAP
 
+import lib.word_crawler.helpers.screen as screen
 # ------------------------------------------------------------------------------
 # Game
 # ------------------------------------------------------------------------------
@@ -87,8 +89,7 @@ def examine(thing):
 @when("l")
 @when("look")
 def look():
-    say(F"--- {CURRENT_ROOM.name} ---")
-    print(CURRENT_ROOM.description)
+    print(CURRENT_ROOM)
 
     # TODO: better incorporate items in to the narrative
     if CURRENT_ROOM.items:
@@ -103,7 +104,15 @@ def look():
 
 @when("map")
 def map():
-    say("Sure would be nice to have a map of this place.")
+    loc = getattr(CURRENT_ROOM, 'location', None)
+    if loc:
+        old_cell = GAME_MAP.get(loc[0], loc[1])
+        GAME_MAP.set(loc[0], loc[1], screen.highlight(old_cell, fore="black", back="white"))
+        print(GAME_MAP)
+        GAME_MAP.set(loc[0], loc[1], old_cell)
+    else:
+        say("Map? What map?")
+
 # ------------------------------------------------------------------------------
 # Movement
 # ------------------------------------------------------------------------------
@@ -130,6 +139,24 @@ def leave():
 
         print(CURRENT_ROOM)
 
+@when("open THING")
+def open(thing):
+    openable = CURRENT_ROOM.objects.find(thing)
+    if not openable:
+        for object in CURRENT_ROOM.objects:
+            if object.is_a(thing):
+                openable = thing
+
+    if openable:
+        if openable.is_a("door"):
+            # TODO: how to open the door, exit which direction?
+            say(F"You opened {thing}")
+        else:
+            say(F"You can't open the {thing}")
+    else:
+        say(F"You don't see any {thing} there.")
+
+
 @when('n', direction='north')
 @when('ne', direction='northeast')
 @when('e', direction='east')
@@ -152,6 +179,13 @@ def move(direction):
 
         CURRENT_ROOM = room
         print(CURRENT_ROOM)
+
+        # Update map
+        loc = getattr(CURRENT_ROOM, 'location', None)
+        if loc:
+            puzzle = INVENTORY.find("puzzle")
+            GAME_MAP.set(loc[0], loc[1], puzzle.real_obj.letter_at(loc[0], loc[1]))
+
     else:
         say(F"You can't move {direction}.")
 # ------------------------------------------------------------------------------
