@@ -30,6 +30,20 @@ class Grid:
         self.__max_col = cols
         self._grid = []
 
+    def location_to_vector(self, loc, length):
+        vector = set()
+        (row, col, dd) = loc
+
+        for i in range(length):
+            if self.in_bounds(row, col):
+                vector.add((row, col))
+                (row, col) = self.direction_to_col_row(dd, row, col)
+            else:
+                vector = None
+                break
+
+        return vector
+
     def valid_directions(self, row, col):
         valid = {}
         for direction in self.DIRECTIONS:
@@ -100,7 +114,7 @@ class Grid:
     def __str__(self):
         output = ""
         for row, line in enumerate(self._grid):
-            output += F"{row+1:2}: " + " ".join(line) + "\n"
+            output += F"{row:2}: " + " ".join(line) + "\n"
 
         return(output)
 
