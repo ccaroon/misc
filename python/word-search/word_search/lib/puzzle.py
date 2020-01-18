@@ -25,6 +25,9 @@ class Puzzle:
     def word_count(self):
         return len(self.__word_list)
 
+    def word_list(self):
+        return self.__word_list
+
     def auto_search(self):
         found_words = {}
         for word in self.__word_list:

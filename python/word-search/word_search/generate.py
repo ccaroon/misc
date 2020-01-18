@@ -1,21 +1,25 @@
 #!/bin/env python
 import random
+import sys
+import os.path
 import re
+import yaml
 
 from lib.grid import Grid
 # ------------------------------------------------------------------------------
-
-# Define words
-# ------------------------------------------------------------------------------
-
 ROW_PAD = 15
 COL_PAD = 15
-words = [
-    'craig', 'cate', 'nate', 'tootsie',
-    'clay', 'christy', 'mason', 'cole', 'bryce', 'scout', 'yoda',
-    'neal', 'thersea', 'cougar', 'haley', 'raven',
-    'tom thumb', 'linda'
-]
+# ------------------------------------------------------------------------------
+# Read Word List
+# ------------------------------------------------------------------------------
+words = []
+
+word_file = sys.argv[1]
+(word_file_dir, _) = os.path.splitext(word_file)
+puzzle_name = os.path.basename(word_file_dir)
+with open(word_file, "r") as file:
+    while word := file.readline():
+        words.append(word.strip())
 
 print(F"# Words: {len(words)}")
 
@@ -112,15 +116,55 @@ for word in words:
             used_vectors.append(vector)
             word_inserted = True
 
-    if word_inserted:
-        print(F"'{word}' inserted at {loc_str}.")
-    else:
+    if not word_inserted:
         print(F"FAIL: '{word}' not inserted.")
-
-
-
-
+    # else:
+    #     print(F"'{word}' inserted at {loc_str}.")
 
 # ------------------------------------------------------------------------------
-print(diagram)
+# Print to Screen
+# ------------------------------------------------------------------------------
+with open(F"./puzzles/{puzzle_name}.txt", "w") as file:
+    # file.write(F"{puzzle_name.capitalize():>40}\n")
+    file.write(F"{puzzle_name.capitalize().center(80)}\n")
+    file.write("--------------------------------------------------------------------------------\n")
+    file.write(diagram.display(center=80, inc_ln=False))
+
+    file.write(F"\n")
+
+    per_col = 3
+    for i in range(0, len(words), per_col):
+        output = ""
+        for idx in range(per_col):
+            if i+idx < len(words):
+                output = output + F"* {words[i+idx]:{max_word_length+3}}"
+
+        file.write(F"{output.center(80)}\n")
+    file.write("--------------------------------------------------------------------------------\n")
+# ------------------------------------------------------------------------------
+# Print to YAML file
+# ------------------------------------------------------------------------------
+(num_rows, _) = diagram.size()
+rows = []
+for i in range(num_rows):
+    row_str = ''.join(diagram.get_row(i))
+    rows.append(row_str)
+
+output = {
+    'title': puzzle_name.capitalize(),
+    'author': "Craig N. Caroon",
+    'difficulty': "easy",
+    'diagram': rows,
+    'words': words
+}
+
+with open(F"./puzzles/{puzzle_name}.yml", "w") as file:
+    yaml.safe_dump(output, file)
+
+
+
+
+
+
+
 # ------------------------------------------------------------------------------

@@ -52,14 +52,21 @@ if __name__ == "__main__":
     GAME_MAP.set_size(size[0], size[1])
     GAME_MAP.fill()
 
+    word_list = Object(
+        "word list",
+        " | ".join(puzzle.word_list()),
+        aliases=("list of words",),
+        color=Fore.LIGHTBLUE_EX
+    )
     word_search = Object(
         "word search puzzle",
         F"A Word Search Puzzle titled '{puzzle.title}'. Too bad you don't have a pencil.",
-        aliases=('puzzle',),
+        aliases=('word search', 'puzzle',),
         color=Fore.MAGENTA,
         undroppable=True,
         real_obj=puzzle
     )
+    word_search.items.add(word_list)
     INVENTORY.add(word_search)
 
     first_room = dungeon.get_room(0,0)

@@ -12,6 +12,9 @@ class Grid:
     def set(self, row, col, cell):
         self._grid[row][col] = cell
 
+    def get_row(self, row):
+        return self._grid[row]
+
     def set_row(self, row, cells):
         self._grid[row] = cells
 
@@ -111,12 +114,20 @@ class Grid:
 
         return (new_row, new_col)
 
-    def __str__(self):
+
+    def display(self, center=0, inc_ln=True):
         output = ""
         for row, line in enumerate(self._grid):
-            output += F"{row:2}: " + " ".join(line) + "\n"
+            if inc_ln:
+                output += F"{row:2}: " + " ".join(line) + "\n"
+            else:
+                line = " ".join(line)
+                output += line.center(center) + "\n"
 
         return(output)
+
+    def __str__(self):
+        return self.display(inc_ln=False)
 
 
 

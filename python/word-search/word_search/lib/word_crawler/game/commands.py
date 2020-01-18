@@ -71,6 +71,22 @@ def remove_item(thing):
     else:
         say(F"You're not even carrying a {thing}.")
 
+@when("examine PART on THING")
+@when("x PART on THING")
+@when("look at PART on THING")
+def examine_part(part, thing):
+    item = INVENTORY.find(thing)
+    sub_item = None
+
+    if item:
+        sub_item = item.items.find(part)
+        if sub_item:
+            say(sub_item.describe())
+        else:
+            say(F"{thing} does not have a {part}.")
+    else:
+        say(F"You don't have any {thing}.")
+
 @when("examine THING")
 @when("x THING")
 @when("look at THING")
@@ -83,6 +99,7 @@ def examine(thing):
         say(item.describe())
     else:
         say(F"You don't have any {thing}.")
+
 # ------------------------------------------------------------------------------
 # Room Related Commands
 # ------------------------------------------------------------------------------
