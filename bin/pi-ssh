@@ -8,7 +8,7 @@ ACTION=$2
 # USERNAME|IP ADDR|DESCRIPTION; <--- Don't forget the semicolon!
 declare -A pies=(
     [byte]="ccaroon|192.168.1.177|PI2B+ - Weather Station;"
-    [applepi]="pi|192.168.1.187|PI3B- ApplePi;"
+    [apple-pi]="pi|192.168.1.187|PI3B- ApplePi;"
     [zero]="ccaroon|192.168.1.188|PIZero W - Camera & Mic;"
     [soylent]="ccaroon|192.168.1.189|PIZero W - Green Case;"
     [neutron]="ccaroon|192.168.1.190|PIZero W - Breadboard Case;"
@@ -22,7 +22,7 @@ if [ "X$NAME" = "X" ]; then
     do
         value=${pies[$i]}
         IFS='|' read -r -d";" -a DATA <<< "$value"
-        echo "  -> $i: ${DATA[2]}"
+        echo "  -> $i: ${DATA[2]} (${DATA[0]}@${DATA[1]})"
     done
 
     exit 0;
