@@ -7,12 +7,12 @@ ACTION=$2
 
 # USERNAME|IP ADDR|DESCRIPTION; <--- Don't forget the semicolon!
 declare -A pies=(
-    [byte]="ccaroon|192.168.1.177|PI2B+ - Weather Station;"
-    [apple-pi]="pi|192.168.1.187|PI3B- ApplePi;"
-    [zero]="ccaroon|192.168.1.188|PIZero W - Camera & Mic;"
-    [soylent]="ccaroon|192.168.1.189|PIZero W - Green Case;"
-    [neutron]="ccaroon|192.168.1.190|PIZero W - Breadboard Case;"
-    [wimpy]="ccaroon|192.168.1.37|PI3B - TurtleBox3 Burger;"
+    [apple-pi]="pi|192.168.1.191|Pi3B+ - ApplePi;"
+    [byte]="ccaroon|192.168.1.177|Pi2B+ - Weather Station;"
+    [neutron]="ccaroon|192.168.1.190|PiZero W - Breadboard Case;"
+    [soylent]="ccaroon|192.168.1.189|PiZero W - Green Case;"
+    [wimpy]="ccaroon|192.168.1.37|Pi3B - TurtleBox3 Burger;"
+    [zero]="ccaroon|192.168.1.188|PiZero W - Camera & Mic;"
 )
 
 if [ "X$NAME" = "X" ]; then
