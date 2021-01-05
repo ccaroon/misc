@@ -1,0 +1,46 @@
+#!/bin/bash
+##################################################
+# Script to remember all my Raspberry PI logins
+##################################################
+NAME=$1
+ACTION=$2
+
+# USERNAME|IP ADDR|DESCRIPTION; <--- Don't forget the semicolon!
+declare -A omegas=(
+    [vidalia]="root|192.168.1.47|Omega 1;"
+    [leek]="root|192.168.1.48|Omega 1;"
+    [pearl]="root|192.168.1.49|Omega 1;"
+    [scallion]="root|192.168.1.54|Omega 1;"
+    [91dd]="root|192.168.1.43|Omega 2+;"
+    [add3]="root|192.168.1.51|Omega 2+;"
+    [b705]="root|192.168.1.33|Omega 2+;"
+    [742b]="root|192.168.1.53|Omega 2+;"
+)
+
+if [ "X$NAME" = "X" ]; then
+    echo "Usage: $0 <name> [shell|get|put]"
+    echo "Valid names: "
+    for i in "${!omegas[@]}"
+    do
+        value=${omegas[$i]}
+        IFS='|' read -r -d";" -a DATA <<< "$value"
+        echo "  -> $i: ${DATA[2]} (${DATA[0]}@${DATA[1]})"
+    done
+
+    exit 0;
+fi
+
+IFS='|' read -r -d";" -a DATA <<< "${omegas[$NAME]}"
+
+if [ "X$ACTION" = "X" -o "X$ACTION" = "Xshell" ]; then
+    ssh ${DATA[0]}@${DATA[1]}
+elif [ "X$ACTION" = "Xget" ]; then
+    FILENAME=$3
+    scp ${DATA[0]}@${DATA[1]}:$FILENAME .
+elif [ "X$ACTION" = "Xput" ]; then
+    FILENAME=$3
+    scp $FILENAME ${DATA[0]}@${DATA[1]}:
+else
+    echo "Usage: $0 $NAME [shell|get|put]"
+    echo "Unknown action: $ACTION"
+fi
