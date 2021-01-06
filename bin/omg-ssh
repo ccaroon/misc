@@ -5,15 +5,17 @@
 NAME=$1
 ACTION=$2
 
+OMEGA1_OPTS="-o KexAlgorithms=diffie-hellman-group14-sha1"
+
 # USERNAME|IP ADDR|DESCRIPTION; <--- Don't forget the semicolon!
 declare -A omegas=(
-    [vidalia]="root|192.168.1.47||Omega 1;"
-    [leek]="root|192.168.1.48||Omega 1;"
-    [pearl]="root|192.168.1.49||Omega 1;"
-    [scallion]="root|192.168.1.54||Omega 1;"
-    [91dd]="root|192.168.1.43||Omega 2+;"
+    [vidalia]="root|192.168.1.47|${OMEGA1_OPTS}|Omega 1;"
+    [leek]="root|192.168.1.48|${OMEGA1_OPTS}|Omega 1;"
+    [pearl]="root|192.168.1.49|${OMEGA1_OPTS}|Omega 1;"
+    [scallion]="root|192.168.1.54|${OMEGA1_OPTS}|Omega 1;"
+    [91dd]="root|192.168.1.50||Omega 2+;"
     [add3]="root|192.168.1.51||Omega 2+;"
-    [b705]="root|192.168.1.33||Omega 2+;"
+    [b705]="root|192.168.1.52||Omega 2+;"
     [742b]="root|192.168.1.53||Omega 2+;"
 )
 

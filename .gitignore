@@ -1,5 +1,4 @@
 .DS_Store
 conf/sublime/Packages/User/Package Control.last-run
 *.pyc
-misc.sublime-workspace
 *-ca-bundle
