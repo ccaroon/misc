@@ -3,16 +3,24 @@ import random
 import sys
 
 
-def gen_random_points(w, h, count=25):
+def gen_random_points(w, h, count=25, precision='int'):
+    x = y = 0
     points = []
+
     for i in range(count):
-        x = random.randint(0, w)
-        y = random.randint(0, h)
+        if precision == 'int':
+            x = random.randint(1, w)
+            y = random.randint(1, h)
+        elif precision == 'float':
+            x = random.random() * w
+            y = random.random() * h
+
         points.append((x,y))
 
     return(points)
 
 if __name__ == "__main__":
+    random.seed()
     if len(sys.argv) < 4:
         print(F"Usage {sys.argv[0]} <width> <height> <count>")
         sys.exit(1)
