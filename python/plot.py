@@ -1,4 +1,4 @@
-# importing the required module
+#!/usr/bin/env python
 import matplotlib.pyplot as plt
 import random_points
 
@@ -6,7 +6,7 @@ PRINTABLE = True
 
 WIDTH=21.5
 HEIGHT=28
-COUNT=500
+COUNT=25
 
 PLOT_WIDTH = 8.5
 PLOT_HEIGHT = 11
@@ -28,7 +28,7 @@ for p in points:
     y.append(p[1])
 
 # Plot the points
-plt.scatter(x, y, marker=".", color="black", s=5)
+plt.scatter(x, y, marker=".", color="black", s=10)
 
 # Adjust for output
 if PRINTABLE:
