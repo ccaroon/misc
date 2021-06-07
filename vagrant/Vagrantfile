@@ -1,0 +1,43 @@
+
+Vagrant.configure("2") do |config|
+
+  config.vm.define :amz1 do |amz1|
+    amz1.vm.box = "hbsmith/awslinux"
+
+    amz1.vm.hostname  = "dev-amz1.local"
+    amz1.vm.network :private_network, ip: "172.16.100.100"
+  
+    amz1.vm.provision :ansible do |ansible|
+      ansible.playbook        = "bootstrap.yml"
+      ansible.extra_vars      = {}
+      # ansible.verbose         = "vvvv"
+    end
+  end
+  
+  config.vm.define :amz2 do |amz2|
+    amz2.vm.box = "gbailey/amzn2"
+  
+    amz2.vm.hostname  = "dev-amz2.local"
+    amz2.vm.network :private_network, ip: "172.16.100.101"
+  
+    amz2.vm.provision :ansible do |ansible|
+      ansible.playbook        = "bootstrap.yml"
+      ansible.extra_vars      = {}
+      # ansible.verbose         = "vvvv"
+    end
+  end
+
+  config.vm.define :centos7 do |centos7|
+    centos7.vm.box = "centos/7"
+  
+    centos7.vm.hostname  = "dev-centos7.local"
+    centos7.vm.network :private_network, ip: "172.16.100.102"
+  
+    centos7.vm.provision :ansible do |ansible|
+      ansible.playbook        = "bootstrap.yml"
+      ansible.extra_vars      = {}
+      # ansible.verbose         = "vvvv"
+    end
+  end
+
+end

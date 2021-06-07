@@ -1,0 +1,7 @@
+---
+
+local_home: "{{ lookup('env','HOME') }}"
+
+remote_user: devops
+remote_group: devops
+remote_home: "/home/{{ remote_user }}"

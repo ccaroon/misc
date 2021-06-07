@@ -1,0 +1,8 @@
+---
+- name: Bootstrap Vagrant VM
+  hosts: all
+  user: vagrant
+  become: yes
+
+  roles:
+    - basic-setup

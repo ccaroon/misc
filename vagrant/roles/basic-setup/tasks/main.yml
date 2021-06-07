@@ -1,0 +1,45 @@
+---
+
+- name: Identify
+  debug:
+    msg: 
+      - "Dist: {{ ansible_distribution }}"
+      - "Dist-Major-Ver: {{ ansible_distribution_major_version }}"
+
+- name: Create Default Remote Group
+  group:
+    name: "{{ remote_group }}"
+
+- name: Create Default Remote User
+  user:
+    name: "{{ remote_user }}"
+    group: "{{ remote_group }}"
+
+- name: Create .ssh dir
+  file:
+    path: "{{ remote_home }}/.ssh"
+    state: directory
+    owner: "{{ remote_user }}"
+    mode: 0700
+
+- name: Provision ssh keys
+  authorized_key:
+    user: "{{ remote_user }}"
+    key: "{{ lookup('file', item) }}"
+  with_first_found:
+    - "{{ local_home }}/.ssh/id_rsa.pub"
+    - "{{ local_home }}/.ssh/id_dsa.pub"
+
+- name: Install BashRC
+  copy:
+    src: bashrc
+    dest: "{{ remote_home }}/.bashrc"
+    owner: "{{ remote_user }}"
+    group: "{{ remote_group }}"
+    mode: 0640
+
+- name: Install Basic Packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ packages }}"
