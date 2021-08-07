@@ -13,6 +13,7 @@ declare -A pies=(
     [soylent]="ccaroon|192.168.1.189|PiZero W - Green Case;"
     [wimpy]="ccaroon|192.168.1.37|Pi3B - TurtleBox3 Burger;"
     [zero]="ccaroon|192.168.1.188|PiZero W - Camera & Mic;"
+    [iota]="ccaroon|192.168.1.249|Pi4;"
 )
 
 if [ "X$NAME" = "X" ]; then
