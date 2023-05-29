@@ -20,11 +20,9 @@ difference() {
         cube([width,width/2,3]);
 }
 
-line_w = .25;
-line_h = .25;
-line_thickness = .5;
+line_w = .5;
+line_h = .375;
 line_y = (hole_offset/2)+hole_d;
-
 
 rotate([0,0,-90]) {
     angle_inc = 10;
@@ -32,6 +30,6 @@ rotate([0,0,-90]) {
 
         rotate([0,0,angle])
             translate([-(line_w/2), line_y, thickness])
-                color("red") cube([line_thickness, (width/2)-line_y, line_h]);
+                color("red") cube([line_w, (width/2)-line_y, line_h]);
     }
 }
