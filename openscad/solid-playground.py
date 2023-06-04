@@ -28,11 +28,11 @@ set_global_fn(72)
 # model = s.linear_extrude(height=20, twist=90, slices=50)
 
 # --- minkowski ---
-cube = cube(10,10,1)
-cyl = cylinder(r=2,h=1)
-model = minkowski()(cube, cyl)
+# cube = cube(10,10,1)
+# cyl = cylinder(r=2,h=1)
+# model = minkowski()(cube, cyl)
 
-
+model = cube(10)
 
 
 
