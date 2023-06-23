@@ -2,6 +2,7 @@ from solid2 import *
 from units import *
 
 import pawns
+import queen
 import tiles
 
 set_global_fn(50)
@@ -13,8 +14,10 @@ set_global_fn(50)
 #     pawn_pieces.append(pawns.simple(pawn_size).translateX(num*(pawn_size/1.25)))
 # chess_set = union()(pawn_pieces)
 # chess_set = pawns.simple(3)
-chess_set = pawns.invader(3)
+# chess_set = pawns.invader(3)
 
+# --- Queen ---
+chess_set = queen.queen()
 
 # --- Tiles ---
 # chess_set = tiles.hexagon(3*cm,1)
