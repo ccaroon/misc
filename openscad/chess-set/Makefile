@@ -4,12 +4,14 @@ usage:
 	@echo "* clean: clean up generated files"
 
 
-chess-set:
-	python chess-set.py
+king:
+	python chess-set.py king
 
+queen:
+	python chess-set.py queen
 
 clean:
 	rm -f *.stl
 	rm -rf __pycache__
 
-PHONY: clean
+PHONY: king queen clean
