@@ -12,7 +12,7 @@ if len(sys.argv) > 1:
     piece = sys.argv[1]
 
 
-set_global_fn(50)
+set_global_fn(150)
 
 # --- Pawns ---
 if piece == "pawn":
