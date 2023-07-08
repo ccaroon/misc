@@ -14,18 +14,12 @@ def crown():
 
     bottom = ring1 + ring2.up(1) + ring3.up(2)
 
-    # middle = minkowski()(
-        # cylinder(d=1),
     middle = cylinder(d1=units.base_width-4, d2=units.base_width-1, h=1*units.cm, _fn=15)
-    # )
 
     top = sphere(d=5)
 
     return bottom + middle + top.up(12)
 
-# scale([.25,.25,.25])
-#     rotate_extrude(angle=360, $fn=250)
-#         import("/home/ccaroon/Downloads/chess-profile/Cate-Profile.dxf");
 def queen():
     top = crown()
 
