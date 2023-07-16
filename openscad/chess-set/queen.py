@@ -14,11 +14,19 @@ def crown():
 
     bottom = ring1 + ring2.up(1) + ring3.up(2)
 
-    middle = cylinder(d1=units.base_width-4, d2=units.base_width-1, h=1*units.cm, _fn=15)
+    blarg = cylinder(d1=units.base_width-4, d2=units.base_width-1, h=1*units.cm, _fn=15)
+    # donut = circle(d=7.5).left(9.5).rotate_extrude(angle=360).up(10)
+    # donut = circle(d=7.5).left(9.45).rotate_extrude(angle=360).up(10.5)
+    # donut = circle(d=9.25).left(8.5).rotate_extrude(angle=360).up(10.5)
+    donut = circle(d=8).left(8.5).rotate_extrude(angle=360).up(10.5)
 
-    top = sphere(d=5)
+    middle = blarg - donut
 
-    return bottom + middle + top.up(12)
+    top = sphere(d=11)
+    pom = sphere(d=3)
+
+    # return bottom + middle + top.up(12)
+    return bottom + middle + top.up(7.75) + pom.up(14.25)
 
 def queen():
     top = crown()
@@ -29,7 +37,6 @@ def queen():
     base = cylinder(d=units.base_width, h=units.base_height)
 
     piece = base + middle.up(units.base_height) + top.up(units.middle_height+2)
-    # piece = middle.up(units.base_height-1) + top.up(units.middle_height+2)
-    # piece = base + top.up(10)
+    # piece = top
 
     return piece

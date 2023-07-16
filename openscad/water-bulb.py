@@ -9,8 +9,16 @@ inch = cm * 2.54
 
 # sizes
 wall_thickness = 2 * mm
+
+## full size
 bulb_size = 3 * inch
 tube_size = 1.25 * cm
+tube_len  = 4 * inch
+
+## test size
+# bulb_size = 1.0 * inch
+# tube_size = 0.75 * cm
+# tube_len  = 1.0 * inch
 
 # bulb
 bulb_out = sphere(d=bulb_size)
@@ -19,14 +27,15 @@ hole = cylinder(d=tube_size, h=wall_thickness)
 bulb = (bulb_out - bulb_in) - hole.up((bulb_size/2)-2)
 
 # tube
-tube_out = cylinder(d1=tube_size, d2=tube_size*.75, h=4*inch)
+tube_offset = 6
+tube_out = cylinder(d1=tube_size, d2=tube_size*.75, h=tube_len)
 tube_in  = cylinder(
     d1=(tube_size)-wall_thickness,
     d2=(tube_size*.75)-wall_thickness,
-    h=(4*inch)+6
+    h=(tube_len)+tube_offset
 )
 
-tube = tube_out - tube_in.down(3)
+tube = tube_out - tube_in.down(tube_offset/2)
 
 # assemble
 water_bulb = bulb + tube.up((bulb_size/2) - wall_thickness)
