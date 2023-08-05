@@ -32,7 +32,7 @@ if piece == "king":
 
 # --- Tiles ---
 if piece == "tiles":
-    chess_set = tiles.hexagon(3*cm,1)
+    chess_set = tiles.tile(base_width,1)
 
 
 if piece:
