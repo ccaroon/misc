@@ -8,7 +8,7 @@ def format(args):
 
 def parse(args):
     date = arrow.get(args.date_str).replace(tzinfo=args.tz)
-    print(date.timestamp)
+    print(date.int_timestamp)
 
 def humanize(args):
     date = arrow.get(args.date_str)
