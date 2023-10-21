@@ -3,7 +3,7 @@ from solid2 import *
 from units import *
 
 import king
-import pawns
+import pawn
 import queen
 import tiles
 
@@ -16,11 +16,7 @@ set_global_fn(150)
 
 # --- Pawns ---
 if piece == "pawn":
-    pawn_size = 20*cm
-    pawn_pieces = []
-    for num in range(0,8):
-        pawn_pieces.append(pawns.simple(pawn_size).translateX(num*(pawn_size/1.25)))
-    chess_set = union()(pawn_pieces)
+    chess_set = pawn.pawn()
 
 # --- Queen ---
 if piece == "queen":

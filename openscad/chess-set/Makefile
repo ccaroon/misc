@@ -10,6 +10,9 @@ king:
 queen:
 	python chess-set.py queen
 
+pawn:
+	python chess-set.py pawn
+
 clean:
 	rm -f *.stl
 	rm -rf __pycache__
