@@ -26,4 +26,4 @@ def hollow_cube(size, wall=2):
     return box
 
 
-hollow_cube(1 * units.inch, 2).save_as_scad("./money-cube.scad")
+hollow_cube(1 * units.inch, 1).save_as_scad("./money-cube.scad")
