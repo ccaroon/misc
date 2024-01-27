@@ -1,30 +1,34 @@
 #!/usr/bin/env python
-
 import argparse
-import sys
 import os
 
 def encode(args):
     file_path = args.filename
     out_file = file_path + ".bstr"
 
+    count = 1
     with open(file_path, "rb") as in_fptr:
         with open(out_file, "w") as out_fptr:
             bite = in_fptr.read(1)
 
             while bite:
-                out_fptr.write(f"{int(bite.hex(),16):08b} ")
+                out_data = f"{int(bite.hex(),16):08b} "
+                if count == 10:
+                    out_data += "\n"
+                    count = 0
+                out_fptr.write(out_data)
+                count += 1
                 bite = in_fptr.read(1)
 
     return out_file
 
 def decode(args):
     file_path = args.filename
-    out_file = file_path + ".bin"
+    out_file = os.path.splitext(file_path)[0] + ".bin"
 
     with open(file_path, "r") as in_fptr:
         with open(out_file, "wb") as out_fptr:
-            data = in_fptr.read(81)
+            data = in_fptr.readline()
             while data:
                 bites = data.split()
 
@@ -35,7 +39,7 @@ def decode(args):
 
                 out_fptr.write(bytes(out_data))
 
-                data = in_fptr.read(81)
+                data = in_fptr.readline()
 
     os.chmod(out_file, 0o755)
 
