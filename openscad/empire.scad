@@ -1,1 +1,1 @@
-surface(file="./empire.png", invert=true);
+surface(file=".images//empire.png", invert=true);
