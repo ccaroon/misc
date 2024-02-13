@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from solid2 import *
-# import units
+import shared_lib
 
 # Real Values
 TRAY_HEIGHT = 35
@@ -21,25 +21,6 @@ CAVE_CARD = {
 }
 
 
-def open_box(length, width, height, wall):
-    """
-    Create an open-top box with INSIDE dims of `length`, `width` & `height` with
-    outer walls & bottom of `wall` thickness.
-
-    :param length: Inside length
-    :param width:  Inside width
-    :param height: Inside height
-    :param wall:  Bottom & wall thickness
-    :return: Box object
-    """
-    outer_box = cube([length+(wall*2), width+(wall*2), height+wall])
-    inner_box = cube([length, width, height+wall])
-
-    box = outer_box - inner_box.translate([wall,wall,wall])
-
-    return box
-
-
 def dragon_tray_dims():
     width = (TRAY_WALL * 4) + (DRAGON_CARD.get("width") * 3)
     length = (TRAY_WALL * 2) + (DRAGON_CARD.get("length"))
@@ -52,9 +33,9 @@ def dragon_tray():
     length = DRAGON_CARD.get("width")
     dims = dragon_tray_dims()
 
-    slot1 = open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
-    slot2 = open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
-    slot3 = open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
+    slot1 = shared_lib.open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
+    slot2 = shared_lib.open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
+    slot3 = shared_lib.open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
 
     cutout_r = 30.0
     cutout = cylinder(h=dims[1]+TRAY_WALL*2, r=cutout_r).rotate([90,0,90])
@@ -79,8 +60,8 @@ def cave_tray():
     length = CAVE_CARD.get("width")
     dims = cave_tray_dims()
 
-    slot1 = open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
-    slot2 = open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
+    slot1 = shared_lib.open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
+    slot2 = shared_lib.open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
 
     cutout_r = 25.0
     cutout = cylinder(h=dims[1]+TRAY_WALL*2, r=cutout_r).rotate([90,0,90])
