@@ -5,6 +5,7 @@ import shared_lib
 # Real Values
 TRAY_HEIGHT = 35
 TRAY_WALL = 2.5
+TRAY_RND = 3
 
 # TEST Print Values
 # TRAY_HEIGHT = 10
@@ -29,21 +30,19 @@ def dragon_tray_dims():
 
 
 def dragon_tray():
-    width = DRAGON_CARD.get("length")
-    length = DRAGON_CARD.get("width")
     dims = dragon_tray_dims()
 
-    slot1 = shared_lib.open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
-    slot2 = shared_lib.open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
-    slot3 = shared_lib.open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
+    tray = shared_lib.compartment_box(
+        DRAGON_CARD.get("width"), DRAGON_CARD.get("length"),
+        TRAY_HEIGHT, TRAY_WALL,
+        count=3, rows=1,
+        rounding=TRAY_RND
+    )
 
     cutout_r = 30.0
-    cutout = cylinder(h=dims[1]+TRAY_WALL*2, r=cutout_r).rotate([90,0,90])
+    cutout = cylinder(h=dims[1]+TRAY_WALL*4, r=cutout_r).rotate([90,0,90])
 
-    tray = slot1 + \
-           slot2.translate([length+TRAY_WALL, 0, 0]) + \
-           slot3.translate([(length+TRAY_WALL)*2, 0, 0]) - \
-           cutout.translate([-TRAY_WALL, dims[0]//2, cutout_r+TRAY_WALL])
+    tray -= cutout.translate([-TRAY_WALL*2, dims[0]//2, cutout_r+TRAY_WALL])
 
     return tray
 
@@ -56,23 +55,25 @@ def cave_tray_dims():
 
 
 def cave_tray():
-    width = CAVE_CARD.get("length")
-    length = CAVE_CARD.get("width")
     dims = cave_tray_dims()
 
-    slot1 = shared_lib.open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
-    slot2 = shared_lib.open_box(length, width, TRAY_HEIGHT, TRAY_WALL)
+    tray = shared_lib.compartment_box(
+        CAVE_CARD.get("width"), CAVE_CARD.get("length"),
+        TRAY_HEIGHT, TRAY_WALL,
+        count=2, rows=1,
+        rounding=TRAY_RND
+    )
 
     cutout_r = 25.0
-    cutout = cylinder(h=dims[1]+TRAY_WALL*2, r=cutout_r).rotate([90,0,90])
+    cutout = cylinder(h=dims[1]+TRAY_WALL*4, r=cutout_r).rotate([90,0,90])
 
-    tray = slot1 + slot2.translate([length+TRAY_WALL, 0, 0]) - \
-           cutout.translate([-TRAY_WALL, dims[0]//2, cutout_r+TRAY_WALL])
+    tray -= cutout.translate([-TRAY_WALL*2, dims[0]//2, cutout_r+TRAY_WALL])
 
     return tray
 
 
 if __name__ == "__main__":
+    set_global_fn(150)
     dtray_dims = dragon_tray_dims()
     dtray_length = dtray_dims[0]
     dtray_width = dtray_dims[1]
@@ -84,8 +85,8 @@ if __name__ == "__main__":
     ctray = cave_tray()
 
     card_tray = dtray + ctray.translate([
-        (dtray_width // 2) - (CAVE_CARD.get("width") + TRAY_WALL),
-        -ctray_length + TRAY_WALL,
+        (dtray_width / 2) - (CAVE_CARD.get("width") + TRAY_WALL*1.5),
+        -ctray_length + TRAY_WALL-(TRAY_RND//2),
         0
     ])
 
