@@ -1,24 +1,26 @@
 #!/usr/bin/env python
 from solid2 import *
+
 import shared_lib
+import units
 
 # Real Values
 TRAY_HEIGHT = 35
-TRAY_WALL = 2.5
+TRAY_WALL = 2
 TRAY_RND = 3
 
 # TEST Print Values
 # TRAY_HEIGHT = 10
-# TRAY_WALL = 1
+# TRAY_WALL = 1.6
 
 DRAGON_CARD = {
-    "width": 57.4,
-    "length": 87.5
+    "width": 2.25*units.inch,
+    "length": 8.75*units.cm
 }
 
 CAVE_CARD = {
-    "width": 57.4,
-    "length": 57.5
+    "width": 2.25*units.inch,
+    "length": 2.25*units.inch
 }
 
 
