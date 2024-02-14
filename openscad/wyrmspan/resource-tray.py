@@ -2,12 +2,13 @@
 from solid2 import *
 
 import shared_lib
+import units
 
 # Real Values
-TRAY_WIDTH = 57.5
-TRAY_LENGTH = 40
+TRAY_WIDTH = (11.25/2) * units.cm
+TRAY_LENGTH = (7.5/2) * units.cm
 TRAY_HEIGHT = 40
-TRAY_WALL = 1.80
+TRAY_WALL = 1.5
 TRAY_RND = 3
 
 # TEST Print Values

@@ -40,21 +40,24 @@ def compartment_box(width, length, height, wall, **kwargs):
 
     # print(f"count: {count} | rows: {rows} | per_row: {per_row}")
 
+    outer_wall = wall
     if rounding:
-        wall -= (rounding / 4)
+        # Subtract the amount that the minkowski sum adds
+        outer_wall -= rounding
 
-    box_width = wall + ((wall * (per_row-1)) + (width * per_row)) + wall
-    box_length = wall + ((wall * (rows-1)) + (length * rows)) + wall
+    box_width = outer_wall + ((wall * (per_row-1)) + (width * per_row)) + outer_wall
+    box_length = outer_wall + ((wall * (rows-1)) + (length * rows)) + outer_wall
     outer_box = cube([box_width, box_length, height+wall])
     if rounding:
-        cyl = cylinder(h=1, d=rounding)
+        # cyl's height gets added to the box height, so keep it small
+        cyl = cylinder(h=0.00001, r=rounding)
         outer_box = minkowski()(cyl, outer_box)
 
     for row in range(rows):
         for row_idx in range(per_row):
-            comp = cube([width, length, height+wall])
-            x = wall + (row_idx * width) + (row_idx * wall)
-            y = wall + row * length + (row * wall)
+            comp = cube([width, length, height+(wall*2)])
+            x = outer_wall + (row_idx * width) + (row_idx * wall)
+            y = outer_wall + row * length + (row * wall)
             z = wall
             # print(f"row: {row} | idx: {row_idx} | x: {x} | y: {y} | x: {z}")
             outer_box -= comp.translate([x, y, z])
