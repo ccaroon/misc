@@ -8,6 +8,7 @@ import units
 TRAY_HEIGHT = 35
 TRAY_WALL = 2
 TRAY_RND = 3
+COMP_PADDING = 1.25
 
 # TEST Print Values
 # TRAY_HEIGHT = 10
@@ -35,7 +36,8 @@ def dragon_tray():
     dims = dragon_tray_dims()
 
     tray = shared_lib.compartment_box(
-        DRAGON_CARD.get("width"), DRAGON_CARD.get("length"),
+        DRAGON_CARD.get("width") + COMP_PADDING,
+        DRAGON_CARD.get("length") + COMP_PADDING,
         TRAY_HEIGHT, TRAY_WALL,
         count=3, rows=1,
         rounding=TRAY_RND
@@ -60,7 +62,8 @@ def cave_tray():
     dims = cave_tray_dims()
 
     tray = shared_lib.compartment_box(
-        CAVE_CARD.get("width"), CAVE_CARD.get("length"),
+        CAVE_CARD.get("width") + COMP_PADDING,
+        CAVE_CARD.get("length") + COMP_PADDING,
         TRAY_HEIGHT, TRAY_WALL,
         count=2, rows=1,
         rounding=TRAY_RND
@@ -88,7 +91,7 @@ if __name__ == "__main__":
 
     card_tray = dtray + ctray.translate([
         (dtray_width / 2) - (CAVE_CARD.get("width") + TRAY_WALL*1.5),
-        -ctray_length + TRAY_WALL-(TRAY_RND//2),
+        -ctray_length,
         0
     ])
 

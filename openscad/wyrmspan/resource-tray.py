@@ -5,8 +5,8 @@ import shared_lib
 import units
 
 # Real Values
-TRAY_WIDTH = (11.25/2) * units.cm
-TRAY_LENGTH = (7.5/2) * units.cm
+TRAY_WIDTH = (11.0/2) * units.cm
+TRAY_LENGTH = (7.25/2) * units.cm
 TRAY_HEIGHT = 40
 TRAY_WALL = 1.5
 TRAY_RND = 3
