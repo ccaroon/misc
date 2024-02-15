@@ -12,7 +12,7 @@ TRAY_WALL = 1.5
 TRAY_RND = 3
 
 # TEST Print Values
-# TRAY_HEIGHT = 5
+# TRAY_HEIGHT = 10
 
 
 def resource_tray():
