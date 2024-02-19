@@ -5,10 +5,10 @@ import shared_lib
 import units
 
 # Real Values
-TRAY_HEIGHT = 35
-TRAY_WALL = 2
-TRAY_RND = 3
-COMP_PADDING = 1.25
+TRAY_HEIGHT = 3.25 * units.cm
+TRAY_WALL = 1.5 * units.mm
+TRAY_RND = 3 * units.mm
+COMP_PADDING = 1.25 * units.mm
 
 # TEST Print Values
 # TRAY_HEIGHT = 10
@@ -44,9 +44,14 @@ def dragon_tray():
     )
 
     cutout_r = 30.0
-    cutout = cylinder(h=dims[1]+TRAY_WALL*4, r=cutout_r).rotate([90,0,90])
+    cutout_h = dims[1] + (TRAY_WALL + TRAY_RND) * 2
+    cutout = cylinder(h=cutout_h, r=cutout_r).rotate([90,0,90])
 
-    tray -= cutout.translate([-TRAY_WALL*2, dims[0]//2, cutout_r+TRAY_WALL])
+    tray -= cutout.translate([
+        -(TRAY_WALL+TRAY_RND+TRAY_WALL),
+        dims[0] // 2,
+        cutout_r + TRAY_WALL
+    ])
 
     return tray
 
@@ -70,9 +75,14 @@ def cave_tray():
     )
 
     cutout_r = 25.0
-    cutout = cylinder(h=dims[1]+TRAY_WALL*4, r=cutout_r).rotate([90,0,90])
+    cutout_h = dims[1] + (TRAY_WALL + TRAY_RND) * 2
+    cutout = cylinder(h=cutout_h, r=cutout_r).rotate([90,0,90])
 
-    tray -= cutout.translate([-TRAY_WALL*2, dims[0]//2, cutout_r+TRAY_WALL])
+    tray -= cutout.translate([
+        -(TRAY_WALL+TRAY_RND+TRAY_WALL),
+        dims[0] // 2,
+        cutout_r + TRAY_WALL
+    ])
 
     return tray
 
@@ -94,5 +104,8 @@ if __name__ == "__main__":
         -ctray_length,
         0
     ])
+
+    # JUST the Cave Card Tray
+    # card_tray = ctray
 
     card_tray.save_as_scad("./card-tray.scad")

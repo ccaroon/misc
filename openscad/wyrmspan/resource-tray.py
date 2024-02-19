@@ -7,7 +7,7 @@ import units
 # Real Values
 TRAY_WIDTH = (11.0/2) * units.cm
 TRAY_LENGTH = (7.25/2) * units.cm
-TRAY_HEIGHT = 40
+TRAY_HEIGHT = 2.5 * units.cm
 TRAY_WALL = 1.5
 TRAY_RND = 3
 
