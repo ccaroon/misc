@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 from solid2 import *
 
-import shared_lib
-import units
+from lib import boxes
+from lib import units
 
 # Real Values
 TRAY_HEIGHT = 3.25 * units.cm
@@ -35,7 +35,7 @@ def dragon_tray_dims():
 def dragon_tray():
     dims = dragon_tray_dims()
 
-    tray = shared_lib.compartment_box(
+    tray = boxes.compartment_box(
         DRAGON_CARD.get("width") + COMP_PADDING,
         DRAGON_CARD.get("length") + COMP_PADDING,
         TRAY_HEIGHT, TRAY_WALL,
@@ -66,7 +66,7 @@ def cave_tray_dims():
 def cave_tray():
     dims = cave_tray_dims()
 
-    tray = shared_lib.compartment_box(
+    tray = boxes.compartment_box(
         CAVE_CARD.get("width") + COMP_PADDING,
         CAVE_CARD.get("length") + COMP_PADDING,
         TRAY_HEIGHT, TRAY_WALL,
@@ -108,4 +108,4 @@ if __name__ == "__main__":
     # JUST the Cave Card Tray
     # card_tray = ctray
 
-    card_tray.save_as_scad("./card-tray.scad")
+    card_tray.save_as_scad("./card_tray.scad")
