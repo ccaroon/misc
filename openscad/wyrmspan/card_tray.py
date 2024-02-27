@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import argparse
+
 from solid2 import *
 
 from lib import boxes
@@ -88,24 +90,39 @@ def cave_tray():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generate Card Trays for Wyrmspan")
+    parser.add_argument(
+        "type",
+        nargs="?",
+        choices=("cave","dragon","combo"),
+        default="combo"
+    )
+    args = parser.parse_args()
+
     set_global_fn(150)
-    dtray_dims = dragon_tray_dims()
-    dtray_length = dtray_dims[0]
-    dtray_width = dtray_dims[1]
 
-    ctray_dims = cave_tray_dims()
-    ctray_length = ctray_dims[0]
+    if args.type in ("dragon", "combo"):
+        dtray_dims = dragon_tray_dims()
+        dtray_length = dtray_dims[0]
+        dtray_width = dtray_dims[1]
 
-    dtray = dragon_tray()
-    ctray = cave_tray()
+        dtray = dragon_tray()
+        card_tray = dtray
 
-    card_tray = dtray + ctray.translate([
-        (dtray_width / 2) - (CAVE_CARD.get("width") + TRAY_WALL*1.5),
-        -ctray_length,
-        0
-    ])
+    if args.type in ("cave", "combo"):
+        ctray_dims = cave_tray_dims()
+        ctray_length = ctray_dims[0]
 
-    # JUST the Cave Card Tray
-    # card_tray = ctray
+        ctray = cave_tray()
+        card_tray = ctray
+
+
+    # Combo Dragon & Cave Card Tray
+    if args.type == "combo":
+        card_tray = dtray + ctray.translate([
+            (dtray_width / 2) - (CAVE_CARD.get("width") + TRAY_WALL*1.5),
+            -ctray_length,
+            0
+        ])
 
     card_tray.save_as_scad("./card_tray.scad")
