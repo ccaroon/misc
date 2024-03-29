@@ -5,9 +5,9 @@ from lib import boxes
 from lib import units
 
 # Real Values
-CMPT_WIDTH = (11.0/2) * units.cm
-CMPT_LENGTH = (7.25/2) * units.cm
-TRAY_HEIGHT = 2.5 * units.cm
+CMPT_WIDTH = (7.25/2) * units.cm
+CMPT_LENGTH = (11.0/2) * units.cm
+TRAY_HEIGHT = 2.0 * units.cm
 TRAY_WALL = 1.5
 TRAY_RND = 3
 
@@ -15,11 +15,11 @@ TRAY_RND = 3
 # TRAY_HEIGHT = 10
 
 
-def resource_tray():
+def coin_egg_tray():
     tray = boxes.compartment_box(
         CMPT_WIDTH, CMPT_LENGTH,
         TRAY_HEIGHT, TRAY_WALL,
-        count=4, rows=2,
+        count=2, rows=1,
         rounding=TRAY_RND
     )
 
@@ -28,5 +28,5 @@ def resource_tray():
 
 if __name__ == "__main__":
     set_global_fn(150)
-    rsrc_tray = resource_tray()
-    rsrc_tray.save_as_scad("./resource_tray.scad")
+    rsrc_tray = coin_egg_tray()
+    rsrc_tray.save_as_scad("./coin_egg_tray.scad")
