@@ -125,4 +125,4 @@ if __name__ == "__main__":
             0
         ])
 
-    card_tray.save_as_scad("./card_tray.scad")
+    card_tray.save_as_scad("./models/wyrm-card_tray.scad")

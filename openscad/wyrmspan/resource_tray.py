@@ -29,4 +29,4 @@ def resource_tray():
 if __name__ == "__main__":
     set_global_fn(150)
     rsrc_tray = resource_tray()
-    rsrc_tray.save_as_scad("./resource_tray.scad")
+    rsrc_tray.save_as_scad("./models/wyrm-resource_tray.scad")

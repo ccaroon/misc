@@ -29,4 +29,4 @@ def coin_egg_tray():
 if __name__ == "__main__":
     set_global_fn(150)
     rsrc_tray = coin_egg_tray()
-    rsrc_tray.save_as_scad("./coin_egg_tray.scad")
+    rsrc_tray.save_as_scad("./models/wyrm-coin_egg_tray.scad")
