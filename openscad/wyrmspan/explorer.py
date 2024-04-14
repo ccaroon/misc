@@ -9,7 +9,7 @@ THICKNESS = 1 * units.cm
 
 
 def explorer():
-    return import_(file="./resources/explorer.svg").linear_extrude(
+    return import_(file="../resources/explorer.svg").linear_extrude(
         height=THICKNESS
     ).resize([WIDTH, HEIGHT, THICKNESS])
 

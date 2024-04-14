@@ -2,7 +2,7 @@ from lib import boxes
 from lib import units
 
 size = 1 * units.inch
-padding = .51 * units.mm
+padding = .49 * units.mm
 padded_size = size + padding
 
 box = boxes.compartment_box(
