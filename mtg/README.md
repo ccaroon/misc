@@ -1,5 +1,7 @@
 # MTG - Fetch Images
 https://scryfall.com/docs/api/bulk-data
 
-1. Download card list: https://data.scryfall.io/default-cards/default-cards-20240606090554.json
-    - Datestamp on end of file will change.
+`invoke -l`
+
+1. `invoke cards.download`
+2. `invoke images.fetch <card-list> <output_dir> [options]`
