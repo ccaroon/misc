@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 from solid2 import *
 
-import pixel_art
-import units
+from lib import pixel_art
+from lib import units
 
 def hollow_cube(size, wall=2):
     outer_cube = cube([size,size,size])

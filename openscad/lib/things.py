@@ -1,8 +1,5 @@
 from solid2 import *
 
-# import units
-
-
 def screw_hole(hole, wall, height, open_ended=True):
     """
     A Hole...for a ... Screw
@@ -22,3 +19,12 @@ def screw_hole(hole, wall, height, open_ended=True):
         adjustment[2] = 1
 
     return outer - inner.translate(adjustment)
+
+
+def blank_die(size):
+    base_cube = cube([size, size, size])
+    rounder = sphere(d=size//3)
+
+    die = minkowski()(rounder, base_cube)
+
+    return die
