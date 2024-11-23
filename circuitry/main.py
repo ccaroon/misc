@@ -1,5 +1,3 @@
-from gates.and_op import AND
+#!/usr/bin/env python
 
-
-g1 = AND(1,1)
-print(g1.result)
+from circuit.half_adder import HalfAdder
