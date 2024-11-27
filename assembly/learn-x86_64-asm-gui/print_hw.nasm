@@ -33,6 +33,7 @@ print_hello:
     ret
 
 ; Function to print ' world'
+; NOT global ... only called within this file
 print_world:
     push rbp
     mov rbp, rsp
