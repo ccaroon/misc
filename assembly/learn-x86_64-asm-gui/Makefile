@@ -16,6 +16,13 @@ hello_world.o: hello_world.nasm
 print_hw.o: print_hw.nasm
 	nasm -f elf64 -g print_hw.nasm
 
+# TEST
+test: test.o
+	ld test.o -static -o test
+
+test.o: test.nasm
+	nasm -f elf64 -g test.nasm
+
 # OTHER
 clean:
 	rm -f $(shell cat .gitignore)
