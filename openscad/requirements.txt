@@ -1,2 +1,0 @@
-invoke ~= 2.2.0
-solidpython2 ~= 2.1.0
