@@ -2,7 +2,7 @@
 ################################################################################
 IGNORE="$HOME/.bgit-ignore"
 
-for dir in `ls -1` 
+for dir in `ls -1`
 do
     if [ -d $dir -a -d "$dir/.git" ]; then
 
@@ -13,7 +13,7 @@ do
         if [ ! -n "$FOUND" ]; then
             echo "---> $dir <---";
             cd $dir;
-            git $*
+            git $1 "$2"
             echo
             cd ..;
         fi
