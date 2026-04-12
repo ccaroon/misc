@@ -1,0 +1,131 @@
+alias l="ls -F"
+alias ll="ls -lhF"
+alias ls="ls -F --color=auto"
+alias pwd="pwd -P"
+alias rm="rm -i"
+alias vg="vagrant"
+alias tf="terraform"
+# alias pb="perlbrew"
+alias dk="docker"
+alias k8="kubectl"
+alias adoc="ansible-doc"
+alias aplay="ansible-playbook"
+alias sv="safe vault"
+
+export EDITOR=vim
+#export GOPATH=$HOME/go
+
+## Vault
+export VAULT_ADDR=https://localhost
+export VAULT_TOKEN=0xdeadbeef
+
+export PATH=$GOPATH/bin:$HOME/bin:$HOME/src/github/misc/bin:$PATH
+
+## Enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+## GIT Prompt
+if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+    c_reset='\[\e[0m\]'
+    c_host='\[\e[1;32m\]'
+    c_path='\[\e[1;34m\]'
+    c_git_clean='\[\e[0;37m\]'
+    c_git_staged='\[\e[0;33m\]'
+    c_git_unstaged='\[\e[0;31m\]'
+    c_hatch='\[\e[0;93m\]'
+else
+    c_reset=
+    c_host=
+    c_path=
+    c_git_clean=
+    c_git_staged=
+    c_git_unstaged=
+    c_hatch=
+fi
+
+## Function to assemble the Git parsingart of our prompt.
+git_branch ()
+{
+    GIT_DIR=`git rev-parse --git-dir 2>/dev/null`
+    if [ -z "$GIT_DIR" ]; then
+        return 0
+    fi
+    GIT_HEAD=`cat $GIT_DIR/HEAD`
+    GIT_BRANCH=${GIT_HEAD##*/}
+    if [ ${#GIT_BRANCH} -eq 40 ]; then
+        GIT_BRANCH="(no branch)"
+    fi
+    # echo "($GIT_BRANCH)"
+    echo $GIT_BRANCH
+}
+
+git_repo ()
+{
+    git_repo=`basename -s".git" $(git config remote.origin.url) 2> /dev/null`
+    if [ $? -eq 0 ]; then
+        echo $git_repo | tr [:lower:] [:upper:]
+    else
+        git_repo=
+        echo ""
+    fi
+}
+
+git_proj ()
+{
+    git_project=`dirname $(git config remote.origin.url) 2> /dev/null`
+    if [ $? -eq 0 ]; then
+        git_project=`basename $git_project`
+        echo $git_project | tr [:lower:] [:upper:]
+    else
+        git_project=
+        echo ""
+    fi
+}
+
+git_prompt ()
+{
+    proj=$(git_proj)
+    proj_len=${#proj}
+
+    if [ -n "$proj" ]; then
+        # Don't want the prompt to be too long
+        if [ $((proj_len)) -lt 10 ]; then
+            # project/repo/branch
+            echo "${c_path}[${proj}/\$(git_repo):\$(git_branch)]${c_reset}"
+        else
+            # repo/branch
+            echo "${c_path}[\$(git_repo):\$(git_branch)]${c_reset}"
+        fi
+    else
+        echo ""
+    fi
+
+}
+
+hatch_env()
+{
+    if [ "X$HATCH_ENV_ACTIVE" == "X" ]; then
+        echo ""
+    else
+        echo "(${c_hatch}$HATCH_ENV_ACTIVE${c_reset})"
+    fi
+}
+
+PROMPT_COMMAND="$PROMPT_COMMAND PS1=\"${c_host}ccaroon${c_reset}:${c_path}\$(git_prompt)\W${c_reset}\$(hatch_env)> \" ;"
+
+## NVM - Node Version Manger
+export NVM_DIR="/home/ccaroon/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+## PyEnv - Python Version Manager
+eval "$(pyenv init -)"
+
+## Jabba - Java Version Manager
+[ -s "/home/ccaroon/.jabba/jabba.sh" ] && source "/home/ccaroon/.jabba/jabba.sh"

@@ -38,6 +38,9 @@ _start:
     ; connect to x11 server
     call x11_connect_to_server
 
+    mov  rdi, rax   ; move return (socket fd) into P1 for next call
+    call x11_send_handshake
+
     ; The End
     ; exit(0) -- syscall(SYS_EXIT, 0)
     mov rax,    SYSCALL_EXIT
@@ -101,6 +104,9 @@ static x11_connect_to_server:function
     pop rbp
     ret
 
+; Send the X11 Handshake Message
+; @param rdi socket-file-desc
+; @return Window Root ID & Sets globals
 x11_send_handshake:
 static x11_send_handshake:function
     ; ---
@@ -121,7 +127,7 @@ static x11_send_handshake:function
 
     ; Send the handshake to the server with write(2)
     mov rax,    SYSCALL_WRITE
-    mov rdi,    rdi     ; P1: WHAT????
+    mov rdi,    rdi     ; P1: p1 to this func is p1 to write call
     lea rsi,    [rsp]   ; P2: Struct data from stack
     mov rdx,    12      ; P3: Write length
     syscall
@@ -201,6 +207,76 @@ static x11_send_handshake:function
     ; epilogue
     pop rbp
     ret
+
+; Increment the global id
+; Operates on globals: id, id_base, id_mask
+; @return The New id.
+x11_next_id:
+static x11_next_id:function
+    ; prologue
+    push rbp
+    mov rbp, rsp
+
+    mov eax,    DWORD [id]      ; Load global id
+
+    mov edi,    DWORD [id_base] ; Load global id_base
+    mov edx,    DWORD [id_mask] ; Load global id_mask
+
+    ; Return: id_mask & (id) | id_base
+    and eax,    edx
+    or  eax,    edi
+
+    and DWORD [id], 1   ; Increment id for NEXT id
+
+    ; epilogue
+    pop rbp
+    ret
+
+
+; Open the font on the server side
+; @param    rdi     socket file desc
+; @param    esi     the font id
+; @return   none
+x11_open_font:
+static x11_open_font:function
+    ; prologue
+    push rbp
+    mov  rbp, rsp
+
+    %define OPEN_FONT_NAME_BYTE_COUNT 5
+    %define OPEN_FONT_PADDING ((4 - (OPEN_FONT_NAME_BYTE_COUNT % 4)) % 4)
+    %define OPEN_FONT_PACKET_U32_COUNT (3 + (OPEN_FONT_NAME_BYTE_COUNT + OPEN_FONT_PADDING) / 4)
+    %define X11_OP_REQ_OPEN_FONT 0x2d
+
+    ; Allocate mem on stack
+    sub rsp, 6 * 8
+
+    mov DWORD [rsp + 0*4],      X11_OP_REQ_OPEN_FONT | (OPEN_FONT_NAME_BYTE_COUNT << 16)
+    mov DWORD [rsp + 1*4],      esi
+    mov DWORD [rsp + 2*4],      OPEN_FONT_NAME_BYTE_COUNT
+    mov BYTE  [rsp + 3*4 + 0],  'f'
+    mov BYTE  [rsp + 3*4 + 1],  'i'
+    mov BYTE  [rsp + 3*4 + 2],  'x'
+    mov BYTE  [rsp + 3*4 + 3],  'e'
+    mov BYTE  [rsp + 3*4 + 4],  'd'
+
+    mov rax,    SYSCALL_WRITE
+    mov rdi, rdi
+    lea rsi, [rsp]
+    mov rdx, OPEN_FONT_PACKET_U32_COUNT * 4
+    syscall
+
+    cmp rax,     OPEN_FONT_PACKET_U32_COUNT * 4
+    jnz die
+
+
+    add rsp, 6*8
+
+    ; epilogue
+    pop rbp
+    ret
+
+
 
 
 
