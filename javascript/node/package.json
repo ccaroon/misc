@@ -3,7 +3,7 @@
     "description": "JavaScript/Node Playground",
     "version": "0.0.1",
     "dependencies": {
-        "mongoose": "3.6.19",
+        "mongoose": "5.7.7",
         "express":  "3.3.8",
         "mysql":    "2.0.0-alpha9",
         "mocha":    "1.12.1"
