@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 import argparse
-import arrow
 import time
 
+import arrow
 from led_matrix.color import Color
 from led_matrix.glyph import Glyph
 from led_matrix.program import Program
 
 # PYGAME_HIDE_SUPPORT_PROMPT
+
 
 class MinuteCountdown(Program):
     """
@@ -84,7 +85,7 @@ if __name__ == "__main__":
     width = Glyph.strlen(f"{total_min:,}", spacing=1) + 1
     height = Glyph.get("X").height + 2
 
-    print("Press 'Q' to exit!")
+    print("Press 'Q' to exit!")  # noqa: T201
     program = MinuteCountdown(
         start,
         end,

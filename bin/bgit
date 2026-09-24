@@ -13,7 +13,8 @@ do
         if [ ! -n "$FOUND" ]; then
             echo "---> $dir <---" >&2;
             cd $dir;
-            git $1 "$2"
+            # git $1 "$2"
+            git $*
             echo
             cd ..;
         fi
